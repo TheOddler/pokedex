@@ -8,26 +8,26 @@ import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import StartApp
 
-import NamedAPIResourceList exposing (..)
+import PokemonTable
 import Pokemon exposing (..)
 
 type alias Model =
-    { pokemonList: NamedAPIResourceList
+    { pokemonTable: PokemonTable.Model
     , selectedPokemon: Maybe Pokemon
     }
 
 initModel : Model
 initModel =
-    { pokemonList = NamedAPIResourceList.empty
+    { pokemonTable = PokemonTable.empty
     , selectedPokemon = Nothing
     }
 
 init : (Model, Effects Action)
 --init = (initModel, Effects.none)
-init = (initModel, fetchPokemonList OnPokemonListLoaded)
+init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
 type Action = NoAction
-            | OnPokemonListLoaded (Result Http.Error NamedAPIResourceList)
+            | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
             | OnPokemonLoaded (Result Http.Error Pokemon)
 
@@ -35,9 +35,9 @@ update : Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         NoAction -> (model, Effects.none)
-        OnPokemonListLoaded result ->
+        OnPokemonTableLoaded result ->
             case result of
-                Ok list -> ({ model | pokemonList = list }, Effects.none)
+                Ok list -> ({ model | pokemonTable = list }, Effects.none)
                 Err msg -> (model, Effects.none)
         SelectPokemon name -> ({ model | selectedPokemon = Nothing}, Pokemon.fetch name OnPokemonLoaded)
         OnPokemonLoaded result ->
@@ -52,7 +52,7 @@ view address model =
         , case model.selectedPokemon of
             Just pmon -> Pokemon.view pmon
             Nothing -> div [] []
-        , NamedAPIResourceList.viewWithSelect address SelectPokemon model.pokemonList
+        , PokemonTable.viewWithSelect address SelectPokemon model.pokemonTable
         ]
 
 app : StartApp.App Model
