@@ -1,8 +1,11 @@
 
-.pokemonList li {
-	transition: all 0.5s ease-out;
+.pokemonTable td {
+	text-align: center;
+	vertical-align: middle;
+
+	transition: all 0.5s cubic-bezier(0, 1, .5, 1.5);
 }
-.pokemonList li:hover {
-	font-size: 200%;
+.pokemonTable td:hover {
+	transform: scale(1.5, 1.5);
 	background-color: green;
 }

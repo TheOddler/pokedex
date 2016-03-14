@@ -23,8 +23,8 @@ initModel =
     }
 
 init : (Model, Effects Action)
-init = (initModel, Effects.none)
---init = (initModel, fetchPokemonList)
+--init = (initModel, Effects.none)
+init = (initModel, fetchPokemonList OnPokemonListLoaded)
 
 type Action = NoAction
             | OnPokemonListLoaded (Result Http.Error NamedAPIResourceList)
@@ -39,7 +39,7 @@ update action model =
             case result of
                 Ok list -> ({ model | pokemonList = list }, Effects.none)
                 Err msg -> (model, Effects.none)
-        SelectPokemon name -> ({ model | selectedPokemon = Nothing}, fetchPokemon name)
+        SelectPokemon name -> ({ model | selectedPokemon = Nothing}, Pokemon.fetch name OnPokemonLoaded)
         OnPokemonLoaded result ->
             case result of
                 Ok pmon -> ({ model | selectedPokemon = Just pmon }, Effects.none)
@@ -63,8 +63,3 @@ main = app.html
 
 port tasks : Signal (Task.Task Never ())
 port tasks = app.tasks
-
-
-
-fetchPokemon name = HttpExt.fetch Pokemon.decoder ("http://pokeapi.co/api/v2/pokemon/" ++ name) OnPokemonLoaded
-fetchPokemonList = HttpExt.fetch NamedAPIResourceList.decoder "http://pokeapi.co/api/v2/pokemon-species/?limit=100000" OnPokemonListLoaded --100000 to get all

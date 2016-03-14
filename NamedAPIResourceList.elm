@@ -1,10 +1,14 @@
 module NamedAPIResourceList where
 
 import Json.Decode exposing (Decoder, (:=), int, string, list, object2, object4)
-import DecodeExt exposing (..)
-import Html exposing (Html, div, img, text, ul, li)
+import DecodeExt exposing (nullOr)
+import Html exposing (Html, div, img, text, ul, li, table, tr, td)
 import Html.Attributes exposing (class, style, src)
 import Html.Events exposing (onClick)
+import Http
+import HttpExt
+import ListExt
+import Effects
 
 type alias NamedAPIResourceList =
     { count: Int
@@ -43,7 +47,16 @@ resourceDecoder =
 viewWithSelect : Signal.Address a -> (String -> a) -> NamedAPIResourceList -> Html
 viewWithSelect address select resourceList =
     div []
-        [ ul [ class "pokemonList" ] <| List.map (resourceAsLI address select) resourceList.results
+        [ table [ class "pokemonTable" ] <| List.map (toTr address select) (ListExt.split 10 resourceList.results)
+        ]
+
+toTr address select resources =
+    tr [] <| List.map (toTd address select) resources
+
+toTd address select resource =
+    td  [ onClick address (select resource.name)
+        ]
+        [ text resource.name
         ]
 
 resourceAsLI : Signal.Address a -> (String -> a) -> NamedAPIResource -> Html
@@ -52,3 +65,6 @@ resourceAsLI address select resource =
         ]
         [ text resource.name
         ]
+
+fetchPokemonList : (Result Http.Error NamedAPIResourceList -> a) -> Effects.Effects a
+fetchPokemonList callback = HttpExt.fetch decoder "http://pokeapi.co/api/v2/pokemon-species/?limit=100000" callback --100000 to get all

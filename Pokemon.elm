@@ -4,6 +4,9 @@ import Json.Decode exposing (Decoder, (:=), int, string, object3, object8)
 import Html exposing (Html, div, img, text)
 import Html.Attributes exposing (class, style, src)
 import DecodeExt exposing (nullOr)
+import Http
+import HttpExt
+import Effects
 
 type alias Pokemon =
     { id: Int
@@ -51,3 +54,6 @@ simpleView pokemon =
         [ img [ src <| Maybe.withDefault "" pokemon.sprites.front_default ] []
         , text pokemon.name
         ]
+
+fetch : String -> (Result Http.Error Pokemon -> a) -> Effects.Effects a
+fetch name callback = HttpExt.fetch decoder ("http://pokeapi.co/api/v2/pokemon/" ++ name) callback
