@@ -1,24 +1,25 @@
 import Html exposing (Html, div, button, text, input)
 import Html.Events exposing (onClick, on, onKeyPress, targetValue)
-import Html.Attributes exposing (value, placeholder)
+import Html.Attributes exposing (class, value, placeholder)
 import Http
 import HttpExt
 import Effects exposing (Effects, Never)
 import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import StartApp
+import Async exposing (..)
 
 import PokemonTable
 import Pokemon exposing (..)
 
 type alias Model =
-    { pokemonTable: PokemonTable.Model
+    { pokemonTable: Async PokemonTable.Model
     , selectedPokemon: Maybe Pokemon
     }
 
 initModel : Model
 initModel =
-    { pokemonTable = PokemonTable.empty
+    { pokemonTable = Waiting "Loading Pokémon, please wait..."
     , selectedPokemon = Nothing
     }
 
@@ -37,8 +38,8 @@ update action model =
         NoAction -> (model, Effects.none)
         OnPokemonTableLoaded result ->
             case result of
-                Ok list -> ({ model | pokemonTable = list }, Effects.none)
-                Err msg -> (model, Effects.none)
+                Ok list -> ({ model | pokemonTable = Finished list }, Effects.none)
+                Err msg -> ({ model | pokemonTable = Error ("Failed loading Pokémon: " ++ toString msg) }, Effects.none)
         SelectPokemon name -> ({ model | selectedPokemon = Nothing}, Pokemon.fetch name OnPokemonLoaded)
         OnPokemonLoaded result ->
             case result of
@@ -52,7 +53,10 @@ view address model =
         , case model.selectedPokemon of
             Just pmon -> Pokemon.view pmon
             Nothing -> div [] []
-        , PokemonTable.viewWithSelect address SelectPokemon model.pokemonTable
+        , case model.pokemonTable of
+            Finished pmonTable -> PokemonTable.viewWithSelect address SelectPokemon pmonTable
+            Waiting msg -> div [class "pokemonTableLoadingMessage"] [ text msg ]
+            Error msg -> div [] [ text msg ]
         ]
 
 app : StartApp.App Model
