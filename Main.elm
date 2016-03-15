@@ -19,7 +19,7 @@ type alias Model =
 
 initModel : Model
 initModel =
-    { pokemonTable = Waiting "Loading Pokémon, please wait..."
+    { pokemonTable = Requested
     , selectedPokemon = Nothing
     }
 
@@ -54,8 +54,9 @@ view address model =
             Just pmon -> Pokemon.view pmon
             Nothing -> div [] []
         , case model.pokemonTable of
+            NotRequested -> div [] [ text "Nothing here :(" ]
+            Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
             Finished pmonTable -> PokemonTable.viewWithSelect address SelectPokemon pmonTable
-            Waiting msg -> div [class "pokemonTableLoadingMessage"] [ text msg ]
             Error msg -> div [] [ text msg ]
         ]
 
