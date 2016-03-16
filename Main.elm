@@ -49,10 +49,9 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
     div []
-        [ text "Pokemon: "
-        , case model.selectedPokemon of
+        [ case model.selectedPokemon of
             Just pmon -> Pokemon.view pmon
-            Nothing -> div [] []
+            Nothing -> div [] [ text "Click on a Pokémon to select it." ]
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
