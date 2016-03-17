@@ -8,18 +8,21 @@ import Task exposing (Task)
 import Json.Decode exposing (Decoder)
 import StartApp
 import Async exposing (..)
+import Window
 
 import PokemonTable
 import Pokemon exposing (..)
 
 type alias Model =
-    { pokemonTable: Async PokemonTable.Model
+    { width: Int
+    , pokemonTable: Async PokemonTable.Model
     , selectedPokemon: Maybe Pokemon
     }
 
 initModel : Model
 initModel =
-    { pokemonTable = Requested
+    { width = 0
+    , pokemonTable = Requested
     , selectedPokemon = Nothing
     }
 
@@ -27,7 +30,13 @@ init : (Model, Effects Action)
 --init = (initModel, Effects.none)
 init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
+inputs : List (Signal Action)
+inputs =
+    [ Signal.map SetWidth Window.width
+    ]
+
 type Action = NoAction
+            | SetWidth Int
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
             | OnPokemonLoaded (Result Http.Error Pokemon)
@@ -36,6 +45,7 @@ update : Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         NoAction -> (model, Effects.none)
+        SetWidth w -> ({ model | width = w }, Effects.none)
         OnPokemonTableLoaded result ->
             case result of
                 Ok list -> ({ model | pokemonTable = Finished list }, Effects.none)
@@ -55,7 +65,7 @@ view address model =
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
-            Finished pmonTable -> PokemonTable.viewWithSelect address SelectPokemon pmonTable
+            Finished pmonTable -> PokemonTable.viewWithSelect address pmonTable SelectPokemon
             Error msg -> div [] [ text msg ]
         ]
 

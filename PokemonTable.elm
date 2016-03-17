@@ -1,7 +1,7 @@
 module PokemonTable where
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, src)
+import Html.Attributes exposing (class, style, src, style)
 import Html.Events exposing (onClick)
 import Http
 import HttpExt
@@ -23,21 +23,20 @@ listUrl = "http://pokeapi.co/api/v2/pokemon-species/?limit=100000" --100000 to g
 fetch : (Result Http.Error Model -> a) -> Effects.Effects a
 fetch callback = HttpExt.fetch NamedAPIResourceList.decoder listUrl callback
 
-viewWithSelect : Signal.Address a -> (String -> a) -> Model -> Html
-viewWithSelect address select model =
-    div []
-        [ table [ class "pokemonTable" ] <| List.map (toTr address select) (ListExt.split 10 model.results)
+viewWithSelect : Signal.Address a -> Model -> (String -> a) -> Html
+viewWithSelect address model select =
+    div [ ]
+        [ ul [ class "pokemonTable" ] <| List.map (toLi address select) model.results
         ]
 
-toTr address select resources =
-    tr [] <| List.map (toTd address select) resources
-
-toTd address select resource =
+toLi address select resource =
     let id = Maybe.withDefault "" <| guessIdString resource
-    in  td  [ onClick address (select resource.name)
+    in  li  [ onClick address (select resource.name)
             ]
-            [ img [ src (imageFromId id) ] []
-            , figcaption [] [ text <| id ++ ". " ++ (StringExt.capitalize resource.name) ]
+            [ figure []
+                [ img [ src (imageFromId id) ] []
+                , figcaption [] [ text <| id ++ ". " ++ (StringExt.capitalize resource.name) ]
+                ]
             ]
 
 imageFromId : String -> String
