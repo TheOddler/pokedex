@@ -49,8 +49,7 @@ view = simpleView
 
 simpleView : Pokemon -> Html.Html
 simpleView pokemon =
-    div [ style [("backgroundColor", "grey")]
-        ]
+    div [ class "pokemonDetail" ]
         [ img [ src <| Maybe.withDefault "" pokemon.sprites.front_default ] []
         , text pokemon.name
         ]

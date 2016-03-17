@@ -6,7 +6,23 @@ body {
 	font-size: 200%;
 }
 
-ul.pokemonTable {
+.pokemonDetail {
+	position: fixed;
+	left: 50%;
+  transform: translate(-50%, 0);
+	z-index: 200;
+
+	border-radius: 10pt;
+	border-bottom: 2pt solid #73AD21;
+
+	background-color: rgba(255,255,255,.8);
+}
+
+.pokemonDetail {
+	position: fixed;
+}
+
+.pokemonTable ul {
 	margin: 0;
 	padding: 0;
 }
@@ -15,7 +31,7 @@ ul.pokemonTable {
 
 	border-radius: 10pt;
 	border-bottom: 2pt solid #73AD21;
-	
+
 	transition: all .2s ease, transform .5s cubic-bezier(0, 1, .5, 1.5);
 }
 .pokemonTable li:hover {
@@ -28,7 +44,7 @@ ul.pokemonTable {
 .pokemonTable li figure {
   text-align: center;
   display: table;
-	margin: 0; /* aparently figures have margins by default */
+	margin: 0; /* apparently figures have margins by default */
 }
 .pokemonTable li figure img {
 	margin-left: 3pt;

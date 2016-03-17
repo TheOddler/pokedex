@@ -25,8 +25,8 @@ fetch callback = HttpExt.fetch NamedAPIResourceList.decoder listUrl callback
 
 viewWithSelect : Signal.Address a -> Model -> (String -> a) -> Html
 viewWithSelect address model select =
-    div [ ]
-        [ ul [ class "pokemonTable" ] <| List.map (toLi address select) model.results
+    div [ class "pokemonTable" ]
+        [ ul [] <| List.map (toLi address select) model.results
         ]
 
 toLi address select resource =

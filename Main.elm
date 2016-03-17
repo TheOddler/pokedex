@@ -1,4 +1,4 @@
-import Html exposing (Html, div, button, text, input)
+import Html exposing (..)
 import Html.Events exposing (onClick, on, onKeyPress, targetValue)
 import Html.Attributes exposing (class, value, placeholder)
 import Http
@@ -9,6 +9,7 @@ import Json.Decode exposing (Decoder)
 import StartApp
 import Async exposing (..)
 import Window
+import Dict exposing (Dict)
 
 import PokemonTable
 import Pokemon exposing (..)
@@ -16,7 +17,8 @@ import Pokemon exposing (..)
 type alias Model =
     { width: Int
     , pokemonTable: Async PokemonTable.Model
-    , selectedPokemon: Maybe Pokemon
+    , selectedPokemon: Maybe String
+    , pokemonCache: Dict String Pokemon
     }
 
 initModel : Model
@@ -24,6 +26,7 @@ initModel =
     { width = 0
     , pokemonTable = Requested
     , selectedPokemon = Nothing
+    , pokemonCache = Dict.empty
     }
 
 init : (Model, Effects Action)
@@ -39,7 +42,7 @@ type Action = NoAction
             | SetWidth Int
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
-            | OnPokemonLoaded (Result Http.Error Pokemon)
+            | OnPokemonLoaded String (Result Http.Error Pokemon)
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -50,17 +53,28 @@ update action model =
             case result of
                 Ok list -> ({ model | pokemonTable = Finished list }, Effects.none)
                 Err msg -> ({ model | pokemonTable = Error ("Failed loading Pokémon: " ++ toString msg) }, Effects.none)
-        SelectPokemon name -> ({ model | selectedPokemon = Nothing}, Pokemon.fetch name OnPokemonLoaded)
-        OnPokemonLoaded result ->
+        SelectPokemon name ->
+            let alreadySelected =
+                case model.selectedPokemon of
+                    Just selName -> selName == name
+                    Nothing -> False
+            in
+                if alreadySelected || (Dict.member name model.pokemonCache)
+                    then ({ model | selectedPokemon = Just name}, Effects.none)
+                    else ({ model | selectedPokemon = Just name}, Pokemon.fetch name (OnPokemonLoaded name))
+        OnPokemonLoaded name result ->
             case result of
-                Ok pmon -> ({ model | selectedPokemon = Just pmon }, Effects.none)
+                Ok pmon -> ({ model | pokemonCache = Dict.insert name pmon model.pokemonCache }, Effects.none)
                 Err msg -> (model, Effects.none)
 
 view : Signal.Address Action -> Model -> Html
 view address model =
     div []
         [ case model.selectedPokemon of
-            Just pmon -> Pokemon.view pmon
+            Just name ->
+                case Dict.get name model.pokemonCache of
+                    Just pmon -> Pokemon.view pmon
+                    Nothing -> div [] [ text "Loading Pokémon, please wait..." ]
             Nothing -> div [] [ text "Click on a Pokémon to select it." ]
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
