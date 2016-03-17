@@ -10,9 +10,10 @@ import Effects
 import String
 import StringExt
 
-import NamedAPIResourceList
+import NamedAPIResource exposing (NamedAPIResource)
+import NamedAPIResourceList exposing (NamedAPIResourceList)
 
-type alias Model = NamedAPIResourceList.NamedAPIResourceList
+type alias Model = NamedAPIResourceList
 
 empty : Model
 empty = NamedAPIResourceList.empty
@@ -42,7 +43,7 @@ toLi address select resource =
 imageFromId : String -> String
 imageFromId id = "http://pokeapi.co/media/sprites/pokemon/" ++ id ++ ".png"
 
-guessIdString : NamedAPIResourceList.NamedAPIResource -> Maybe String
+guessIdString : NamedAPIResource -> Maybe String
 guessIdString res = List.head (List.reverse (List.filter isNotEmpty (String.split "/" res.url)))
 
 isNotEmpty list = not (String.isEmpty list)
