@@ -35,7 +35,7 @@ toLi address select resource =
             ]
             [ figure []
                 [ img [ src (imageFromId id) ] []
-                , figcaption [] [ text <| id ++ ". " ++ (StringExt.capitalize resource.name) ]
+                , figcaption [] [ text <| id ++ ". " ++ StringExt.capitalize resource.name ]
                 ]
             ]
 
