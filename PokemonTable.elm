@@ -32,13 +32,15 @@ viewWithSelect address model select =
 
 toLi address select resource =
     let id = Maybe.withDefault "" <| guessIdString resource
+        guessedImageUrl = imageFromId id
+        caption = resource.name
     in  li  [ onClick address (select resource.name)
             ]
             [ figure []
-                [ img   [ src (imageFromId id)
+                [ img   [ src guessedImageUrl
                         , attribute "onerror" "this.onerror=null;this.src='images/missing-image.png';"
                         ] []
-                , figcaption [] [ text <| id ++ ". " ++ resource.name ]
+                , figcaption [] [ text caption ]
                 ]
             ]
 

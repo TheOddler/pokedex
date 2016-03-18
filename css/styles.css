@@ -29,11 +29,7 @@ body {
 .pokemonTable li figure {
   text-align: center;
   display: table;
-	margin: 0; /* apparently figures have margins by default */
-}
-.pokemonTable li figure img {
-	margin-left: 3pt;
-	margin-right: 3pt;
+	margin: 0 3pt; /* apparently figures have margins by default */
 }
 .pokemonTable li figure figcaption {
   text-transform: capitalize;
