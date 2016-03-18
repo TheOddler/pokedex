@@ -65,7 +65,7 @@ typeDecoder =
 view : Pokemon -> Dict String Type -> Html.Html
 view pmon typeCache =
     div [ class "pokemonDetail" ]
-        [ img [ src <| Maybe.withDefault "" pmon.sprites.front_default ] []
+        [ img [ src <| Maybe.withDefault "images/missing-image.png" pmon.sprites.front_default ] []
         , div [ class "name" ] [ text pmon.name ]
         , div [ class "typesWrapper" ]
             [ div [class "title" ] [ text "Type:" ]
@@ -87,13 +87,6 @@ viewDamagesTaken typeCache tss =
     in case maybeTypes of
         Just types -> Type.viewDamageRelationsOfList types
         Nothing -> div [] [ text "Loading type data..." ]
-
-simpleView : Pokemon -> Html.Html
-simpleView pokemon =
-    div [ class "pokemonDetail" ]
-        [ img [ src <| Maybe.withDefault "" pokemon.sprites.front_default ] []
-        , text pokemon.name
-        ]
 
 getMissingTypes : Dict String Type -> Pokemon -> List TypeSlot
 getMissingTypes typeCache pmon = List.filter (\ts -> not <| Dict.member ts.typeResource.name typeCache) pmon.typeSlots

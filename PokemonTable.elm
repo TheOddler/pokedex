@@ -1,13 +1,14 @@
 module PokemonTable where
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, src, style)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
 import HttpExt
 import ListExt
 import Effects
 import String
+import Json.Encode
 
 import NamedAPIResource exposing (NamedAPIResource)
 import NamedAPIResourceList exposing (NamedAPIResourceList)
@@ -18,7 +19,7 @@ empty : Model
 empty = NamedAPIResourceList.empty
 
 listUrl : String
-listUrl = "http://pokeapi.co/api/v2/pokemon-species/?limit=100000" --100000 to get all
+listUrl = "http://pokeapi.co/api/v2/pokemon/?limit=100000" --100000 to get all
 
 fetch : (Result Http.Error Model -> a) -> Effects.Effects a
 fetch callback = HttpExt.fetch NamedAPIResourceList.decoder listUrl callback
@@ -34,7 +35,9 @@ toLi address select resource =
     in  li  [ onClick address (select resource.name)
             ]
             [ figure []
-                [ img [ src (imageFromId id) ] []
+                [ img   [ src (imageFromId id)
+                        , attribute "onerror" "this.onerror=null;this.src='images/missing-image.png';"
+                        ] []
                 , figcaption [] [ text <| id ++ ". " ++ resource.name ]
                 ]
             ]
