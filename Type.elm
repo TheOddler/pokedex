@@ -1,7 +1,7 @@
 module Type where
 
 import Json.Decode exposing (Decoder, (:=), int, string, list, object3)
-import Html exposing (Html, div, img, text)
+import Html exposing (..)
 import Html.Attributes exposing (class, style, src)
 import Http
 import HttpExt
@@ -46,11 +46,24 @@ viewDamageRelations : DamageRelations -> Html.Html
 viewDamageRelations dr =
     let chart = damageRelationsToMultiplyers dr
         withoutNeutral = Dict.filter (\_ d -> d /= 1) chart
-        damageHtmls = Dict.foldr (\t d l -> viewDamage t d :: l ) [] withoutNeutral
-    in div [] damageHtmls
+        damageHtmls = Dict.foldr (\t d l -> damageToDiv t d :: l ) [] withoutNeutral
+        --damageTrs = Dict.foldr (\t d l -> damageToTr t d :: l ) [] withoutNeutral
+    in  div [ class "damageChart" ] damageHtmls
+        --table [ class "damageChart" ] damageTrs
 
-viewDamage : String -> Float -> Html.Html
-viewDamage typeName dam = div [] [ text <| typeName ++ ": " ++ toString dam ]
+damageToTr : String -> Float -> Html.Html
+damageToTr typeName dam =
+    tr  [ class typeName ]
+        [ td [] [ text typeName ]
+        , td [] [ text <| toString dam ]
+        ]
+
+damageToDiv : String -> Float -> Html.Html
+damageToDiv typeName dam =
+    div [ class typeName ]
+        [ div [] [ text typeName ]
+        , div [] [ text <| toString dam ]
+        ]
 
 combineDamageRelationsOfTypes : List Type -> DamageRelations
 combineDamageRelationsOfTypes types =

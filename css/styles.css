@@ -6,22 +6,6 @@ body {
 	font-size: 200%;
 }
 
-.pokemonDetail {
-	position: fixed;
-	left: 50%;
-  transform: translate(-50%, 0);
-	z-index: 200;
-
-	border-radius: 10pt;
-	border-bottom: 2pt solid #73AD21;
-
-	background-color: rgba(255,255,255,.8);
-}
-
-.pokemonDetail {
-	position: fixed;
-}
-
 .pokemonTable ul {
 	margin: 0;
 	padding: 0;
@@ -51,6 +35,7 @@ body {
 	margin-right: 3pt;
 }
 .pokemonTable li figure figcaption {
+  text-transform: capitalize;
 	display: table-caption;
 	caption-side: bottom;
 	margin-bottom: 3pt;

@@ -90,8 +90,8 @@ view address model =
             Just name ->
                 case Dict.get name model.pokemonCache of
                     Just pmon -> Pokemon.view pmon model.typeCache
-                    Nothing -> div [] [ text "Loading Pokémon, please wait..." ]
-            Nothing -> div [] [ text "Click on a Pokémon to select it." ]
+                    Nothing -> div [ class "loadingPokemonMessage" ] [ text "Loading Pokémon, please wait..." ]
+            Nothing -> div [ class "pokemonSelectInfo" ] [ text "Click on a Pokémon to select it." ]
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]

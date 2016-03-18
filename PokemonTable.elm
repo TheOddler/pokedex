@@ -8,7 +8,6 @@ import HttpExt
 import ListExt
 import Effects
 import String
-import StringExt
 
 import NamedAPIResource exposing (NamedAPIResource)
 import NamedAPIResourceList exposing (NamedAPIResourceList)
@@ -36,7 +35,7 @@ toLi address select resource =
             ]
             [ figure []
                 [ img [ src (imageFromId id) ] []
-                , figcaption [] [ text <| id ++ ". " ++ StringExt.capitalize resource.name ]
+                , figcaption [] [ text <| id ++ ". " ++ resource.name ]
                 ]
             ]
 

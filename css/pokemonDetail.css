@@ -1,0 +1,33 @@
+.pokemonDetail, .loadingPokemonMessage, .pokemonSelectInfo  {
+	position: fixed;
+	left: 50%;
+  transform: translate(-50%, 0);
+	z-index: 200;
+
+	padding: 5pt;
+	border-radius: 10pt;
+	border-bottom: 2pt solid #73AD21;
+
+	background-color: rgba(255,255,255,.8);
+}
+
+.pokemonDetail img {
+  float: left;
+}
+
+.pokemonDetail .name {
+	display: inline-block;
+  vertical-align: top;
+  margin-top: 5pt;
+  margin-right: 5pt;
+  text-transform: capitalize;
+}
+
+.pokemonDetail .type {
+  text-transform: capitalize;
+}
+
+.damageChartWrapper {
+	display: inline-block;
+	width: 100%;
+}

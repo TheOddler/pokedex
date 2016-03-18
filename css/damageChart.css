@@ -1,0 +1,73 @@
+.damageChart {
+	display: inline-block;
+	width: 100%;
+}
+
+.damageChart > div {
+	border-radius: 10pt;
+	border: 2pt solid black;
+	margin-bottom: 2pt;
+}
+
+.damageChart > div > div {
+	display: inline-block;
+	width: 50%;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+
+.bug {
+	background-color: rgb(168, 184, 32);
+}
+.dark {
+	background-color: rgb(112, 88, 72);
+}
+.dragon {
+	background-color: rgb(112, 56, 248);
+}
+.electric {
+	background-color: rgb(248, 208, 48);
+}
+.fairy {
+	background-color: rgb(238, 153, 172);
+}
+.fighting {
+	background-color: rgb(192, 48, 40);
+}
+.fire {
+	background-color: rgb(240, 128, 48);
+}
+.flying {
+	background-color: rgb(168, 144, 240);
+}
+.ghost {
+	background-color: rgb(112, 88, 152);
+}
+.grass {
+	background-color: rgb(120, 200, 80);
+}
+.ground {
+	background-color: rgb(224, 192, 104);
+}
+.ice {
+	background-color: rgb(152, 216, 216);
+}
+.normal {
+	background-color: rgb(168, 168, 120);
+}
+.poison {
+	background-color: rgb(160, 64, 160);
+}
+.psychic {
+	background-color: rgb(248, 88, 136);
+}
+.rock {
+	background-color: rgb(184, 160, 56);
+}
+.steel {
+	background-color: rgb(184, 184, 208);
+}
+.water {
+	background-color: rgb(104, 144, 240);
+}

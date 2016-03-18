@@ -66,19 +66,23 @@ view : Pokemon -> Dict String Type -> Html.Html
 view pmon typeCache =
     div [ class "pokemonDetail" ]
         [ img [ src <| Maybe.withDefault "" pmon.sprites.front_default ] []
-        , text pmon.name
-        , text "Types: "
-        , div [] <| List.map viewType pmon.typeSlots
-        , text "Damage taken: "
-        , viewWeaknesses typeCache pmon.typeSlots
+        , div [ class "name" ] [ text pmon.name ]
+        , div [ class "typesWrapper" ]
+            [ div [class "title" ] [ text "Types:" ]
+            , div [ class "types" ] <| List.map viewType pmon.typeSlots
+            ]
+        , div [ class "damageChartWrapper" ]
+            [ div [class "title" ] [ text "Damage taken:" ]
+            , viewDamagesTaken typeCache pmon.typeSlots
+            ]
         ]
 
 viewType : TypeSlot -> Html.Html
 viewType t =
-    div [] [ text t.typeResource.name ]
+    div [ class "type" ] [ text t.typeResource.name ]
 
-viewWeaknesses : Dict String Type -> List TypeSlot -> Html.Html
-viewWeaknesses typeCache tss =
+viewDamagesTaken : Dict String Type -> List TypeSlot -> Html.Html
+viewDamagesTaken typeCache tss =
     let maybeTypes = MaybeExt.allOf <| List.map (\t -> Dict.get t.typeResource.name typeCache) tss
     in case maybeTypes of
         Just types -> Type.viewDamageRelationsOfList types
