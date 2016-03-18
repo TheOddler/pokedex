@@ -12462,7 +12462,9 @@ Elm.PokemonTable.make = function (_elm) {
       A2($Basics._op["++"],id,".png"));
    };
    var toLi = F3(function (address,select,resource) {
+      var caption = resource.name;
       var id = A2($Maybe.withDefault,"",guessIdString(resource));
+      var guessedImageUrl = imageFromId(id);
       return A2($Html.li,
       _U.list([A2($Html$Events.onClick,
       address,
@@ -12470,16 +12472,14 @@ Elm.PokemonTable.make = function (_elm) {
       _U.list([A2($Html.figure,
       _U.list([]),
       _U.list([A2($Html.img,
-              _U.list([$Html$Attributes.src(imageFromId(id))
+              _U.list([$Html$Attributes.src(guessedImageUrl)
                       ,A2($Html$Attributes.attribute,
                       "onerror",
                       "this.onerror=null;this.src=\'images/missing-image.png\';")]),
               _U.list([]))
               ,A2($Html.figcaption,
               _U.list([]),
-              _U.list([$Html.text(A2($Basics._op["++"],
-              id,
-              A2($Basics._op["++"],". ",resource.name)))]))]))]));
+              _U.list([$Html.text(caption)]))]))]));
    });
    var viewWithSelect = F3(function (address,model,select) {
       return A2($Html.div,
