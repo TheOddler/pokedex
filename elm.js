@@ -12470,7 +12470,10 @@ Elm.PokemonTable.make = function (_elm) {
       _U.list([A2($Html.figure,
       _U.list([]),
       _U.list([A2($Html.img,
-              _U.list([$Html$Attributes.src(imageFromId(id))]),
+              _U.list([$Html$Attributes.src(imageFromId(id))
+                      ,A2($Html$Attributes.attribute,
+                      "onerror",
+                      "this.onerror=null;this.src=\'images/missing-image.png\';")]),
               _U.list([]))
               ,A2($Html.figcaption,
               _U.list([]),
@@ -12485,7 +12488,7 @@ Elm.PokemonTable.make = function (_elm) {
       _U.list([]),
       A2($List.map,A2(toLi,address,select),model.results))]));
    });
-   var listUrl = "http://pokeapi.co/api/v2/pokemon-species/?limit=100000";
+   var listUrl = "http://pokeapi.co/api/v2/pokemon/?limit=100000";
    var fetch = function (callback) {
       return A3($HttpExt.fetch,
       $NamedAPIResourceList.decoder,
@@ -12717,16 +12720,6 @@ Elm.Pokemon.make = function (_elm) {
       missingTypes);
       return $Effects.batch(effects);
    });
-   var simpleView = function (pokemon) {
-      return A2($Html.div,
-      _U.list([$Html$Attributes.$class("pokemonDetail")]),
-      _U.list([A2($Html.img,
-              _U.list([$Html$Attributes.src(A2($Maybe.withDefault,
-              "",
-              pokemon.sprites.front_default))]),
-              _U.list([]))
-              ,$Html.text(pokemon.name)]));
-   };
    var viewDamagesTaken = F2(function (typeCache,tss) {
       var maybeTypes = $MaybeExt.allOf(A2($List.map,
       function (t) {
@@ -12752,7 +12745,7 @@ Elm.Pokemon.make = function (_elm) {
       _U.list([$Html$Attributes.$class("pokemonDetail")]),
       _U.list([A2($Html.img,
               _U.list([$Html$Attributes.src(A2($Maybe.withDefault,
-              "",
+              "images/missing-image.png",
               pmon.sprites.front_default))]),
               _U.list([]))
               ,A2($Html.div,
@@ -12843,7 +12836,6 @@ Elm.Pokemon.make = function (_elm) {
                                 ,view: view
                                 ,typeSlotToLi: typeSlotToLi
                                 ,viewDamagesTaken: viewDamagesTaken
-                                ,simpleView: simpleView
                                 ,getMissingTypes: getMissingTypes
                                 ,getMissingTypesEffect: getMissingTypesEffect
                                 ,fetch: fetch};
