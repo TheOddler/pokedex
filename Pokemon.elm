@@ -90,5 +90,14 @@ simpleView pokemon =
         , text pokemon.name
         ]
 
+getMissingTypes : Dict String Type -> Pokemon -> List TypeSlot
+getMissingTypes typeCache pmon = List.filter (\ts -> not <| Dict.member ts.typeResource.name typeCache) pmon.typeSlots
+
+getMissingTypesEffect : Dict String Type -> Pokemon -> (String -> Result Http.Error Type -> a) -> Effects.Effects a
+getMissingTypesEffect typeCache pmon callback =
+    let missingTypes = getMissingTypes typeCache pmon
+        effects = List.map (\ts -> Type.fetch ts.typeResource.name (callback ts.typeResource.name)) missingTypes
+    in Effects.batch effects
+
 fetch : String -> (Result Http.Error Pokemon -> a) -> Effects.Effects a
 fetch name callback = HttpExt.fetch decoder ("http://pokeapi.co/api/v2/pokemon/" ++ name) callback
