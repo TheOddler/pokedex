@@ -16,7 +16,7 @@ type alias Pokemon =
     { id: Int
     , name: String
     , sprites: PokemonSprites
-    , types: List PokemonType
+    , typeSlots: List TypeSlot
     }
 
 type alias PokemonSprites =
@@ -30,7 +30,7 @@ type alias PokemonSprites =
     , front_shiny: (Maybe String)
     }
 
-type alias PokemonType =
+type alias TypeSlot =
     { slot: Int
     , typeResource: NamedAPIResource
     }
@@ -55,9 +55,9 @@ spritesDecoder =
         ("front_default" := nullOr string)
         ("front_shiny" := nullOr string)
 
-typeDecoder : Decoder PokemonType
+typeDecoder : Decoder TypeSlot
 typeDecoder =
-    object2 PokemonType
+    object2 TypeSlot
         ("slot" := int)
         ("type" := NamedAPIResource.decoder)
 
@@ -67,16 +67,16 @@ view pmon typeCache =
         [ img [ src <| Maybe.withDefault "" pmon.sprites.front_default ] []
         , text pmon.name
         , text "Types: "
-        , div [] <| List.map viewType pmon.types
+        , div [] <| List.map viewType pmon.typeSlots
         , text "Weaknesses: "
-        , div [] <| List.map (viewWeaknesses typeCache) pmon.types
+        , div [] <| List.map (viewWeaknesses typeCache) pmon.typeSlots
         ]
 
-viewType : PokemonType -> Html.Html
+viewType : TypeSlot -> Html.Html
 viewType t =
     div [] [ text t.typeResource.name ]
 
-viewWeaknesses : Dict String Type -> PokemonType -> Html.Html
+viewWeaknesses : Dict String Type -> TypeSlot -> Html.Html
 viewWeaknesses typeCache t =
     let maybeType = Dict.get t.typeResource.name typeCache
     in case maybeType of

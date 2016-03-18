@@ -71,8 +71,8 @@ update action model =
         OnPokemonLoaded name result ->
             case result of
                 Ok pmon ->
-                    let missingTypes = List.filter (\t -> not <| Dict.member t.typeResource.name model.typeCache) pmon.types
-                        typeLoadEffects = List.map (\t -> Type.fetch t.typeResource.name (OnTypeLoaded t.typeResource.name)) missingTypes
+                    let missingTypes = List.filter (\ts -> not <| Dict.member ts.typeResource.name model.typeCache) pmon.typeSlots
+                        typeLoadEffects = List.map (\ts -> Type.fetch ts.typeResource.name (OnTypeLoaded ts.typeResource.name)) missingTypes
                     in ({ model | pokemonCache = Dict.insert name pmon model.pokemonCache }, Effects.batch typeLoadEffects)
                 Err msg ->
                     let temp = Debug.log "Failed loading Pokémon" msg
