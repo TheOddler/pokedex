@@ -1,7 +1,7 @@
 module Pokemon where
 
 import Json.Decode exposing (Decoder, (:=), int, string, list, object2, object4, object8)
-import Html exposing (Html, div, img, text)
+import Html exposing (..)
 import Html.Attributes exposing (class, style, src)
 import DecodeExt exposing (nullOr)
 import Http
@@ -68,8 +68,8 @@ view pmon typeCache =
         [ img [ src <| Maybe.withDefault "" pmon.sprites.front_default ] []
         , div [ class "name" ] [ text pmon.name ]
         , div [ class "typesWrapper" ]
-            [ div [class "title" ] [ text "Types:" ]
-            , div [ class "types" ] <| List.map viewType pmon.typeSlots
+            [ div [class "title" ] [ text "Type:" ]
+            , ul [ class "types" ] <| List.map typeSlotToLi pmon.typeSlots
             ]
         , div [ class "damageChartWrapper" ]
             [ div [class "title" ] [ text "Damage taken:" ]
@@ -77,9 +77,9 @@ view pmon typeCache =
             ]
         ]
 
-viewType : TypeSlot -> Html.Html
-viewType t =
-    div [ class "type" ] [ text t.typeResource.name ]
+typeSlotToLi : TypeSlot -> Html.Html
+typeSlotToLi t =
+    li [ class t.typeResource.name ] [ text t.typeResource.name ]
 
 viewDamagesTaken : Dict String Type -> List TypeSlot -> Html.Html
 viewDamagesTaken typeCache tss =

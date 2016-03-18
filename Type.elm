@@ -46,21 +46,12 @@ viewDamageRelations : DamageRelations -> Html.Html
 viewDamageRelations dr =
     let chart = damageRelationsToMultiplyers dr
         withoutNeutral = Dict.filter (\_ d -> d /= 1) chart
-        damageHtmls = Dict.foldr (\t d l -> damageToDiv t d :: l ) [] withoutNeutral
-        --damageTrs = Dict.foldr (\t d l -> damageToTr t d :: l ) [] withoutNeutral
-    in  div [ class "damageChart" ] damageHtmls
-        --table [ class "damageChart" ] damageTrs
+        damageLis = Dict.foldr (\t d l -> damageToLi t d :: l ) [] withoutNeutral
+    in  ul [ class "damageChart" ] damageLis
 
-damageToTr : String -> Float -> Html.Html
-damageToTr typeName dam =
-    tr  [ class typeName ]
-        [ td [] [ text typeName ]
-        , td [] [ text <| toString dam ]
-        ]
-
-damageToDiv : String -> Float -> Html.Html
-damageToDiv typeName dam =
-    div [ class typeName ]
+damageToLi : String -> Float -> Html.Html
+damageToLi typeName dam =
+    li [ class typeName ]
         [ div [] [ text typeName ]
         , div [] [ text <| toString dam ]
         ]

@@ -11,6 +11,12 @@
 	background-color: rgba(255,255,255,.8);
 }
 
+.pokemonDetail, .loadingPokemonMessage {
+	transform: translate(-50%, -50%) scale(1.5,1.5);
+	left: 50%;
+	top: 50%;
+}
+
 .pokemonDetail img {
   float: left;
 }
@@ -21,10 +27,25 @@
   margin-top: 5pt;
   margin-right: 5pt;
   text-transform: capitalize;
+  text-align: center;
 }
 
-.pokemonDetail .type {
+.pokemonDetail .typesWrapper {
   text-transform: capitalize;
+}
+
+.pokemonDetail .typesWrapper .title {
+  text-align: center;
+}
+
+.pokemonDetail .types {
+	border-radius: 10pt;
+	border: 2pt solid black;
+	margin: 0;
+	text-align: center;
+	overflow: hidden;
+  list-style-type: none;
+	padding: 0;
 }
 
 .damageChartWrapper {
