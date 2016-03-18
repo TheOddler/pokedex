@@ -9,6 +9,7 @@ import HttpExt
 import Effects
 import Dict exposing (Dict)
 import Type exposing (Type)
+import MaybeExt
 
 import NamedAPIResource exposing (NamedAPIResource)
 
@@ -69,18 +70,18 @@ view pmon typeCache =
         , text "Types: "
         , div [] <| List.map viewType pmon.typeSlots
         , text "Weaknesses: "
-        , div [] <| List.map (viewWeaknesses typeCache) pmon.typeSlots
+        , viewWeaknesses typeCache pmon.typeSlots
         ]
 
 viewType : TypeSlot -> Html.Html
 viewType t =
     div [] [ text t.typeResource.name ]
 
-viewWeaknesses : Dict String Type -> TypeSlot -> Html.Html
-viewWeaknesses typeCache t =
-    let maybeType = Dict.get t.typeResource.name typeCache
-    in case maybeType of
-        Just type' -> Type.viewDamageRelationsOf type'
+viewWeaknesses : Dict String Type -> List TypeSlot -> Html.Html
+viewWeaknesses typeCache tss =
+    let maybeTypes = MaybeExt.allOf <| List.map (\t -> Dict.get t.typeResource.name typeCache) tss
+    in case maybeTypes of
+        Just types -> Type.viewDamageRelationsOfList types
         Nothing -> div [] [ text "Loading type data..." ]
 
 simpleView : Pokemon -> Html.Html

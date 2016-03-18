@@ -46,5 +46,9 @@ viewDamageRelationsOf t =
         , div [] <| List.map (\a -> text a.name) t.damage_relations.double_damage_from
         ]
 
+viewDamageRelationsOfList : List Type -> Html.Html
+viewDamageRelationsOfList types
+    = div [] <| List.map viewDamageRelationsOf types
+
 fetch : String -> (Result Http.Error Type -> a) -> Effects.Effects a
 fetch name callback = HttpExt.fetch decoder ("http://pokeapi.co/api/v2/type/" ++ name) callback
