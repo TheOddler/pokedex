@@ -69,7 +69,7 @@ view pmon typeCache =
         , text pmon.name
         , text "Types: "
         , div [] <| List.map viewType pmon.typeSlots
-        , text "Weaknesses: "
+        , text "Damage taken: "
         , viewWeaknesses typeCache pmon.typeSlots
         ]
 
