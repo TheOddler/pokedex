@@ -19,6 +19,25 @@
 	top: 50%;
 }
 
+.pokemonDetail .close {
+	position: absolute;
+	padding: 5pt;
+	line-height: 15pt;
+	font-size: 15pt;
+	right: 0;
+	top: 0;
+	cursor: pointer;
+
+	transition: all .2s ease, transform .5s cubic-bezier(0, 1, .5, 1.5);
+}
+.pokemonDetail .close:hover {
+	transform: scale(1.5, 1.5);
+}
+.pokemonDetail .close:before {
+	color: rgba(255, 50, 50, .8);
+	content: "\2716";
+}
+
 .pokemonDetail img { }
 
 .pokemonDetail .info {
@@ -42,4 +61,3 @@
 
 .damageChartWrapper {
 }
-
