@@ -10,24 +10,28 @@ import StartApp
 import Async exposing (..)
 import Window
 import Dict exposing (Dict)
+import Keyboard
+import Char
+import String
+import Set
 
 import PokemonTable
 import Pokemon exposing (..)
 import Type exposing (..)
 
 type alias Model =
-    { width: Int
-    , pokemonTable: Async PokemonTable.Model
+    { pokemonTable: Async PokemonTable.Model
     , selectedPokemon: Maybe String
+    , searchString: String
     , pokemonCache: Dict String Pokemon
     , typeCache: Dict String Type
     }
 
 initModel : Model
 initModel =
-    { width = 0
-    , pokemonTable = Requested
+    { pokemonTable = Requested
     , selectedPokemon = Nothing
+    , searchString = ""
     , pokemonCache = Dict.empty
     , typeCache = Dict.empty
     }
@@ -38,14 +42,14 @@ init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
 inputs : List (Signal Action)
 inputs =
-    [ Signal.map SetWidth Window.width
+    [ --Signal.map OnGlobalKeyboard Keyboard.presses --Keyboard.presses is broken in Firefox :(
     ]
 
 type Action = NoAction
-            | SetWidth Int
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
             | DeselectPokemon
+            | OnGlobalKeyboard Char.KeyCode
             | OnPokemonLoaded String (Result Http.Error Pokemon)
             | OnTypeLoaded String (Result Http.Error Type)
 
@@ -53,7 +57,6 @@ update : Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         NoAction -> (model, Effects.none)
-        SetWidth w -> ({ model | width = w }, Effects.none)
         OnPokemonTableLoaded result ->
             case result of
                 Ok list -> ({ model | pokemonTable = Finished list }, Effects.none)
@@ -71,6 +74,11 @@ update action model =
                     else ({ model | selectedPokemon = Just name}, Pokemon.fetch name (OnPokemonLoaded name))
         DeselectPokemon ->
             ({ model | selectedPokemon = Nothing}, Effects.none)
+        OnGlobalKeyboard code ->
+            let char = Char.fromCode code
+            in if Char.isHexDigit char
+                then ({ model | searchString = String.append model.searchString (String.fromChar char)}, Effects.none)
+                else (model, Effects.none)
         OnPokemonLoaded name result ->
             case result of
                 Ok pmon ->
@@ -100,10 +108,11 @@ view address model =
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
             Finished pmonTable -> PokemonTable.viewWithSelect address pmonTable SelectPokemon
             Error msg -> div [] [ text msg ]
+        , div [ class "pokemonSearchString" ] [ text <| "Searching: " ++ model.searchString ]
         ]
 
 app : StartApp.App Model
-app = StartApp.start { init = init, view = view, update = update, inputs = [] }
+app = StartApp.start { init = init, view = view, update = update, inputs = inputs }
 
 main : Signal.Signal Html.Html
 main = app.html

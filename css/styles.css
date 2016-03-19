@@ -38,3 +38,19 @@ body {
 	caption-side: bottom;
 	margin-bottom: 3pt;
 }
+
+.pokemonSearchString  {
+	position: fixed;
+	left: 50%;
+	bottom: 0%;
+ 	transform: translate(-50%, 0);
+	z-index: 200;
+
+	padding: 5pt;
+	border-radius: 10pt;
+	border-bottom: 2pt solid #73AD21;
+	text-align: center;
+	margin-bottom: 5pt;
+
+	background-color: rgba(255,255,255,.8);
+}
