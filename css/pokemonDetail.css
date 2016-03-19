@@ -7,6 +7,8 @@
 	padding: 5pt;
 	border-radius: 10pt;
 	border-bottom: 2pt solid #73AD21;
+  text-transform: capitalize;
+  text-align: center;
 
 	background-color: rgba(255,255,255,.8);
 }
@@ -17,21 +19,18 @@
 	top: 50%;
 }
 
-.pokemonDetail img {
-  float: left;
+.pokemonDetail img { }
+
+.pokemonDetail .info {
+	display: inline-block;
 }
 
-.pokemonDetail .name {
-	display: inline-block;
-  vertical-align: top;
+.pokemonDetail .info .name {
   margin-top: 5pt;
   margin-right: 5pt;
-  text-transform: capitalize;
-  text-align: center;
 }
 
-.pokemonDetail .types {
-  text-transform: capitalize;
+.pokemonDetail .info .types {
 	border-radius: 10pt;
 	border: 2pt solid black;
 	margin: 10pt 0;
@@ -42,6 +41,5 @@
 }
 
 .damageChartWrapper {
-	display: inline-block;
-	width: 100%;
 }
+

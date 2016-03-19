@@ -66,8 +66,10 @@ view : Pokemon -> Dict String Type -> Html.Html
 view pmon typeCache =
     div [ class "pokemonDetail" ]
         [ img [ src <| Maybe.withDefault "images/missing-image.png" pmon.sprites.front_default ] []
-        , div [ class "name" ] [ text pmon.name ]
-        , ul [ class "types" ] <| List.map typeSlotToLi pmon.typeSlots
+        , div [ class "info" ]
+            [ div [ class "name" ] [ text pmon.name ]
+            , ul [ class "types" ] <| List.map typeSlotToLi pmon.typeSlots
+            ]
         , div [ class "damageChartWrapper" ]
             [ div [class "title" ] [ text "Damage taken:" ]
             , viewDamagesTaken typeCache pmon.typeSlots
