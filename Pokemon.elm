@@ -3,6 +3,7 @@ module Pokemon where
 import Json.Decode exposing (Decoder, (:=), int, string, list, object2, object4, object8)
 import Html exposing (..)
 import Html.Attributes exposing (class, style, src)
+import Html.Events exposing (onClick)
 import DecodeExt exposing (nullOr)
 import Http
 import HttpExt
@@ -62,19 +63,22 @@ typeDecoder =
         ("slot" := int)
         ("type" := NamedAPIResource.decoder)
 
-view : Pokemon -> Dict String Type -> Html.Html
-view pmon typeCache =
+viewDetail : Pokemon -> Dict String Type -> Signal.Address a -> a -> Html.Html
+viewDetail pmon typeCache address closeCallback =
     div [ class "pokemonDetail" ]
         [ img [ src <| Maybe.withDefault "images/missing-image.png" pmon.sprites.front_default ] []
-        , div [ class "name" ] [ text pmon.name ]
-        , div [ class "typesWrapper" ]
-            [ div [class "title" ] [ text "Type:" ]
+        , div [ class "info" ]
+            [ div [ class "name" ] [ text pmon.name ]
             , ul [ class "types" ] <| List.map typeSlotToLi pmon.typeSlots
             ]
         , div [ class "damageChartWrapper" ]
             [ div [class "title" ] [ text "Damage taken:" ]
             , viewDamagesTaken typeCache pmon.typeSlots
             ]
+        , div
+            [ class "close"
+            , onClick address closeCallback
+            ] []
         ]
 
 typeSlotToLi : TypeSlot -> Html.Html

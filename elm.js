@@ -12687,6 +12687,7 @@ Elm.Pokemon.make = function (_elm) {
    $Effects = Elm.Effects.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $Http = Elm.Http.make(_elm),
    $HttpExt = Elm.HttpExt.make(_elm),
    $Json$Decode = Elm.Json.Decode.make(_elm),
@@ -12740,7 +12741,10 @@ Elm.Pokemon.make = function (_elm) {
       _U.list([$Html$Attributes.$class(t.typeResource.name)]),
       _U.list([$Html.text(t.typeResource.name)]));
    };
-   var view = F2(function (pmon,typeCache) {
+   var viewDetail = F4(function (pmon,
+   typeCache,
+   address,
+   closeCallback) {
       return A2($Html.div,
       _U.list([$Html$Attributes.$class("pokemonDetail")]),
       _U.list([A2($Html.img,
@@ -12749,13 +12753,10 @@ Elm.Pokemon.make = function (_elm) {
               pmon.sprites.front_default))]),
               _U.list([]))
               ,A2($Html.div,
-              _U.list([$Html$Attributes.$class("name")]),
-              _U.list([$Html.text(pmon.name)]))
-              ,A2($Html.div,
-              _U.list([$Html$Attributes.$class("typesWrapper")]),
+              _U.list([$Html$Attributes.$class("info")]),
               _U.list([A2($Html.div,
-                      _U.list([$Html$Attributes.$class("title")]),
-                      _U.list([$Html.text("Type:")]))
+                      _U.list([$Html$Attributes.$class("name")]),
+                      _U.list([$Html.text(pmon.name)]))
                       ,A2($Html.ul,
                       _U.list([$Html$Attributes.$class("types")]),
                       A2($List.map,typeSlotToLi,pmon.typeSlots))]))
@@ -12764,7 +12765,11 @@ Elm.Pokemon.make = function (_elm) {
               _U.list([A2($Html.div,
                       _U.list([$Html$Attributes.$class("title")]),
                       _U.list([$Html.text("Damage taken:")]))
-                      ,A2(viewDamagesTaken,typeCache,pmon.typeSlots)]))]));
+                      ,A2(viewDamagesTaken,typeCache,pmon.typeSlots)]))
+              ,A2($Html.div,
+              _U.list([$Html$Attributes.$class("close")
+                      ,A2($Html$Events.onClick,address,closeCallback)]),
+              _U.list([]))]));
    });
    var TypeSlot = F2(function (a,b) {
       return {slot: a,typeResource: b};
@@ -12833,7 +12838,7 @@ Elm.Pokemon.make = function (_elm) {
                                 ,decoder: decoder
                                 ,spritesDecoder: spritesDecoder
                                 ,typeDecoder: typeDecoder
-                                ,view: view
+                                ,viewDetail: viewDetail
                                 ,typeSlotToLi: typeSlotToLi
                                 ,viewDamagesTaken: viewDamagesTaken
                                 ,getMissingTypes: getMissingTypes
@@ -12911,6 +12916,9 @@ Elm.Main.make = function (_elm) {
                                  ,_1: $Effects.none} : {ctor: "_Tuple2"
                                                        ,_0: _U.update(model,{selectedPokemon: $Maybe.Just(_p4)})
                                                        ,_1: A2($Pokemon.fetch,_p4,OnPokemonLoaded(_p4))};
+         case "DeselectPokemon": return {ctor: "_Tuple2"
+                                        ,_0: _U.update(model,{selectedPokemon: $Maybe.Nothing})
+                                        ,_1: $Effects.none};
          case "OnPokemonLoaded": var _p5 = _p0._1;
            if (_p5.ctor === "Ok") {
                  var _p6 = _p5._0;
@@ -12941,6 +12949,7 @@ Elm.Main.make = function (_elm) {
                         ,_1: $Effects.none};
               }}
    });
+   var DeselectPokemon = {ctor: "DeselectPokemon"};
    var SelectPokemon = function (a) {
       return {ctor: "SelectPokemon",_0: a};
    };
@@ -12952,7 +12961,11 @@ Elm.Main.make = function (_elm) {
                  if (_p8.ctor === "Just") {
                        var _p9 = A2($Dict.get,_p8._0,model.pokemonCache);
                        if (_p9.ctor === "Just") {
-                             return A2($Pokemon.view,_p9._0,model.typeCache);
+                             return A4($Pokemon.viewDetail,
+                             _p9._0,
+                             model.typeCache,
+                             address,
+                             DeselectPokemon);
                           } else {
                              return A2($Html.div,
                              _U.list([$Html$Attributes.$class("loadingPokemonMessage")]),
@@ -13021,6 +13034,7 @@ Elm.Main.make = function (_elm) {
                              ,SetWidth: SetWidth
                              ,OnPokemonTableLoaded: OnPokemonTableLoaded
                              ,SelectPokemon: SelectPokemon
+                             ,DeselectPokemon: DeselectPokemon
                              ,OnPokemonLoaded: OnPokemonLoaded
                              ,OnTypeLoaded: OnTypeLoaded
                              ,update: update

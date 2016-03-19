@@ -45,6 +45,7 @@ type Action = NoAction
             | SetWidth Int
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
+            | DeselectPokemon
             | OnPokemonLoaded String (Result Http.Error Pokemon)
             | OnTypeLoaded String (Result Http.Error Type)
 
@@ -68,6 +69,8 @@ update action model =
                 if alreadySelected || (Dict.member name model.pokemonCache)
                     then ({ model | selectedPokemon = Just name}, Effects.none)
                     else ({ model | selectedPokemon = Just name}, Pokemon.fetch name (OnPokemonLoaded name))
+        DeselectPokemon ->
+            ({ model | selectedPokemon = Nothing}, Effects.none)
         OnPokemonLoaded name result ->
             case result of
                 Ok pmon ->
@@ -89,7 +92,7 @@ view address model =
         [ case model.selectedPokemon of
             Just name ->
                 case Dict.get name model.pokemonCache of
-                    Just pmon -> Pokemon.view pmon model.typeCache
+                    Just pmon -> Pokemon.viewDetail pmon model.typeCache address DeselectPokemon
                     Nothing -> div [ class "loadingPokemonMessage" ] [ text "Loading Pokémon, please wait..." ]
             Nothing -> div [ class "pokemonSelectInfo" ] [ text "Click on a Pokémon to select it." ]
         , case model.pokemonTable of

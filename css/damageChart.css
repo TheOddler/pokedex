@@ -4,21 +4,23 @@
 	margin: 0;
 	padding: 0;
   list-style-type: none;
+	text-align: center;
 }
 
 .damageChart li {
 	border-radius: 10pt;
 	border: 2pt solid black;
-	margin-bottom: 2pt;
+	margin: 2pt 1pt;
+	display: inline-block;
+	padding: 0 5pt;
 }
 
 .damageChart li > div {
 	display: inline-block;
-	width: 50%;
+	padding: 0 2pt;
   text-align: center;
   text-transform: capitalize;
 }
-
 
 .bug {
 	background-color: rgb(168, 184, 32);

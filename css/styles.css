@@ -13,6 +13,7 @@ body {
 }
 .pokemonTable li {
 	display: inline-block;
+	cursor: pointer;
 
 	border-radius: 10pt;
 	border-bottom: 2pt solid #73AD21;

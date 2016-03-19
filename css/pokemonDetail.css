@@ -7,6 +7,8 @@
 	padding: 5pt;
 	border-radius: 10pt;
 	border-bottom: 2pt solid #73AD21;
+  text-transform: capitalize;
+  text-align: center;
 
 	background-color: rgba(255,255,255,.8);
 }
@@ -17,31 +19,40 @@
 	top: 50%;
 }
 
-.pokemonDetail img {
-  float: left;
+.pokemonDetail .close {
+	position: absolute;
+	padding: 5pt;
+	line-height: 15pt;
+	font-size: 15pt;
+	right: 0;
+	top: 0;
+	cursor: pointer;
+
+	transition: all .2s ease, transform .5s cubic-bezier(0, 1, .5, 1.5);
+}
+.pokemonDetail .close:hover {
+	transform: scale(1.5, 1.5);
+}
+.pokemonDetail .close:before {
+	color: rgba(255, 50, 50, .8);
+	content: "\2716";
 }
 
-.pokemonDetail .name {
+.pokemonDetail img { }
+
+.pokemonDetail .info {
 	display: inline-block;
-  vertical-align: top;
+}
+
+.pokemonDetail .info .name {
   margin-top: 5pt;
   margin-right: 5pt;
-  text-transform: capitalize;
-  text-align: center;
 }
 
-.pokemonDetail .typesWrapper {
-  text-transform: capitalize;
-}
-
-.pokemonDetail .typesWrapper .title {
-  text-align: center;
-}
-
-.pokemonDetail .types {
+.pokemonDetail .info .types {
 	border-radius: 10pt;
 	border: 2pt solid black;
-	margin: 0;
+	margin: 10pt 0;
 	text-align: center;
 	overflow: hidden;
   list-style-type: none;
@@ -49,6 +60,4 @@
 }
 
 .damageChartWrapper {
-	display: inline-block;
-	width: 100%;
 }
