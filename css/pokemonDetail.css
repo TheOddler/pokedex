@@ -30,18 +30,11 @@
   text-align: center;
 }
 
-.pokemonDetail .typesWrapper {
-  text-transform: capitalize;
-}
-
-.pokemonDetail .typesWrapper .title {
-  text-align: center;
-}
-
 .pokemonDetail .types {
+  text-transform: capitalize;
 	border-radius: 10pt;
 	border: 2pt solid black;
-	margin: 0;
+	margin: 10pt 0;
 	text-align: center;
 	overflow: hidden;
   list-style-type: none;

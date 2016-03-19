@@ -67,10 +67,7 @@ view pmon typeCache =
     div [ class "pokemonDetail" ]
         [ img [ src <| Maybe.withDefault "images/missing-image.png" pmon.sprites.front_default ] []
         , div [ class "name" ] [ text pmon.name ]
-        , div [ class "typesWrapper" ]
-            [ div [class "title" ] [ text "Type:" ]
-            , ul [ class "types" ] <| List.map typeSlotToLi pmon.typeSlots
-            ]
+        , ul [ class "types" ] <| List.map typeSlotToLi pmon.typeSlots
         , div [ class "damageChartWrapper" ]
             [ div [class "title" ] [ text "Damage taken:" ]
             , viewDamagesTaken typeCache pmon.typeSlots
