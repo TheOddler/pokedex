@@ -1,6 +1,6 @@
 import Html exposing (..)
-import Html.Events exposing (onClick, on, onKeyPress, targetValue)
-import Html.Attributes exposing (class, value, placeholder)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import Http
 import HttpExt
 import Effects exposing (Effects, Never)
@@ -10,24 +10,28 @@ import StartApp
 import Async exposing (..)
 import Window
 import Dict exposing (Dict)
+import Keyboard
+import Char
+import String
+import Set
 
 import PokemonTable
 import Pokemon exposing (..)
 import Type exposing (..)
 
 type alias Model =
-    { width: Int
-    , pokemonTable: Async PokemonTable.Model
+    { pokemonTable: Async PokemonTable.Model
     , selectedPokemon: Maybe String
+    , searchString: String
     , pokemonCache: Dict String Pokemon
     , typeCache: Dict String Type
     }
 
 initModel : Model
 initModel =
-    { width = 0
-    , pokemonTable = Requested
+    { pokemonTable = Requested
     , selectedPokemon = Nothing
+    , searchString = ""
     , pokemonCache = Dict.empty
     , typeCache = Dict.empty
     }
@@ -37,15 +41,13 @@ init : (Model, Effects Action)
 init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
 inputs : List (Signal Action)
-inputs =
-    [ Signal.map SetWidth Window.width
-    ]
+inputs = []
 
 type Action = NoAction
-            | SetWidth Int
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
             | DeselectPokemon
+            | ChangeSearchString String
             | OnPokemonLoaded String (Result Http.Error Pokemon)
             | OnTypeLoaded String (Result Http.Error Type)
 
@@ -53,7 +55,6 @@ update : Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         NoAction -> (model, Effects.none)
-        SetWidth w -> ({ model | width = w }, Effects.none)
         OnPokemonTableLoaded result ->
             case result of
                 Ok list -> ({ model | pokemonTable = Finished list }, Effects.none)
@@ -69,8 +70,8 @@ update action model =
                 if alreadySelected || (Dict.member name model.pokemonCache)
                     then ({ model | selectedPokemon = Just name}, Effects.none)
                     else ({ model | selectedPokemon = Just name}, Pokemon.fetch name (OnPokemonLoaded name))
-        DeselectPokemon ->
-            ({ model | selectedPokemon = Nothing}, Effects.none)
+        DeselectPokemon -> ({ model | selectedPokemon = Nothing}, Effects.none)
+        ChangeSearchString string -> ({ model | searchString = Debug.log "Change" string}, Effects.none)
         OnPokemonLoaded name result ->
             case result of
                 Ok pmon ->
@@ -94,16 +95,23 @@ view address model =
                 case Dict.get name model.pokemonCache of
                     Just pmon -> Pokemon.viewDetail pmon model.typeCache address DeselectPokemon
                     Nothing -> div [ class "loadingPokemonMessage" ] [ text "Loading Pokémon, please wait..." ]
-            Nothing -> div [ class "pokemonSelectInfo" ] [ text "Click on a Pokémon to select it." ]
+            Nothing -> div [ class "pokemonSelectInfo" ] [ text "Click on a Pokémon to select it, or search at the bottom of the screen." ]
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
-            Finished pmonTable -> PokemonTable.viewWithSelect address pmonTable SelectPokemon
+            Finished pmonTable -> PokemonTable.viewWithSelect address pmonTable model.searchString SelectPokemon
             Error msg -> div [] [ text msg ]
+        , input
+            [ class "pokemonSearchString"
+            , placeholder "Search for a Pokémon..."
+            , value model.searchString
+            , attribute "autofocus" "true"
+            , on "input" targetValue (Signal.message <| Signal.forwardTo address ChangeSearchString)
+            ] []
         ]
 
 app : StartApp.App Model
-app = StartApp.start { init = init, view = view, update = update, inputs = [] }
+app = StartApp.start { init = init, view = view, update = update, inputs = inputs }
 
 main : Signal.Signal Html.Html
 main = app.html
