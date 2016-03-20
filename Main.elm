@@ -95,7 +95,7 @@ view address model =
                 case Dict.get name model.pokemonCache of
                     Just pmon -> Pokemon.viewDetail pmon model.typeCache address DeselectPokemon
                     Nothing -> div [ class "loadingPokemonMessage" ] [ text "Loading Pokémon, please wait..." ]
-            Nothing -> div [ class "pokemonSelectInfo" ] [ text "Click on a Pokémon to select it." ]
+            Nothing -> div [ class "pokemonSelectInfo" ] [ text "Click on a Pokémon to select it, or search at the bottom of the screen." ]
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
@@ -105,6 +105,7 @@ view address model =
             [ class "pokemonSearchString"
             , placeholder "Search for a Pokémon..."
             , value model.searchString
+            , attribute "autofocus" "true"
             , on "input" targetValue (Signal.message <| Signal.forwardTo address ChangeSearchString)
             ] []
         ]

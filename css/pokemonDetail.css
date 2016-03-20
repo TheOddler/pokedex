@@ -7,7 +7,6 @@
 	padding: 5pt;
 	border-radius: 10pt;
 	border-bottom: 2pt solid #73AD21;
-  text-transform: capitalize;
   text-align: center;
 
 	background-color: rgba(255,255,255,.8);
@@ -21,12 +20,13 @@
 
 .pokemonDetail .close {
 	position: absolute;
-	padding: 5pt;
+	padding: 15pt;
 	line-height: 15pt;
 	font-size: 15pt;
-	right: 0;
-	top: 0;
+	right: -10pt;
+	top: -10pt;
 	cursor: pointer;
+	border-radius: 50%;
 
 	transition: all .2s ease, transform .5s cubic-bezier(0, 1, .5, 1.5);
 }
@@ -45,11 +45,13 @@
 }
 
 .pokemonDetail .info .name {
+  text-transform: capitalize;
   margin-top: 5pt;
   margin-right: 5pt;
 }
 
 .pokemonDetail .info .types {
+  text-transform: capitalize;
 	border-radius: 10pt;
 	border: 2pt solid black;
 	margin: 10pt 0;
