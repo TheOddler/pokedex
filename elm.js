@@ -9131,6 +9131,264 @@ Elm.Json.Decode.make = function (_elm) {
                                     ,value: value
                                     ,customDecoder: customDecoder};
 };
+Elm.Set = Elm.Set || {};
+Elm.Set.make = function (_elm) {
+   "use strict";
+   _elm.Set = _elm.Set || {};
+   if (_elm.Set.values) return _elm.Set.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Dict = Elm.Dict.make(_elm),
+   $List = Elm.List.make(_elm);
+   var _op = {};
+   var foldr = F3(function (f,b,_p0) {
+      var _p1 = _p0;
+      return A3($Dict.foldr,
+      F3(function (k,_p2,b) {    return A2(f,k,b);}),
+      b,
+      _p1._0);
+   });
+   var foldl = F3(function (f,b,_p3) {
+      var _p4 = _p3;
+      return A3($Dict.foldl,
+      F3(function (k,_p5,b) {    return A2(f,k,b);}),
+      b,
+      _p4._0);
+   });
+   var toList = function (_p6) {
+      var _p7 = _p6;
+      return $Dict.keys(_p7._0);
+   };
+   var size = function (_p8) {
+      var _p9 = _p8;
+      return $Dict.size(_p9._0);
+   };
+   var member = F2(function (k,_p10) {
+      var _p11 = _p10;
+      return A2($Dict.member,k,_p11._0);
+   });
+   var isEmpty = function (_p12) {
+      var _p13 = _p12;
+      return $Dict.isEmpty(_p13._0);
+   };
+   var Set_elm_builtin = function (a) {
+      return {ctor: "Set_elm_builtin",_0: a};
+   };
+   var empty = Set_elm_builtin($Dict.empty);
+   var singleton = function (k) {
+      return Set_elm_builtin(A2($Dict.singleton,
+      k,
+      {ctor: "_Tuple0"}));
+   };
+   var insert = F2(function (k,_p14) {
+      var _p15 = _p14;
+      return Set_elm_builtin(A3($Dict.insert,
+      k,
+      {ctor: "_Tuple0"},
+      _p15._0));
+   });
+   var fromList = function (xs) {
+      return A3($List.foldl,insert,empty,xs);
+   };
+   var map = F2(function (f,s) {
+      return fromList(A2($List.map,f,toList(s)));
+   });
+   var remove = F2(function (k,_p16) {
+      var _p17 = _p16;
+      return Set_elm_builtin(A2($Dict.remove,k,_p17._0));
+   });
+   var union = F2(function (_p19,_p18) {
+      var _p20 = _p19;
+      var _p21 = _p18;
+      return Set_elm_builtin(A2($Dict.union,_p20._0,_p21._0));
+   });
+   var intersect = F2(function (_p23,_p22) {
+      var _p24 = _p23;
+      var _p25 = _p22;
+      return Set_elm_builtin(A2($Dict.intersect,_p24._0,_p25._0));
+   });
+   var diff = F2(function (_p27,_p26) {
+      var _p28 = _p27;
+      var _p29 = _p26;
+      return Set_elm_builtin(A2($Dict.diff,_p28._0,_p29._0));
+   });
+   var filter = F2(function (p,_p30) {
+      var _p31 = _p30;
+      return Set_elm_builtin(A2($Dict.filter,
+      F2(function (k,_p32) {    return p(k);}),
+      _p31._0));
+   });
+   var partition = F2(function (p,_p33) {
+      var _p34 = _p33;
+      var _p35 = A2($Dict.partition,
+      F2(function (k,_p36) {    return p(k);}),
+      _p34._0);
+      var p1 = _p35._0;
+      var p2 = _p35._1;
+      return {ctor: "_Tuple2"
+             ,_0: Set_elm_builtin(p1)
+             ,_1: Set_elm_builtin(p2)};
+   });
+   return _elm.Set.values = {_op: _op
+                            ,empty: empty
+                            ,singleton: singleton
+                            ,insert: insert
+                            ,remove: remove
+                            ,isEmpty: isEmpty
+                            ,member: member
+                            ,size: size
+                            ,foldl: foldl
+                            ,foldr: foldr
+                            ,map: map
+                            ,filter: filter
+                            ,partition: partition
+                            ,union: union
+                            ,intersect: intersect
+                            ,diff: diff
+                            ,toList: toList
+                            ,fromList: fromList};
+};
+Elm.Native.Keyboard = {};
+
+Elm.Native.Keyboard.make = function(localRuntime) {
+	localRuntime.Native = localRuntime.Native || {};
+	localRuntime.Native.Keyboard = localRuntime.Native.Keyboard || {};
+	if (localRuntime.Native.Keyboard.values)
+	{
+		return localRuntime.Native.Keyboard.values;
+	}
+
+	var NS = Elm.Native.Signal.make(localRuntime);
+
+
+	function keyEvent(event)
+	{
+		return {
+			alt: event.altKey,
+			meta: event.metaKey,
+			keyCode: event.keyCode
+		};
+	}
+
+
+	function keyStream(node, eventName, handler)
+	{
+		var stream = NS.input(eventName, { alt: false, meta: false, keyCode: 0 });
+
+		localRuntime.addListener([stream.id], node, eventName, function(e) {
+			localRuntime.notify(stream.id, handler(e));
+		});
+
+		return stream;
+	}
+
+	var downs = keyStream(document, 'keydown', keyEvent);
+	var ups = keyStream(document, 'keyup', keyEvent);
+	var presses = keyStream(document, 'keypress', keyEvent);
+	var blurs = keyStream(window, 'blur', function() { return null; });
+
+
+	return localRuntime.Native.Keyboard.values = {
+		downs: downs,
+		ups: ups,
+		blurs: blurs,
+		presses: presses
+	};
+};
+
+Elm.Keyboard = Elm.Keyboard || {};
+Elm.Keyboard.make = function (_elm) {
+   "use strict";
+   _elm.Keyboard = _elm.Keyboard || {};
+   if (_elm.Keyboard.values) return _elm.Keyboard.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
+   $Native$Keyboard = Elm.Native.Keyboard.make(_elm),
+   $Set = Elm.Set.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var presses = A2($Signal.map,
+   function (_) {
+      return _.keyCode;
+   },
+   $Native$Keyboard.presses);
+   var toXY = F2(function (_p0,keyCodes) {
+      var _p1 = _p0;
+      var is = function (keyCode) {
+         return A2($Set.member,keyCode,keyCodes) ? 1 : 0;
+      };
+      return {x: is(_p1.right) - is(_p1.left)
+             ,y: is(_p1.up) - is(_p1.down)};
+   });
+   var Directions = F4(function (a,b,c,d) {
+      return {up: a,down: b,left: c,right: d};
+   });
+   var dropMap = F2(function (f,signal) {
+      return $Signal.dropRepeats(A2($Signal.map,f,signal));
+   });
+   var EventInfo = F3(function (a,b,c) {
+      return {alt: a,meta: b,keyCode: c};
+   });
+   var Blur = {ctor: "Blur"};
+   var Down = function (a) {    return {ctor: "Down",_0: a};};
+   var Up = function (a) {    return {ctor: "Up",_0: a};};
+   var rawEvents = $Signal.mergeMany(_U.list([A2($Signal.map,
+                                             Up,
+                                             $Native$Keyboard.ups)
+                                             ,A2($Signal.map,Down,$Native$Keyboard.downs)
+                                             ,A2($Signal.map,$Basics.always(Blur),$Native$Keyboard.blurs)]));
+   var empty = {alt: false,meta: false,keyCodes: $Set.empty};
+   var update = F2(function (event,model) {
+      var _p2 = event;
+      switch (_p2.ctor)
+      {case "Down": var _p3 = _p2._0;
+           return {alt: _p3.alt
+                  ,meta: _p3.meta
+                  ,keyCodes: A2($Set.insert,_p3.keyCode,model.keyCodes)};
+         case "Up": var _p4 = _p2._0;
+           return {alt: _p4.alt
+                  ,meta: _p4.meta
+                  ,keyCodes: A2($Set.remove,_p4.keyCode,model.keyCodes)};
+         default: return empty;}
+   });
+   var model = A3($Signal.foldp,update,empty,rawEvents);
+   var alt = A2(dropMap,function (_) {    return _.alt;},model);
+   var meta = A2(dropMap,function (_) {    return _.meta;},model);
+   var keysDown = A2(dropMap,
+   function (_) {
+      return _.keyCodes;
+   },
+   model);
+   var arrows = A2(dropMap,
+   toXY({up: 38,down: 40,left: 37,right: 39}),
+   keysDown);
+   var wasd = A2(dropMap,
+   toXY({up: 87,down: 83,left: 65,right: 68}),
+   keysDown);
+   var isDown = function (keyCode) {
+      return A2(dropMap,$Set.member(keyCode),keysDown);
+   };
+   var ctrl = isDown(17);
+   var shift = isDown(16);
+   var space = isDown(32);
+   var enter = isDown(13);
+   var Model = F3(function (a,b,c) {
+      return {alt: a,meta: b,keyCodes: c};
+   });
+   return _elm.Keyboard.values = {_op: _op
+                                 ,arrows: arrows
+                                 ,wasd: wasd
+                                 ,enter: enter
+                                 ,space: space
+                                 ,ctrl: ctrl
+                                 ,shift: shift
+                                 ,alt: alt
+                                 ,meta: meta
+                                 ,isDown: isDown
+                                 ,keysDown: keysDown
+                                 ,presses: presses};
+};
 Elm.Native = Elm.Native || {};
 Elm.Native.Window = {};
 Elm.Native.Window.make = function make(localRuntime) {
@@ -12481,12 +12739,25 @@ Elm.PokemonTable.make = function (_elm) {
               _U.list([]),
               _U.list([$Html.text(caption)]))]))]));
    });
-   var viewWithSelect = F3(function (address,model,select) {
+   var viewWithSelect = F4(function (address,
+   model,
+   searchString,
+   select) {
+      var search = $String.toLower(searchString);
+      var pokemon = A2($List.filter,
+      function (_p0) {
+         return A2($String.contains,
+         search,
+         function (_) {
+            return _.name;
+         }(_p0));
+      },
+      model.results);
       return A2($Html.div,
       _U.list([$Html$Attributes.$class("pokemonTable")]),
       _U.list([A2($Html.ul,
       _U.list([]),
-      A2($List.map,A2(toLi,address,select),model.results))]));
+      A2($List.map,A2(toLi,address,select),pokemon))]));
    });
    var listUrl = "http://pokeapi.co/api/v2/pokemon/?limit=100000";
    var fetch = function (callback) {
@@ -12858,6 +13129,7 @@ Elm.Main.make = function (_elm) {
    $Effects = Elm.Effects.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $Http = Elm.Http.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
@@ -12867,8 +13139,7 @@ Elm.Main.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm),
-   $Type = Elm.Type.make(_elm),
-   $Window = Elm.Window.make(_elm);
+   $Type = Elm.Type.make(_elm);
    var _op = {};
    var OnTypeLoaded = F2(function (a,b) {
       return {ctor: "OnTypeLoaded",_0: a,_1: b};
@@ -12882,9 +13153,6 @@ Elm.Main.make = function (_elm) {
       {case "NoAction": return {ctor: "_Tuple2"
                                ,_0: model
                                ,_1: $Effects.none};
-         case "SetWidth": return {ctor: "_Tuple2"
-                                 ,_0: _U.update(model,{width: _p0._0})
-                                 ,_1: $Effects.none};
          case "OnPokemonTableLoaded": var _p1 = _p0._0;
            if (_p1.ctor === "Ok") {
                  return {ctor: "_Tuple2"
@@ -12919,6 +13187,10 @@ Elm.Main.make = function (_elm) {
          case "DeselectPokemon": return {ctor: "_Tuple2"
                                         ,_0: _U.update(model,{selectedPokemon: $Maybe.Nothing})
                                         ,_1: $Effects.none};
+         case "ChangeSearchString": return {ctor: "_Tuple2"
+                                           ,_0: _U.update(model,
+                                           {searchString: A2($Debug.log,"Change",_p0._0)})
+                                           ,_1: $Effects.none};
          case "OnPokemonLoaded": var _p5 = _p0._1;
            if (_p5.ctor === "Ok") {
                  var _p6 = _p5._0;
@@ -12949,6 +13221,9 @@ Elm.Main.make = function (_elm) {
                         ,_1: $Effects.none};
               }}
    });
+   var ChangeSearchString = function (a) {
+      return {ctor: "ChangeSearchString",_0: a};
+   };
    var DeselectPokemon = {ctor: "DeselectPokemon"};
    var SelectPokemon = function (a) {
       return {ctor: "SelectPokemon",_0: a};
@@ -12974,7 +13249,7 @@ Elm.Main.make = function (_elm) {
                     } else {
                        return A2($Html.div,
                        _U.list([$Html$Attributes.$class("pokemonSelectInfo")]),
-                       _U.list([$Html.text("Click on a Pokémon to select it.")]));
+                       _U.list([$Html.text("Click on a Pokémon to select it, or search at the bottom of the screen.")]));
                     }
               }()
               ,function () {
@@ -12986,26 +13261,36 @@ Elm.Main.make = function (_elm) {
                     case "Requested": return A2($Html.div,
                       _U.list([$Html$Attributes.$class("pokemonTableLoadingMessage")]),
                       _U.list([$Html.text("Loading Pokémon, please wait...")]));
-                    case "Finished": return A3($PokemonTable.viewWithSelect,
+                    case "Finished": return A4($PokemonTable.viewWithSelect,
                       address,
                       _p10._0,
+                      model.searchString,
                       SelectPokemon);
                     default: return A2($Html.div,
                       _U.list([]),
                       _U.list([$Html.text(_p10._0)]));}
-              }()]));
+              }()
+              ,A2($Html.input,
+              _U.list([$Html$Attributes.$class("pokemonSearchString")
+                      ,$Html$Attributes.placeholder("Search for a Pokémon...")
+                      ,$Html$Attributes.value(model.searchString)
+                      ,A2($Html$Attributes.attribute,"autofocus","true")
+                      ,A3($Html$Events.on,
+                      "input",
+                      $Html$Events.targetValue,
+                      $Signal.message(A2($Signal.forwardTo,
+                      address,
+                      ChangeSearchString)))]),
+              _U.list([]))]));
    });
    var OnPokemonTableLoaded = function (a) {
       return {ctor: "OnPokemonTableLoaded",_0: a};
    };
-   var SetWidth = function (a) {
-      return {ctor: "SetWidth",_0: a};
-   };
    var NoAction = {ctor: "NoAction"};
-   var inputs = _U.list([A2($Signal.map,SetWidth,$Window.width)]);
-   var initModel = {width: 0
-                   ,pokemonTable: $Async.Requested
+   var inputs = _U.list([]);
+   var initModel = {pokemonTable: $Async.Requested
                    ,selectedPokemon: $Maybe.Nothing
+                   ,searchString: ""
                    ,pokemonCache: $Dict.empty
                    ,typeCache: $Dict.empty};
    var init = {ctor: "_Tuple2"
@@ -13014,14 +13299,14 @@ Elm.Main.make = function (_elm) {
    var app = $StartApp.start({init: init
                              ,view: view
                              ,update: update
-                             ,inputs: _U.list([])});
+                             ,inputs: inputs});
    var main = app.html;
    var tasks = Elm.Native.Task.make(_elm).performSignal("tasks",
    app.tasks);
    var Model = F5(function (a,b,c,d,e) {
-      return {width: a
-             ,pokemonTable: b
-             ,selectedPokemon: c
+      return {pokemonTable: a
+             ,selectedPokemon: b
+             ,searchString: c
              ,pokemonCache: d
              ,typeCache: e};
    });
@@ -13031,10 +13316,10 @@ Elm.Main.make = function (_elm) {
                              ,init: init
                              ,inputs: inputs
                              ,NoAction: NoAction
-                             ,SetWidth: SetWidth
                              ,OnPokemonTableLoaded: OnPokemonTableLoaded
                              ,SelectPokemon: SelectPokemon
                              ,DeselectPokemon: DeselectPokemon
+                             ,ChangeSearchString: ChangeSearchString
                              ,OnPokemonLoaded: OnPokemonLoaded
                              ,OnTypeLoaded: OnTypeLoaded
                              ,update: update
