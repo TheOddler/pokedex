@@ -24,11 +24,13 @@ listUrl = "http://pokeapi.co/api/v2/pokemon/?limit=100000" --100000 to get all
 fetch : (Result Http.Error Model -> a) -> Effects.Effects a
 fetch callback = HttpExt.fetch NamedAPIResourceList.decoder listUrl callback
 
-viewWithSelect : Signal.Address a -> Model -> (String -> a) -> Html
-viewWithSelect address model select =
-    div [ class "pokemonTable" ]
-        [ ul [] <| List.map (toLi address select) model.results
-        ]
+viewWithSelect : Signal.Address a -> Model -> String -> (String -> a) -> Html
+viewWithSelect address model searchString select =
+    let search = String.toLower searchString
+        pokemon = List.filter (String.contains search << .name) model.results
+    in  div [ class "pokemonTable" ]
+            [ ul [] <| List.map (toLi address select) pokemon
+            ]
 
 toLi address select resource =
     let id = Maybe.withDefault "" <| guessIdString resource

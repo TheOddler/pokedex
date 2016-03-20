@@ -1,6 +1,6 @@
 import Html exposing (..)
-import Html.Events exposing (onClick, on, onKeyPress, targetValue)
-import Html.Attributes exposing (class, value, placeholder)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import Http
 import HttpExt
 import Effects exposing (Effects, Never)
@@ -41,15 +41,13 @@ init : (Model, Effects Action)
 init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
 inputs : List (Signal Action)
-inputs =
-    [ --Signal.map OnGlobalKeyboard Keyboard.presses --Keyboard.presses is broken in Firefox :(
-    ]
+inputs = []
 
 type Action = NoAction
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
             | SelectPokemon String
             | DeselectPokemon
-            | OnGlobalKeyboard Char.KeyCode
+            | ChangeSearchString String
             | OnPokemonLoaded String (Result Http.Error Pokemon)
             | OnTypeLoaded String (Result Http.Error Type)
 
@@ -72,13 +70,8 @@ update action model =
                 if alreadySelected || (Dict.member name model.pokemonCache)
                     then ({ model | selectedPokemon = Just name}, Effects.none)
                     else ({ model | selectedPokemon = Just name}, Pokemon.fetch name (OnPokemonLoaded name))
-        DeselectPokemon ->
-            ({ model | selectedPokemon = Nothing}, Effects.none)
-        OnGlobalKeyboard code ->
-            let char = Char.fromCode code
-            in if Char.isHexDigit char
-                then ({ model | searchString = String.append model.searchString (String.fromChar char)}, Effects.none)
-                else (model, Effects.none)
+        DeselectPokemon -> ({ model | selectedPokemon = Nothing}, Effects.none)
+        ChangeSearchString string -> ({ model | searchString = Debug.log "Change" string}, Effects.none)
         OnPokemonLoaded name result ->
             case result of
                 Ok pmon ->
@@ -106,9 +99,14 @@ view address model =
         , case model.pokemonTable of
             NotRequested -> div [] [ text "Nothing here :(" ]
             Requested -> div [class "pokemonTableLoadingMessage"] [ text "Loading Pokémon, please wait..." ]
-            Finished pmonTable -> PokemonTable.viewWithSelect address pmonTable SelectPokemon
+            Finished pmonTable -> PokemonTable.viewWithSelect address pmonTable model.searchString SelectPokemon
             Error msg -> div [] [ text msg ]
-        , div [ class "pokemonSearchString" ] [ text <| "Searching: " ++ model.searchString ]
+        , input
+            [ class "pokemonSearchString"
+            , placeholder "Search for a Pokémon..."
+            , value model.searchString
+            , on "input" targetValue (Signal.message <| Signal.forwardTo address ChangeSearchString)
+            ] []
         ]
 
 app : StartApp.App Model
