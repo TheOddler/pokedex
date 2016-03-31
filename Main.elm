@@ -41,7 +41,10 @@ init : (Model, Effects Action)
 init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
 inputs : List (Signal Action)
-inputs = []
+inputs =
+    [ Signal.map (\down -> if down then DeselectPokemon else NoAction) (Keyboard.isDown 27) --27 = escape
+    , Signal.map (\down -> if down then ChangeSearchString "" else NoAction) (Keyboard.isDown 8) --8 = backspace
+    ]
 
 type Action = NoAction
             | OnPokemonTableLoaded (Result Http.Error PokemonTable.Model)
