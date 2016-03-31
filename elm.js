@@ -13131,6 +13131,7 @@ Elm.Main.make = function (_elm) {
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $Http = Elm.Http.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Pokemon = Elm.Pokemon.make(_elm),
@@ -13138,6 +13139,7 @@ Elm.Main.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $StartApp = Elm.StartApp.make(_elm),
+   $String = Elm.String.make(_elm),
    $Task = Elm.Task.make(_elm),
    $Type = Elm.Type.make(_elm);
    var _op = {};
@@ -13190,8 +13192,7 @@ Elm.Main.make = function (_elm) {
                                         ,_0: _U.update(model,{selectedPokemon: $Maybe.Nothing})
                                         ,_1: $Effects.none};
          case "ChangeSearchString": return {ctor: "_Tuple2"
-                                           ,_0: _U.update(model,
-                                           {searchString: A2($Debug.log,"Change",_p0._0)})
+                                           ,_0: _U.update(model,{searchString: $String.trim(_p0._0)})
                                            ,_1: $Effects.none};
          case "OnPokemonLoaded": var _p5 = _p0._1;
            if (_p5.ctor === "Ok") {
@@ -13232,7 +13233,7 @@ Elm.Main.make = function (_elm) {
    };
    var view = F2(function (address,model) {
       return A2($Html.div,
-      _U.list([]),
+      _U.list([$Html$Attributes.$class("pokedex")]),
       _U.list([function () {
                  var _p8 = model.selectedPokemon;
                  if (_p8.ctor === "Just") {
@@ -13274,9 +13275,9 @@ Elm.Main.make = function (_elm) {
               }()
               ,A2($Html.input,
               _U.list([$Html$Attributes.$class("pokemonSearchString")
-                      ,$Html$Attributes.placeholder("Search for a Pokémon...")
+                      ,$Html$Attributes.id("pokemonSearch")
+                      ,$Html$Attributes.placeholder("Type to search for a Pokémon...")
                       ,$Html$Attributes.value(model.searchString)
-                      ,A2($Html$Attributes.attribute,"autofocus","true")
                       ,A3($Html$Events.on,
                       "input",
                       $Html$Events.targetValue,
@@ -13289,7 +13290,11 @@ Elm.Main.make = function (_elm) {
       return {ctor: "OnPokemonTableLoaded",_0: a};
    };
    var NoAction = {ctor: "NoAction"};
-   var inputs = _U.list([]);
+   var inputs = _U.list([A2($Signal.map,
+   function (down) {
+      return down ? DeselectPokemon : NoAction;
+   },
+   $Keyboard.isDown(27))]);
    var initModel = {pokemonTable: $Async.Requested
                    ,selectedPokemon: $Maybe.Nothing
                    ,searchString: ""
