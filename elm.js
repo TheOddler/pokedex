@@ -13160,7 +13160,9 @@ Elm.Main.make = function (_elm) {
                         ,_1: $Effects.none};
               } else {
                  var _p2 = _p1._0;
-                 var temp = A2($Debug.log,"Failed loading Pokémon table",_p2);
+                 var temp = A2($Debug.log,
+                 "Failed loading Pokémon table :(",
+                 _p2);
                  return {ctor: "_Tuple2"
                         ,_0: _U.update(model,
                         {pokemonTable: $Async.Error(A2($Basics._op["++"],
