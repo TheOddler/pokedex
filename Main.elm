@@ -60,7 +60,7 @@ update action model =
             case result of
                 Ok list -> ({ model | pokemonTable = Finished list }, Effects.none)
                 Err msg ->
-                    let temp = Debug.log "Failed loading Pokémon table" msg
+                    let temp = Debug.log "Failed loading Pokémon table :(" msg
                     in ({ model | pokemonTable = Error ("Failed loading Pokémon: " ++ toString msg) }, Effects.none)
         SelectPokemon name ->
             let alreadySelected =
