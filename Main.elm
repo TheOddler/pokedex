@@ -37,7 +37,6 @@ initModel =
     }
 
 init : (Model, Effects Action)
---init = (initModel, Effects.none)
 init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 
 inputs : List (Signal Action)
@@ -73,7 +72,7 @@ update action model =
                     then ({ model | selectedPokemon = Just name}, Effects.none)
                     else ({ model | selectedPokemon = Just name}, Pokemon.fetch name (OnPokemonLoaded name))
         DeselectPokemon -> ({ model | selectedPokemon = Nothing}, Effects.none)
-        ChangeSearchString string -> ({ model | searchString = Debug.log "Change" string}, Effects.none)
+        ChangeSearchString string -> ({ model | searchString = String.trim string}, Effects.none)
         OnPokemonLoaded name result ->
             case result of
                 Ok pmon ->
@@ -91,7 +90,8 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-    div []
+    div [ class "pokedex"
+        ]
         [ case model.selectedPokemon of
             Just name ->
                 case Dict.get name model.pokemonCache of
@@ -106,7 +106,7 @@ view address model =
         , input
             [ class "pokemonSearchString"
             , id "pokemonSearch"
-            , placeholder "Search for a Pokémon..."
+            , placeholder "Type to search for a Pokémon..."
             , value model.searchString
             , on "input" targetValue (Signal.message <| Signal.forwardTo address ChangeSearchString)
             ] []

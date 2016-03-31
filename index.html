@@ -11,7 +11,9 @@
 
 		<script>
 		document.onkeydown = function(e) {
-			document.getElementById("pokemonSearch").focus();
+			if (e.keyCode != 27) { //27 = escape, used by my Elm
+				document.getElementById("pokemonSearch").focus();
+			}
 		}
 		</script>
 	</head>
