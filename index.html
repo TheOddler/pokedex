@@ -8,6 +8,14 @@
 		<link rel="stylesheet" type="text/css" href="css/damageChart.css">
 
 		<script src="elm.js"></script>
+
+		<script>
+		document.onkeydown = function(e) {
+			if (e.keyCode != 27) { //27 = escape, used by my Elm
+				document.getElementById("pokemonSearch").focus();
+			}
+		}
+		</script>
 	</head>
 
 	<body>
