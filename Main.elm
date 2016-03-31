@@ -43,7 +43,6 @@ init = (initModel, PokemonTable.fetch OnPokemonTableLoaded)
 inputs : List (Signal Action)
 inputs =
     [ Signal.map (\down -> if down then DeselectPokemon else NoAction) (Keyboard.isDown 27) --27 = escape
-    , Signal.map (\down -> if down then ChangeSearchString "" else NoAction) (Keyboard.isDown 8) --8 = backspace
     ]
 
 type Action = NoAction
@@ -106,9 +105,9 @@ view address model =
             Error msg -> div [] [ text msg ]
         , input
             [ class "pokemonSearchString"
+            , id "pokemonSearch"
             , placeholder "Search for a Pokémon..."
             , value model.searchString
-            , attribute "autofocus" "true"
             , on "input" targetValue (Signal.message <| Signal.forwardTo address ChangeSearchString)
             ] []
         ]
