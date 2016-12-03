@@ -47,7 +47,7 @@ toLi address select resource =
             ]
 
 imageFromId : String -> String
-imageFromId id = "http://pokeapi.co/media/sprites/pokemon/" ++ id ++ ".png"
+imageFromId id = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ id ++ ".png"
 
 guessIdString : NamedAPIResource -> Maybe String
 guessIdString res = List.head (List.reverse (List.filter isNotEmpty (String.split "/" res.url)))
