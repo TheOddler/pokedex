@@ -102,4 +102,4 @@ getMissingTypesEffect typeCache pmon callback =
     in Effects.batch effects
 
 fetch : String -> (Result Http.Error Pokemon -> a) -> Effects.Effects a
-fetch name callback = HttpExt.fetch decoder ("http://pokeapi.co/api/v2/pokemon/" ++ name) callback
+fetch name callback = HttpExt.fetch decoder ("https://pokeapi.co/api/v2/pokemon/" ++ name) callback

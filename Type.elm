@@ -79,4 +79,4 @@ updateDamageDict mult resource dict =
     in Dict.update resource.name update dict
 
 fetch : String -> (Result Http.Error Type -> a) -> Effects.Effects a
-fetch name callback = HttpExt.fetch decoder ("http://pokeapi.co/api/v2/type/" ++ name) callback
+fetch name callback = HttpExt.fetch decoder ("https://pokeapi.co/api/v2/type/" ++ name) callback

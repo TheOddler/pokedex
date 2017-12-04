@@ -20,11 +20,11 @@
 
 	<body>
 		<div id="pmon"> </div>
-		<div>Data provided by <a href="http://pokeapi.co/">Pokéapi</a>.</div>
+		<div>Data provided by <a href="https://pokeapi.co/">Pokéapi</a>.</div>
+		
+		<script>
+			// embed our Elm program in an empty <div>
+			Elm.embed(Elm.Main, document.getElementById('pmon'));
+		</script>
 	</body>
-
-	<script>
-		// embed our Elm program in an empty <div>
-		Elm.embed(Elm.Main, document.getElementById('pmon'));
-	</script>
 </html>
