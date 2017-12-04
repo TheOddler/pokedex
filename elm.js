@@ -12759,7 +12759,7 @@ Elm.PokemonTable.make = function (_elm) {
       _U.list([]),
       A2($List.map,A2(toLi,address,select),pokemon))]));
    });
-   var listUrl = "http://pokeapi.co/api/v2/pokemon/?limit=100000";
+   var listUrl = "https://pokeapi.co/api/v2/pokemon/?limit=100000";
    var fetch = function (callback) {
       return A3($HttpExt.fetch,
       $NamedAPIResourceList.decoder,
@@ -12898,7 +12898,7 @@ Elm.Type.make = function (_elm) {
    var fetch = F2(function (name,callback) {
       return A3($HttpExt.fetch,
       decoder,
-      A2($Basics._op["++"],"http://pokeapi.co/api/v2/type/",name),
+      A2($Basics._op["++"],"https://pokeapi.co/api/v2/type/",name),
       callback);
    });
    return _elm.Type.values = {_op: _op
@@ -13099,7 +13099,7 @@ Elm.Pokemon.make = function (_elm) {
    var fetch = F2(function (name,callback) {
       return A3($HttpExt.fetch,
       decoder,
-      A2($Basics._op["++"],"http://pokeapi.co/api/v2/pokemon/",name),
+      A2($Basics._op["++"],"https://pokeapi.co/api/v2/pokemon/",name),
       callback);
    });
    return _elm.Pokemon.values = {_op: _op
