@@ -19,7 +19,7 @@ empty : Model
 empty = NamedAPIResourceList.empty
 
 listUrl : String
-listUrl = "http://pokeapi.co/api/v2/pokemon/?limit=100000" --100000 to get all
+listUrl = "https://pokeapi.co/api/v2/pokemon/?limit=100000" --100000 to get all
 
 fetch : (Result Http.Error Model -> a) -> Effects.Effects a
 fetch callback = HttpExt.fetch NamedAPIResourceList.decoder listUrl callback
