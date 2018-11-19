@@ -1,36 +1,49 @@
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (Html)
 
-type alias Model = (Int, Int)
+import Element exposing (..)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font
+import Element.Input as Input
+import Element.Region as Region
 
-type Msg = ChangeFirst Int | ChangeSecond Int
+type alias Model =
+    { searchString: String
+    }
+
+
+type Msg 
+    = SetSearch String
+
 
 init : Model
-init = (0, 0)
+init = 
+    { searchString = ""
+    }
+
 
 main = Browser.sandbox { init = init, update = update, view = view }
 
 
 update : Msg -> Model -> Model
-update msg (first, second) =
+update msg model =
     case msg of
-        ChangeFirst i -> (first + i, second)
-
-        ChangeSecond i -> (first, second + i)
+        SetSearch s -> {model | searchString = s}
 
 
 view : Model -> Html Msg
-view (first, second) =
-    div []
-        [ div []
-            [ button [ onClick <| ChangeFirst -1 ] [ text "-" ]
-            , div [] [ text (String.fromInt first) ]
-            , button [ onClick <| ChangeFirst 1 ] [ text "+" ]
-            ]
-        , div []
-            [ button [ onClick <| ChangeSecond -1 ] [ text "-" ]
-            , div [] [ text (String.fromInt second) ]
-            , button [ onClick <| ChangeSecond 1 ] [ text "+" ]
-            ]
+view model = layout [Font.size 16] <|
+    column [ height shrink, spacing 36, padding 10 ]
+    [ row []
+        [ text "Pokédex"
+        , Input.text [ Input.focusedOnLoad ]
+            { onChange = SetSearch
+            , text = model.searchString
+            , placeholder = Just (Input.placeholder [] (text "Search"))
+            , label = Input.labelHidden "Search"
+            }
         ]
+    , wrappedRow [width shrink, centerX]
+        <| List.repeat 10 (text model.searchString)
+    ]
