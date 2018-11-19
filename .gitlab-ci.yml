@@ -3,8 +3,8 @@ image: node:latest
 pages:
   stage: deploy
   script:
-  - npm install -g elm
-  - elm make src/Main.elm --output=public/index.html
+  - npm install -g elm --unsafe-perm=true --allow-root
+  - elm make src/Main.elm --output=public/index.html --optimize
   artifacts:
     paths:
     - public
