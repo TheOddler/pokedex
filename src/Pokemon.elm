@@ -8,6 +8,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
+import Html.Attributes
 
 import PokemonCsvString exposing (..)
 
@@ -47,10 +48,10 @@ parseId idString =
 view : Pokemon -> Element msg
 view pkm = 
     column 
-        [ mouseOver 
+        [ Border.rounded 10
+        , Background.color (rgb255 255 255 255)
+        , mouseOver 
             [ scale 1.5
-            , moveUp 1
-            , Background.color (rgb255 255 255 255)
             ]
         ]
         [ image [centerX]
