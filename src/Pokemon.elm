@@ -46,7 +46,13 @@ parseId idString =
 
 view : Pokemon -> Element msg
 view pkm = 
-    column []
+    column 
+        [ mouseOver 
+            [ scale 1.5
+            , moveUp 1
+            , Background.color (rgb255 255 255 255)
+            ]
+        ]
         [ image [centerX]
             { src = imageUrl pkm
             , description = pkm.name

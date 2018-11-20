@@ -35,7 +35,12 @@ update msg model =
 
 
 htmlView : Model -> Html Msg
-htmlView model = layout [Font.size 16] (view model)
+htmlView model = 
+    layout 
+        [ Font.size 16
+        , Background.color (rgb255 200 200 200)
+        ] 
+        (view model)
 
 
 view : Model -> Element Msg
@@ -44,7 +49,6 @@ view model =
         [ height shrink
         , spacing 36
         , padding 10
-        , Background.color (rgb255 200 200 200)
         ]
         [ row [spacing 20]
             [ text "Pokédex"
@@ -55,5 +59,8 @@ view model =
                 , label = Input.labelHidden "Search"
                 }
             ]
-        , wrappedRow [width shrink, centerX] <| List.map Pokemon.view allPokemon
+        , wrappedRow [ spacing 16 ]
+            <| List.map Pokemon.view
+            <| List.filter (String.contains model.searchString << .name) allPokemon
         ]
+
