@@ -1,7 +1,9 @@
 module Pokemon exposing (..)
 
+import Dict exposing (..)
 import Csv exposing (Csv, parse)
 import Maybe.Extra exposing (values)
+import List.Extra exposing (last)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -11,50 +13,74 @@ import Element.Region as Region
 import Html.Attributes
 
 import PokemonCsvString exposing (..)
+import PokemonTypesCsvString exposing (..)
+import Types exposing (..)
+import Helpers exposing (..)
 
 type alias Pokemon =
-    { speciesId: Int
+    { id: Int
     , name: String
-    }
-
-pokemon : String -> Int -> Pokemon
-pokemon name speciesId =
-    { speciesId = speciesId
-    , name = name
+    , types: List Int
     }
 
 allPokemon : List Pokemon
 allPokemon = 
     let
-        pokemonCsvData = parse pokemonCsvString
+        pokemonCsv = parse pokemonCsvString
+        pokemonTypesCsv = parse pokemonTypesCsvString
     in
-        List.map parseCsv pokemonCsvData.records
+        List.map parsePokemon pokemonCsv.records
         |> values
 
-parseCsv : List String -> Maybe Pokemon
-parseCsv csv = 
+parsePokemon : List String -> Maybe Pokemon
+parsePokemon csv = 
     case csv of
-        id::identifier::species_id::_ ->
-            parseId species_id
-            |> Maybe.map (pokemon identifier)
-        other -> Debug.log (String.join "," other) Nothing
+        id::identifier::_ ->
+            case parseId id of
+                Just i -> Just 
+                    { id = i
+                    , name = identifier
+                    , types = [1, 2]
+                    }
+                Nothing -> Debug.log ("Incorrect id: " ++ id) Nothing
+        other -> Debug.log ("Wrong pokemon csv line: " ++ String.join "," other) Nothing
 
-parseId : String -> Maybe Int
-parseId idString = 
-    case String.toInt idString of 
-        Just id -> Just id
-        Nothing -> Debug.log ("Not found: " ++ idString) Nothing
+typesFor : Int -> Csv -> List Type
+typesFor id csv =
+    let 
+        idString = String.fromInt id
+        parse typeArr =
+            case typeArr of
+                pokemonId::typeID::slot -> Just { pokemonId = pokemonId, typeID = typeID, slot = slot }
+                _ -> Nothing
+        pokemonTypes = List.filterMap parse csv.records -- pokemon_id, type_id, slot
+        thisPokemonTypes = List.filter (\p -> p.pokemonId == idString) pokemonTypes
+
+    in
+        thisPokemonTypes
+        |> List.sortBy .slot
+        |> List.map .typeID
+        |> List.map String.toInt
+        |> List.map (Maybe.withDefault -1)
+        |> List.filterMap (\i -> Dict.get i allTypes)
 
 view : Pokemon -> Element msg
 view pkm = 
     column 
         [ Border.rounded 10
-        , Background.color (rgb255 255 255 255)
+        , Background.gradient
+            { angle = pi / 2
+            , steps = List.map .color (typesFor pkm.id (parse pokemonTypesCsvString))
+            }
         , mouseOver 
             [ scale 1.5
             ]
         ]
-        [ image [centerX]
+        [ image 
+            [ centerX
+            , height (fill |> minimum 96)
+            , width (fill |> minimum 96)
+            ]
             { src = imageUrl pkm
             , description = pkm.name
             }
@@ -62,4 +88,4 @@ view pkm =
         ]
 
 imageUrl : Pokemon -> String
-imageUrl pkm = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ (String.fromInt pkm.speciesId) ++ ".png"
+imageUrl pkm = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ (String.fromInt pkm.id) ++ ".png"
