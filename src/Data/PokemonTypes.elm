@@ -1,8 +1,8 @@
-module PokemonTypesCsvString exposing (..)
+module Data.PokemonTypes exposing (csv)
 
 -- Data from https://github.com/veekun/pokedex/tree/master/pokedex/data/csv
-pokemonTypesCsvString : String
-pokemonTypesCsvString = """pokemon_id,type_id,slot
+csv : String
+csv = """pokemon_id,type_id,slot
 1,12,1
 1,4,2
 2,12,1

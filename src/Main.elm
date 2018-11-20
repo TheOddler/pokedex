@@ -1,6 +1,6 @@
 import Browser
 import Html exposing (Html)
-
+import Dict exposing (..)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -8,10 +8,16 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
 
-import Pokemon exposing (..)
+import Pokemon exposing (Pokemon)
+import Data.Pokemon
+import Data.PokemonTypes
+import Types exposing (Type)
+import Data.Types
 
 type alias Model =
     { searchString: String
+    , pokemon: List Pokemon
+    , types: Dict Int Type
     }
 
 
@@ -22,6 +28,8 @@ type Msg
 init : Model
 init = 
     { searchString = ""
+    , pokemon = Pokemon.parse Data.Pokemon.csv Data.PokemonTypes.csv
+    , types = Types.parse Data.Types.csv
     }
 
 
@@ -60,7 +68,7 @@ view model =
                 }
             ]
         , wrappedRow [ spacing 16 ]
-            <| List.map Pokemon.view
-            <| List.filter (String.contains model.searchString << .name) allPokemon
+            <| List.map (Pokemon.view model.types)
+            <| List.filter (String.contains model.searchString << .name) model.pokemon
         ]
 

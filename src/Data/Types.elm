@@ -1,8 +1,8 @@
-module TypesCsvString exposing (..)
+module Data.Types exposing (..)
 
 -- Data from https://github.com/veekun/pokedex/tree/master/pokedex/data/csv
-typesCsvString : String
-typesCsvString = """id,identifier,generation_id,damage_class_id
+csv : String
+csv = """id,identifier,generation_id,damage_class_id
 1,normal,1,2
 2,fighting,1,2
 3,flying,1,2

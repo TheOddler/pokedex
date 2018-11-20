@@ -1,8 +1,8 @@
-module PokemonCsvString exposing (..)
+module Data.Pokemon exposing (csv)
 
 -- Data from https://github.com/veekun/pokedex/tree/master/pokedex/data/csv
-pokemonCsvString : String
-pokemonCsvString = """id,identifier,species_id,height,weight,base_experience,order,is_default
+csv : String
+csv = """id,identifier,species_id,height,weight,base_experience,order,is_default
 1,bulbasaur,1,7,69,64,1,1
 2,ivysaur,2,10,130,142,2,1
 3,venusaur,3,20,1000,236,3,1

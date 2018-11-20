@@ -1,12 +1,11 @@
-module Types exposing (Type, allTypes)
+module Types exposing (Type, parse)
 
-import Csv exposing (Csv, parse)
+import Csv
 import Maybe.Extra
-import Dict exposing (..)
-import Element exposing (..)
+import Dict exposing (Dict, fromList)
+import Element exposing (Color, rgb255)
 
-import TypesCsvString exposing (..)
-import Helpers exposing (..)
+import Helpers exposing (parseId)
 
 type alias Type =
     { name: String
@@ -14,13 +13,16 @@ type alias Type =
     }
 
 
-allTypes : Dict Int Type
-allTypes = 
+parse : String -> Dict Int Type
+parse typesCsvString = 
     let
-        csv = parse typesCsvString
+        csv = Csv.parse typesCsvString
         list = List.map parseCsv csv.records |> Maybe.Extra.values
     in
         fromList list
+
+
+-- Helper functions
 
 
 parseCsv : List String -> Maybe (Int, Type)

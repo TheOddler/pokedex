@@ -1,8 +1,8 @@
-module TypeEffectivenessCsvString exposing (..)
+module Data.TypeEffectiveness exposing (csv)
 
 -- Data from https://github.com/veekun/pokedex/tree/master/pokedex/data/csv
-typeEffectivenessCsvString : String
-typeEffectivenessCsvString = """damage_type_id,target_type_id,damage_factor
+csv : String
+csv = """damage_type_id,target_type_id,damage_factor
 1,1,100
 1,2,100
 1,3,100

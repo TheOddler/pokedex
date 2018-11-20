@@ -1,7 +1,7 @@
-module Pokemon exposing (Pokemon, allPokemon, view)
+module Pokemon exposing (Pokemon, parse, view)
 
 import Dict exposing (..)
-import Csv exposing (Csv, parse)
+import Csv
 import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
 import Element exposing (..)
@@ -12,9 +12,7 @@ import Element.Input as Input
 import Element.Region as Region
 import Html.Attributes
 
-import PokemonCsvString exposing (..)
-import PokemonTypesCsvString exposing (..)
-import Types exposing (..)
+import Types exposing (Type)
 import Helpers exposing (..)
 
 type alias Pokemon =
@@ -23,54 +21,22 @@ type alias Pokemon =
     , types: List Int
     }
 
-allPokemon : List Pokemon
-allPokemon = 
+
+parse : String -> String -> List Pokemon
+parse pokemonCsvString pokemonToTypesMappingCsvString = 
     let
-        pokemonCsv = parse pokemonCsvString
-        pokemonTypesCsv = parse pokemonTypesCsvString
+        pokemonToTypesMapping = parsePokemonToTypeMappingsCsvString pokemonToTypesMappingCsvString
     in
-        List.map parsePokemon pokemonCsv.records
-        |> values
+        Csv.parse pokemonCsvString |> .records |> List.filterMap (parsePokemon pokemonToTypesMapping)
 
-parsePokemon : List String -> Maybe Pokemon
-parsePokemon csv = 
-    case csv of
-        id::identifier::_ ->
-            case parseId id of
-                Just i -> Just 
-                    { id = i
-                    , name = identifier
-                    , types = [1, 2]
-                    }
-                Nothing -> Debug.log ("Incorrect id: " ++ id) Nothing
-        other -> Debug.log ("Wrong pokemon csv line: " ++ String.join "," other) Nothing
 
-typesFor : Int -> List Type
-typesFor id =
-    List.filter (\p -> p.pokemonId == id) pokemonTypes
-    |> List.sortBy .slot
-    |> List.map .typeID
-    |> List.filterMap (\i -> Dict.get i allTypes)
-
-pokemonTypes =
-    let 
-        parseType typeArr =
-            case typeArr of
-                pokemonIdString::typeIDString::slotString::_ ->
-                    case (String.toInt pokemonIdString, String.toInt typeIDString, String.toInt slotString) of
-                        (Just pokemonId, Just typeID, Just slot) -> Just { pokemonId = pokemonId, typeID = typeID, slot = slot }
-                        _ -> Nothing
-                _ -> Nothing
-    in 
-        List.filterMap parseType <| .records <| parse pokemonTypesCsvString
-
-view : Pokemon -> Element msg
-view pkm = 
+view : Dict Int Type -> Pokemon -> Element msg
+view types pkm = 
     column 
         [ Border.rounded 10
         , Background.gradient
             { angle = pi / 2
-            , steps = List.map .color (typesFor pkm.id)
+            , steps = List.filterMap (\i -> Dict.get i types) pkm.types |> List.map .color
             }
         , mouseOver 
             [ scale 1.5
@@ -86,6 +52,44 @@ view pkm =
             }
         , el [centerX] <| text pkm.name
         ]
+
+
+-- Helper functions
+
+
+parsePokemonToTypeMappingsCsvString : String -> List (Int, Int)
+parsePokemonToTypeMappingsCsvString csv =
+    Csv.parse csv
+    |> .records
+    |> List.filterMap parsePokemonToTypeMapping
+
+
+parsePokemonToTypeMapping : List String -> Maybe (Int, Int)
+parsePokemonToTypeMapping mapping = -- pokemon_id,type_id,slot
+    case mapping of
+        pokemonIdString::typeIdString::_ -> 
+            case (String.toInt pokemonIdString, String.toInt typeIdString) of
+                (Just pokemonId, Just typeId) -> Just (pokemonId, typeId)
+                _ -> Nothing
+        _ -> Nothing
+
+
+parsePokemon : List (Int, Int) -> List String -> Maybe Pokemon
+parsePokemon pokemonToTypesMapping csv = 
+    case csv of
+        id::identifier::_ ->
+            case parseId id of
+                Just i -> Just 
+                    { id = i
+                    , name = identifier
+                    , types = 
+                        pokemonToTypesMapping 
+                        |> List.filter (\(p, t) -> p == i)
+                        |> List.map (\(p, t) -> t)
+                    }
+                Nothing -> Debug.log ("Incorrect id: " ++ id) Nothing
+        other -> Debug.log ("Wrong pokemon csv line: " ++ String.join "," other) Nothing
+
 
 imageUrl : Pokemon -> String
 imageUrl pkm = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ (String.fromInt pkm.id) ++ ".png"
