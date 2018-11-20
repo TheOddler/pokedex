@@ -1,4 +1,4 @@
-module Pokemon exposing (..)
+module Pokemon exposing (Pokemon, allPokemon, view)
 
 import Dict exposing (..)
 import Csv exposing (Csv, parse)
@@ -45,23 +45,24 @@ parsePokemon csv =
                 Nothing -> Debug.log ("Incorrect id: " ++ id) Nothing
         other -> Debug.log ("Wrong pokemon csv line: " ++ String.join "," other) Nothing
 
-typesFor : Int -> Csv -> List Type
-typesFor id csv =
+typesFor : Int -> List Type
+typesFor id =
+    List.filter (\p -> p.pokemonId == id) pokemonTypes
+    |> List.sortBy .slot
+    |> List.map .typeID
+    |> List.filterMap (\i -> Dict.get i allTypes)
+
+pokemonTypes =
     let 
-        idString = String.fromInt id
-        parse typeArr =
+        parseType typeArr =
             case typeArr of
-                pokemonId::typeID::slot -> Just { pokemonId = pokemonId, typeID = typeID, slot = slot }
+                pokemonIdString::typeIDString::slotString::_ ->
+                    case (String.toInt pokemonIdString, String.toInt typeIDString, String.toInt slotString) of
+                        (Just pokemonId, Just typeID, Just slot) -> Just { pokemonId = pokemonId, typeID = typeID, slot = slot }
+                        _ -> Nothing
                 _ -> Nothing
-        pokemonTypes = List.filterMap parse csv.records -- pokemon_id, type_id, slot
-        thisPokemonTypes = List.filter (\p -> p.pokemonId == idString) pokemonTypes
-    in
-        thisPokemonTypes
-        |> List.sortBy .slot
-        |> List.map .typeID
-        |> List.map String.toInt
-        |> List.map (Maybe.withDefault -1)
-        |> List.filterMap (\i -> Dict.get i allTypes)
+    in 
+        List.filterMap parseType <| .records <| parse pokemonTypesCsvString
 
 view : Pokemon -> Element msg
 view pkm = 
@@ -69,7 +70,7 @@ view pkm =
         [ Border.rounded 10
         , Background.gradient
             { angle = pi / 2
-            , steps = List.map .color (typesFor pkm.id (parse pokemonTypesCsvString))
+            , steps = List.map .color (typesFor pkm.id)
             }
         , mouseOver 
             [ scale 1.5

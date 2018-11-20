@@ -1,4 +1,4 @@
-module Types exposing (..)
+module Types exposing (Type, allTypes)
 
 import Csv exposing (Csv, parse)
 import Maybe.Extra
