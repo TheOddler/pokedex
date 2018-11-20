@@ -13,11 +13,14 @@ type alias Type =
     }
 
 
-parse : String -> Dict Int Type
-parse typesCsvString = 
+parse : String -> String -> Dict Int Type
+parse typesCsvString typeEffectivenessCsvString = 
     let
-        csv = Csv.parse typesCsvString
-        list = List.map parseCsv csv.records |> Maybe.Extra.values
+        list = 
+            Csv.parse typesCsvString
+            |> .records
+            |> List.map parseCsv |> Maybe.Extra.values
+        -- TODO: Parse typeEffectivenessCsvString
     in
         fromList list
 

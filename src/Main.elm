@@ -13,6 +13,7 @@ import Data.Pokemon
 import Data.PokemonTypes
 import Types exposing (Type)
 import Data.Types
+import Data.TypeEffectiveness
 
 type alias Model =
     { searchString: String
@@ -29,7 +30,7 @@ init : Model
 init = 
     { searchString = ""
     , pokemon = Pokemon.parse Data.Pokemon.csv Data.PokemonTypes.csv
-    , types = Types.parse Data.Types.csv
+    , types = Types.parse Data.Types.csv Data.TypeEffectiveness.csv
     }
 
 
