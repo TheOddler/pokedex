@@ -8,6 +8,8 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Region as Region
 
+import Pokemon exposing (..)
+
 type alias Model =
     { searchString: String
     }
@@ -23,7 +25,7 @@ init =
     }
 
 
-main = Browser.sandbox { init = init, update = update, view = view }
+main = Browser.sandbox { init = init, update = update, view = htmlView }
 
 
 update : Msg -> Model -> Model
@@ -32,18 +34,26 @@ update msg model =
         SetSearch s -> {model | searchString = s}
 
 
-view : Model -> Html Msg
-view model = layout [Font.size 16] <|
-    column [ height shrink, spacing 36, padding 10 ]
-    [ row []
-        [ text "Pokédex"
-        , Input.text [ Input.focusedOnLoad ]
-            { onChange = SetSearch
-            , text = model.searchString
-            , placeholder = Just (Input.placeholder [] (text "Search"))
-            , label = Input.labelHidden "Search"
-            }
+htmlView : Model -> Html Msg
+htmlView model = layout [Font.size 16] (view model)
+
+
+view : Model -> Element Msg
+view model =
+    column 
+        [ height shrink
+        , spacing 36
+        , padding 10
+        , Background.color (rgb255 200 200 200)
         ]
-    , wrappedRow [width shrink, centerX]
-        <| List.repeat 10 (text model.searchString)
-    ]
+        [ row [spacing 20]
+            [ text "Pokédex"
+            , Input.text [ Input.focusedOnLoad ]
+                { onChange = SetSearch
+                , text = model.searchString
+                , placeholder = Just (Input.placeholder [] (text "Search"))
+                , label = Input.labelHidden "Search"
+                }
+            ]
+        , wrappedRow [width shrink, centerX] <| List.map Pokemon.view allPokemon
+        ]
