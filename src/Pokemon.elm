@@ -55,7 +55,6 @@ typesFor id csv =
                 _ -> Nothing
         pokemonTypes = List.filterMap parse csv.records -- pokemon_id, type_id, slot
         thisPokemonTypes = List.filter (\p -> p.pokemonId == idString) pokemonTypes
-
     in
         thisPokemonTypes
         |> List.sortBy .slot
