@@ -5,36 +5,60 @@ import Maybe.Extra
 import Dict exposing (Dict, fromList)
 import Element exposing (Color, rgb255)
 
-import Helpers exposing (parseId)
-
 type alias Type =
     { name: String
     , color: Color
+    , effectiveness: Dict Int Float
     }
 
 
 parse : String -> String -> Dict Int Type
 parse typesCsvString typeEffectivenessCsvString = 
     let
-        list = 
+        effectiveness =
+            Csv.parse typeEffectivenessCsvString
+            |> .records
+            |> List.filterMap parseEffectiveness
+        types = 
             Csv.parse typesCsvString
             |> .records
-            |> List.map parseCsv |> Maybe.Extra.values
-        -- TODO: Parse typeEffectivenessCsvString
+            |> List.filterMap (parseType effectiveness)
     in
-        fromList list
+        fromList types
 
 
 -- Helper functions
 
 
-parseCsv : List String -> Maybe (Int, Type)
-parseCsv csv = 
+parseType : List (Int, Int, Float) -> List String -> Maybe (Int, Type)
+parseType effectiveness csv = 
     case csv of
-        id::identifier::_ ->
-            parseId id
-            |> Maybe.map (\i -> (i, {name = identifier, color = toColor identifier}))
-        other -> Debug.log (String.join "," other) Nothing
+        idString::identifier::_ ->
+            case String.toInt idString of
+                Just id -> 
+                    let
+                        myEffectiveness = 
+                            effectiveness
+                            |> List.filter (\(sourceId, _, damageFactor) -> sourceId == id && damageFactor /= 100)
+                            |> List.map (\(_, targetId, damageFactor) -> (targetId, damageFactor))
+                            |> Dict.fromList
+                        type_ = {name = identifier, color = toColor identifier, effectiveness = myEffectiveness}
+                    in 
+                        Just (id, type_)
+                Nothing -> Nothing
+        other -> Debug.log ("Failed parse type: " ++ String.join "," other) Nothing
+
+
+parseEffectiveness : List String -> Maybe (Int, Int, Float)
+parseEffectiveness csv =
+    case csv of
+        damageTypeIdString::targetTypeIdString::damageFactorString::_ ->
+            case (String.toInt damageTypeIdString, String.toInt targetTypeIdString, String.toFloat damageFactorString) of
+                (Just damageTypeId, Just targetTypeId, Just damageFactor) ->
+                    Just (damageTypeId, targetTypeId, damageFactor / 100)
+                _ -> Nothing
+        _ -> Nothing
+
 
 
 toColor : String -> Color
