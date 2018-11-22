@@ -165,8 +165,8 @@ parsePokemon pokemonToTypesMapping csv =
                         |> List.filter (\(p, t) -> p == i)
                         |> List.map (\(p, t) -> t)
                     }
-                Nothing -> Debug.log ("Incorrect id: " ++ id) Nothing
-        other -> Debug.log ("Wrong pokemon csv line: " ++ String.join "," other) Nothing
+                Nothing -> Nothing
+        other -> Nothing
 
 
 imageUrl : Pokemon -> String

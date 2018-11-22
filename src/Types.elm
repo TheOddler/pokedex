@@ -46,7 +46,7 @@ parseType effectiveness csv =
                     in 
                         Just (id, type_)
                 Nothing -> Nothing
-        other -> Debug.log ("Failed parse type: " ++ String.join "," other) Nothing
+        other -> Nothing
 
 
 parseEffectiveness : List String -> Maybe (Int, Int, Float)
