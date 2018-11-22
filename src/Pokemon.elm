@@ -67,6 +67,7 @@ viewDetail types pkm =
             { angle = pi / 2
             , steps = List.filterMap (\i -> Dict.get i types) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
             }
+        , padding 10
         ]
         [ image 
             [ centerX
@@ -77,33 +78,61 @@ viewDetail types pkm =
             , description = pkm.name
             }
         , el [centerX] <| text pkm.name
-        , row []
-            ( calcTotalEffectiveness types pkm
+        , row 
+            [ spacing 5
+            ]
+            ( calcTotalEffectivenessAgainst pkm types
             |> List.map viewTypeEffectivenessBadge
             )
         ]
 
 
-calcTotalEffectiveness : Dict Int Type -> Pokemon -> List (Type, Float)
-calcTotalEffectiveness types pkm =
-    List.filterMap (\i -> Dict.get i types) pkm.types
-    |> List.map .effectiveness
-    |> List.concatMap Dict.toList
-    |> List.map (\(i, f) -> (Dict.get i types, f))
-    |> List.filterMap 
-        ( \(mt, f) ->
-            case mt of
-                Just t -> Just (t, f)
-                Nothing -> Nothing
-        )
+-- Helper functions
+
+
+calcTotalEffectivenessAgainst : Pokemon -> Dict Int Type -> List (Type, Float)
+calcTotalEffectivenessAgainst pkm types =
+    let
+        effectivenessAgainstType : Int -> Type -> Float
+        effectivenessAgainstType targetId source = Dict.get targetId source.effectiveness |> Maybe.withDefault 1
+
+        typesEffectivenessAgainstType : Int -> List (Type, Float)
+        typesEffectivenessAgainstType targetId = List.map (\t -> (t, effectivenessAgainstType targetId t)) (Dict.values types) |> List.filter (\(_, f) -> f /= 1)
+
+        typesEffectivenessAgainstThisPokemon : List (Type, Float)
+        typesEffectivenessAgainstThisPokemon = List.concatMap typesEffectivenessAgainstType pkm.types
+
+        combineOrAdd : List (Type, Float) -> (Type, Float) -> List (Type, Float) -> List (Type, Float)
+        combineOrAdd all toAdd existing =
+            let
+                (toAddT, toAddF) = toAdd
+            in
+                case List.any (\(t, _) -> t == toAddT) existing of
+                    True -> existing
+                    False -> (toAddT, List.product <| List.map (\(_, f) -> f) <| List.filter (\(t, _) -> t == toAddT) all) :: existing
+
+        combined : List (Type, Float)
+        combined = List.foldl (combineOrAdd typesEffectivenessAgainstThisPokemon) [] typesEffectivenessAgainstThisPokemon |> List.filter (\(_, f) -> f /= 1)
+    in
+        List.sortBy (\(_, f) -> -f) combined
 
 
 viewTypeEffectivenessBadge : (Type, Float) -> Element msg
 viewTypeEffectivenessBadge (type_, effectivenesss) =
-    el [] <| text (type_.name ++ String.fromFloat effectivenesss)
-
-
--- Helper functions
+    let
+        beautify f = 
+            if (abs (f - 0.5) < 0.001) then "½"
+            else if (abs (f - 0.25) < 0.001) then "¼"
+            else String.fromFloat f
+    in
+        row [ Background.color type_.color
+            , padding 5
+            , spacing 5
+            , Border.rounded 10
+            ]
+            [ text type_.name
+            , text <| beautify effectivenesss
+            ]
 
 
 parsePokemonToTypeMappingsCsvString : String -> List (Int, Int)

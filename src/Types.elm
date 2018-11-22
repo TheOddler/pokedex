@@ -39,7 +39,7 @@ parseType effectiveness csv =
                     let
                         myEffectiveness = 
                             effectiveness
-                            |> List.filter (\(sourceId, _, damageFactor) -> sourceId == id && damageFactor /= 100)
+                            |> List.filter (\(sourceId, _, damageFactor) -> sourceId == id && damageFactor /= 1)
                             |> List.map (\(_, targetId, damageFactor) -> (targetId, damageFactor))
                             |> Dict.fromList
                         type_ = {name = identifier, color = toColor identifier, effectiveness = myEffectiveness}
