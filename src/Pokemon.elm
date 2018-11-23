@@ -28,7 +28,7 @@ parse pokemonCsvString pokemonToTypesMappingCsvString =
 
 
 view : (Pokemon -> msg) -> Dict Int Type -> Pokemon -> Element msg
-view onClick types pkm = 
+view onClick allTypes pkm = 
     column 
         [ Border.rounded 10
         , width <| px 112
@@ -36,12 +36,7 @@ view onClick types pkm =
         , Events.onClick <| onClick pkm
         , Background.gradient
             { angle = pi / 2
-            , steps = List.filterMap (\i -> Dict.get i types) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
-            --, steps = 
-            --    List.filterMap (\i -> Dict.get i types) pkm.types
-            --    |> List.concatMap (\t -> Dict.keys t.effectiveness)
-            --    |> List.filterMap (\i -> Dict.get i types)
-            --    |> List.map .color
+            , steps = List.filterMap (\i -> Dict.get i allTypes) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
             }
         , mouseOver 
             [ scale 1.5
@@ -60,12 +55,12 @@ view onClick types pkm =
 
 
 viewDetail : Dict Int Type -> Pokemon -> Element msg
-viewDetail types pkm =
+viewDetail allTypes pkm =
     column 
         [ Border.rounded 10
         , Background.gradient
             { angle = pi / 2
-            , steps = List.filterMap (\i -> Dict.get i types) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
+            , steps = List.filterMap (\i -> Dict.get i allTypes) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
             }
         , padding 10
         ]
@@ -81,7 +76,7 @@ viewDetail types pkm =
         , row 
             [ spacing 5
             ]
-            ( calcTotalEffectivenessAgainst pkm types
+            ( calcTotalEffectivenessAgainst pkm allTypes
             |> List.map viewTypeEffectivenessBadge
             )
         ]
@@ -91,13 +86,13 @@ viewDetail types pkm =
 
 
 calcTotalEffectivenessAgainst : Pokemon -> Dict Int Type -> List (Type, Float)
-calcTotalEffectivenessAgainst pkm types =
+calcTotalEffectivenessAgainst pkm allTypes =
     let
         effectivenessAgainstType : Int -> Type -> Float
         effectivenessAgainstType targetId source = Dict.get targetId source.effectiveness |> Maybe.withDefault 1
 
         typesEffectivenessAgainstType : Int -> List (Type, Float)
-        typesEffectivenessAgainstType targetId = List.map (\t -> (t, effectivenessAgainstType targetId t)) (Dict.values types) |> List.filter (\(_, f) -> f /= 1)
+        typesEffectivenessAgainstType targetId = List.map (\t -> (t, effectivenessAgainstType targetId t)) (Dict.values allTypes) |> List.filter (\(_, f) -> f /= 1)
 
         typesEffectivenessAgainstThisPokemon : List (Type, Float)
         typesEffectivenessAgainstThisPokemon = List.concatMap typesEffectivenessAgainstType pkm.types
