@@ -4,7 +4,11 @@ pages:
   stage: deploy
   script:
   - npm install -g elm --unsafe-perm=true --allow-root
-  - elm make src/Main.elm --output=public/index.html --optimize
+  - mkdir public
+  - mkdir public\css
+  - cp src/index.html public
+  - cp src/css/*.css public/css/
+  - elm make src/Main.elm --output=public/elm.js --optimize
   artifacts:
     paths:
     - public
