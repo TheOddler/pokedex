@@ -1,11 +1,11 @@
 module Pokemon exposing (Pokemon, parse, view, viewDetail)
 
-import Dict exposing (..)
+import Html exposing (Html, text, img, figure, figcaption)
+import Html.Attributes exposing (class, src, attribute, style)
+import Dict exposing (Dict)
 import Csv
 import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
-import Html exposing (..)
-import Html.Attributes exposing (..)
 
 import Types exposing (Type)
 
@@ -26,13 +26,22 @@ parse pokemonCsvString pokemonToTypesMappingCsvString =
 
 view : (Pokemon -> msg) -> Dict Int Type -> Pokemon -> Html msg
 view onClick allTypes pkm = 
-    div []
-        [ img 
-            [ src <| imageUrl pkm
+    let
+        types = List.filterMap (\t -> Dict.get t allTypes) pkm.types
+        background =
+            case types of
+                [ one ] -> style "background-color" one.color
+                many -> style "background-image" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
+    in
+        figure 
+            [ background
+            , class "pokemon"
             ]
-            []
-        , text pkm.name
-        ]
+            [ img   [ src <| imageUrl pkm
+                    , attribute "onerror" "this.onerror=null;this.src='images/missing-image.png';"
+                    ] []
+            , figcaption [] [ text pkm.name ]
+            ]
 
 
 viewDetail : Dict Int Type -> Pokemon -> Html msg

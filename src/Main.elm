@@ -1,6 +1,7 @@
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Html, div, ul, li, text, input)
+import Html.Attributes exposing (class, id, placeholder, value)
+import Html.Events exposing (onInput)
 import Dict exposing (Dict)
 
 import Pokemon exposing (Pokemon)
@@ -48,11 +49,20 @@ view : Model -> Html Msg
 view model =
     div [ class "pokedex" ]
         [ text "Pokédex"
+        , input
+            [ id "search"
+            , placeholder "Type to search for a Pokémon..."
+            , value model.searchString
+            , onInput SetSearch
+            ] []
         , ul [ class "list" ]
-            <| List.map (viewWrapPokemon model.types) model.pokemon
+            <| List.map (viewWrapPokemon model) model.pokemon
         ]
 
-viewWrapPokemon : Dict Int Type -> Pokemon -> Html Msg
-viewWrapPokemon types pkm = 
-    li [ class "item" ] 
-        [ Pokemon.view Select types pkm ]
+viewWrapPokemon : Model -> Pokemon -> Html Msg
+viewWrapPokemon model pkm = 
+    li 
+        [ class "item" 
+        , if String.contains model.searchString pkm.name then class "" else class "hidden"
+        ] 
+        [ Pokemon.view Select model.types pkm ]
