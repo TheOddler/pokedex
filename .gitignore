@@ -5,3 +5,5 @@ repl-temp-*
 # builds
 bin
 public
+# VS Code
+.vscode
