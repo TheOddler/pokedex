@@ -3,11 +3,10 @@ module Types exposing (Type, parse)
 import Csv
 import Maybe.Extra
 import Dict exposing (Dict, fromList)
-import Element exposing (Color, rgb255)
 
 type alias Type =
     { name: String
-    , color: Color
+    , color: String
     , effectiveness: Dict Int Float
     }
 
@@ -61,7 +60,7 @@ parseEffectiveness csv =
 
 
 
-toColor : String -> Color
+toColor : String -> String
 toColor name =
     case name of
         "normal" -> rgb255 168 167 122
@@ -85,3 +84,6 @@ toColor name =
         "unknown" -> rgb255 255 255 255
         "shadow" -> rgb255 20 20 20
         _ -> rgb255 255 255 255
+
+rgb255 : Int -> Int -> Int -> String
+rgb255 r g b = "rgb(" ++ String.fromInt r ++ "," ++ String.fromInt g ++ "," ++ String.fromInt b ++ ")"

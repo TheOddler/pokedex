@@ -1,11 +1,7 @@
 import Browser
-import Html exposing (Html)
-import Dict exposing (..)
-import Element exposing (..)
-import Element.Background as Background
-import Element.Font as Font
-import Element.Input as Input
-import Element.Events as Events
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Dict exposing (Dict)
 
 import Pokemon exposing (Pokemon)
 import Data.Pokemon
@@ -50,35 +46,13 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    layout 
-        [ Font.size 16
-        , Background.color (rgb255 200 200 200)
-        , case model.selected of
-            Just p -> inFront <| el [centerX, centerY] (Pokemon.viewDetail model.types p)
-            Nothing -> onRight <| text "Click to see details"
+    div [ class "pokedex" ]
+        [ text "Pokédex"
+        , ul [ class "list" ]
+            <| List.map (viewWrapPokemon model.types) model.pokemon
         ]
-        <| viewPokemonList model
 
-
-viewPokemonList : Model -> Element Msg
-viewPokemonList model =
-    column 
-        [ height shrink
-        , spacing 36
-        , padding 10
-        ]
-        [ row [spacing 20]
-            [ text "Pokédex"
-            , Input.text [ Input.focusedOnLoad ]
-                { onChange = SetSearch
-                , text = model.searchString
-                , placeholder = Just (Input.placeholder [centerX, centerY] (text "Search"))
-                , label = Input.labelHidden "Search"
-                }
-            ]
-        , wrappedRow 
-            [ spacing 16
-            ]
-            <| List.map (Pokemon.view Select model.types)
-            <| List.filter (String.contains model.searchString << .name) model.pokemon
-        ]
+viewWrapPokemon : Dict Int Type -> Pokemon -> Html Msg
+viewWrapPokemon types pkm = 
+    li [ class "item" ] 
+        [ Pokemon.view Select types pkm ]

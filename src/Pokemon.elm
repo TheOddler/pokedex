@@ -4,11 +4,8 @@ import Dict exposing (..)
 import Csv
 import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
-import Element exposing (..)
-import Element.Background as Background
-import Element.Border as Border
-import Element.Events as Events
-import Html.Attributes
+import Html exposing (..)
+import Html.Attributes exposing (..)
 
 import Types exposing (Type)
 
@@ -27,59 +24,66 @@ parse pokemonCsvString pokemonToTypesMappingCsvString =
         Csv.parse pokemonCsvString |> .records |> List.filterMap (parsePokemon pokemonToTypesMapping)
 
 
-view : (Pokemon -> msg) -> Dict Int Type -> Pokemon -> Element msg
+view : (Pokemon -> msg) -> Dict Int Type -> Pokemon -> Html msg
 view onClick allTypes pkm = 
-    column 
-        [ Border.rounded 10
-        , width <| px 112
-        , height <| px 130
-        , Events.onClick <| onClick pkm
-        , Background.gradient
-            { angle = pi / 2
-            , steps = List.filterMap (\i -> Dict.get i allTypes) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
-            }
-        , mouseOver 
-            [ scale 1.5
+    div []
+        [ img 
+            [ src <| imageUrl pkm
             ]
-        ]
-        [ image 
-            [ centerX
-            , height (shrink |> minimum 96)
-            , width (shrink |> minimum 96)
-            ]
-            { src = imageUrl pkm
-            , description = pkm.name
-            }
-        , el [centerX] <| text pkm.name
+            []
+        , text pkm.name
         ]
 
 
-viewDetail : Dict Int Type -> Pokemon -> Element msg
+viewDetail : Dict Int Type -> Pokemon -> Html msg
 viewDetail allTypes pkm =
-    column 
-        [ Border.rounded 10
-        , Background.gradient
-            { angle = pi / 2
-            , steps = List.filterMap (\i -> Dict.get i allTypes) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
-            }
-        , padding 10
-        ]
-        [ image 
-            [ centerX
-            , height (shrink |> minimum 96)
-            , width (shrink |> minimum 96)
-            ]
-            { src = imageUrl pkm
-            , description = pkm.name
-            }
-        , el [centerX] <| text pkm.name
-        , row 
-            [ spacing 5
-            ]
-            ( calcTotalEffectivenessAgainst pkm allTypes
-            |> List.map viewTypeEffectivenessBadge
-            )
-        ]
+    text pkm.name
+    -- column 
+    --     [ Border.rounded 10
+    --     , Background.gradient
+    --         { angle = pi / 2
+    --         , steps = List.filterMap (\i -> Dict.get i allTypes) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
+    --         }
+    --     , padding 10
+    --     ]
+    --     [ image 
+    --         [ centerX
+    --         , height (shrink |> minimum 96)
+    --         , width (shrink |> minimum 96)
+    --         ]
+    --         { src = imageUrl pkm
+    --         , description = pkm.name
+    --         }
+    --     , el [centerX] <| text pkm.name
+    --     , row 
+    --         [ spacing 5
+    --         ]
+    --         ( calcTotalEffectivenessAgainst pkm allTypes
+    --         |> List.map viewTypeEffectivenessBadge
+    --         )
+    --     ]
+
+
+-- Helper view functions
+
+
+viewTypeEffectivenessBadge : (Type, Float) -> Html msg
+viewTypeEffectivenessBadge (type_, effectivenesss) =
+    text <| type_.name ++ String.fromFloat effectivenesss
+    -- let
+    --     beautify f = 
+    --         if (abs (f - 0.5) < 0.001) then "½"
+    --         else if (abs (f - 0.25) < 0.001) then "¼"
+    --         else String.fromFloat f
+    -- in
+    --     row [ Background.color type_.color
+    --         , padding 5
+    --         , spacing 5
+    --         , Border.rounded 10
+    --         ]
+    --         [ text type_.name
+    --         , text <| beautify effectivenesss
+    --         ]
 
 
 -- Helper functions
@@ -110,24 +114,6 @@ calcTotalEffectivenessAgainst pkm allTypes =
         combined = List.foldl (combineOrAdd typesEffectivenessAgainstThisPokemon) [] typesEffectivenessAgainstThisPokemon |> List.filter (\(_, f) -> f /= 1)
     in
         List.sortBy (\(_, f) -> -f) combined
-
-
-viewTypeEffectivenessBadge : (Type, Float) -> Element msg
-viewTypeEffectivenessBadge (type_, effectivenesss) =
-    let
-        beautify f = 
-            if (abs (f - 0.5) < 0.001) then "½"
-            else if (abs (f - 0.25) < 0.001) then "¼"
-            else String.fromFloat f
-    in
-        row [ Background.color type_.color
-            , padding 5
-            , spacing 5
-            , Border.rounded 10
-            ]
-            [ text type_.name
-            , text <| beautify effectivenesss
-            ]
 
 
 parsePokemonToTypeMappingsCsvString : String -> List (Int, Int)
