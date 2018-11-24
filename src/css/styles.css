@@ -74,20 +74,31 @@ body {
 
 
 
-.details {
-	/*background set in code*/
+
+.detailsWrapper {
+	pointer-events: none;
 	position: fixed;
 	left: 50%;
 	top: 50%;
- 	transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	height: auto;
 	z-index: 200;
+}
+
+.details {
+	pointer-events: all;
 	border-radius: 10pt;
 	overflow: hidden;
 	cursor: zoom-out;
+	transition: all .3s ease-in-out;
 	box-shadow: 
 		2pt 4pt 4pt 4pt rgba(0, 0, 0, .3),
 		inset 0 -2pt 2pt rgba(0, 0, 0, 0.2), 
 		inset 0 2pt 2pt rgba(255, 255, 255, 0.2);
+}
+
+.hidden .details {
+	transform: scale(0, 0);
 }
 
 .details .pokemon img {

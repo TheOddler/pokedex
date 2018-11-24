@@ -17,7 +17,7 @@ type alias Model =
     { searchString: String
     , pokemon: List Pokemon
     , types: Dict Int Type
-    , selected: Maybe Pokemon
+    , selected: Selected
     }
 
 
@@ -27,13 +27,21 @@ type Msg
     | Deselect
 
 
+type Selected 
+    = Selected Pokemon
+    | Deselected Pokemon
+
+
 init : Model
 init = 
-    { searchString = ""
-    , pokemon = Pokemon.parse Data.Pokemon.csv Data.PokemonTypes.csv
-    , types = Types.parse Data.Types.csv Data.TypeEffectiveness.csv
-    , selected = Nothing
-    }
+    let
+        allPokemon = Pokemon.parse Data.Pokemon.csv Data.PokemonTypes.csv
+    in
+        { searchString = ""
+        , pokemon = allPokemon
+        , types = Types.parse Data.Types.csv Data.TypeEffectiveness.csv
+        , selected = Deselected (List.head allPokemon |> Maybe.withDefault { id = -1, speciesId = -1,name = "", types = []})
+        }
 
 
 main = Browser.sandbox { init = init, update = update, view = view }
@@ -43,8 +51,11 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         SetSearch s -> {model | searchString = s}
-        Select p -> { model | selected = Just p}
-        Deselect -> { model | selected = Nothing}
+        Select p -> { model | selected = Selected p}
+        Deselect -> 
+            case model.selected of 
+                Selected p -> { model | selected = Deselected p }
+                _ -> model
 
 
 view : Model -> Html Msg
@@ -59,8 +70,8 @@ view model =
             , onInput SetSearch
             ] []
         , case model.selected of
-            Just pkm -> Pokemon.viewDetail model.types pkm
-            Nothing -> div [] []
+            Selected pkm -> div [ class "detailsWrapper" ] [ Pokemon.viewDetail model.types pkm ]
+            Deselected pkm -> div [ class "hidden", class "detailsWrapper" ] [ Pokemon.viewDetail model.types pkm ]
         , ul [ class "list" ]
             <| List.map (viewWrapPokemon model) model.pokemon
         ]
