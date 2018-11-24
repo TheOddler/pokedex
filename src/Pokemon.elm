@@ -1,6 +1,6 @@
 module Pokemon exposing (Pokemon, parse, view, viewDetail)
 
-import Html exposing (Html, text, img, figure, figcaption)
+import Html exposing (Html, div, text, img, figure, figcaption)
 import Html.Attributes exposing (class, src, style)
 import Html.Events exposing (on)
 import Dict exposing (Dict)
@@ -85,21 +85,18 @@ viewDetail allTypes pkm =
 
 viewTypeEffectivenessBadge : (Type, Float) -> Html msg
 viewTypeEffectivenessBadge (type_, effectivenesss) =
-    text <| type_.name ++ String.fromFloat effectivenesss
-    -- let
-    --     beautify f = 
-    --         if (abs (f - 0.5) < 0.001) then "½"
-    --         else if (abs (f - 0.25) < 0.001) then "¼"
-    --         else String.fromFloat f
-    -- in
-    --     row [ Background.color type_.color
-    --         , padding 5
-    --         , spacing 5
-    --         , Border.rounded 10
-    --         ]
-    --         [ text type_.name
-    --         , text <| beautify effectivenesss
-    --         ]
+    let
+        beautify f = 
+            if (abs (f - 0.5) < 0.001) then "½"
+            else if (abs (f - 0.25) < 0.001) then "¼"
+            else String.fromFloat f
+    in
+        div [ style "background-color" type_.color
+            , class "effectivenessBadge"
+            ]
+            [ div [] [ text  type_.name ]
+            , div [] [ text <| String.fromFloat effectivenesss ]
+            ]
 
 
 -- Helper functions
