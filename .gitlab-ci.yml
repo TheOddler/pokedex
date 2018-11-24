@@ -5,7 +5,7 @@ pages:
   script:
   - npm install -g elm --unsafe-perm=true --allow-root
   - mkdir public
-  - mkdir public\css
+  - mkdir public/css
   - cp src/index.html public
   - cp src/css/*.css public/css/
   - elm make src/Main.elm --output=public/elm.js --optimize
