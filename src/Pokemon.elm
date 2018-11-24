@@ -92,7 +92,7 @@ backgroundFor pkm allTypes =
         types = List.filterMap (\t -> Dict.get t allTypes) pkm.types
     in
         case types of
-            [ one ] -> style "background-color" one.color
+            --[ one ] -> style "background-color" one.color
             many -> style "background-image" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
 
 
