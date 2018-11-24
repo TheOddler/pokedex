@@ -1,5 +1,10 @@
 body {
 	background-color: rgb(230, 230, 230);
+	font-family: Arial, Helvetica, sans-serif;
+	color: white;
+	text-shadow: 1px 1px black, 0 0 2pt rgba(0, 0, 0, 0.5);
+	text-align: center;
+	overflow-x: hidden;
 }
 
 
@@ -16,7 +21,6 @@ body {
 	padding: 5pt;
 	border-radius: 10pt;
 	border: 0;
-	text-align: center;
 	width: 150pt;
 
 	background-color: rgba(255,255,255,.8);
@@ -37,8 +41,11 @@ body {
 	border-radius: 10pt;
 	overflow: hidden;
 	transition: all .5s cubic-bezier(0, 1, .5, 1.5);
-
 	display: inline-block;
+}
+
+.pokedex .list .item figure {
+	padding: 0 2pt 6pt 2pt;
 }
 
 .pokedex .list .item:hover {
@@ -67,12 +74,53 @@ body {
 
 
 
-.pokedex .details {
+.details {
+	/*background set in code*/
 	position: fixed;
 	left: 50%;
 	top: 50%;
  	transform: translate(-50%, -50%);
 	z-index: 200;
+	border-radius: 10pt;
+	overflow: hidden;
+	cursor: zoom-out;
+	box-shadow: 
+		2pt 4pt 4pt 4pt rgba(0, 0, 0, .3),
+		inset 0 -2pt 2pt rgba(0, 0, 0, 0.2), 
+		inset 0 2pt 2pt rgba(255, 255, 255, 0.2);
+}
 
-	background-color: rgba(255,255,255,.8);
+.details .pokemon img {
+	width: 192px;
+	height: auto;
+}
+
+.details .pokemon .name {
+	font-size: 150%;
+}
+
+.details .damageChart {
+	padding: 6pt;
+	margin: 0;
+}
+
+.details .damageChart .effectivenessBadge {
+	margin: 2pt;
+	padding: 2pt 4pt;
+	border-radius: 4pt;
+	box-shadow: 
+		inset 0 -1.5pt 0 rgba(0, 0, 0, 0.2), 
+		inset 0 1.5pt 0 rgba(255, 255, 255, 0.2);
+
+	display: inline-block;
+}
+
+.details .damageChart .effectivenessBadge .type {
+	text-transform: uppercase;
+	padding-right: 6pt;
+	display: inline-block;
+}
+
+.details .damageChart .effectivenessBadge .effectiveness {
+	display: inline-block;
 }

@@ -1,6 +1,6 @@
 module Pokemon exposing (Pokemon, parse, view, viewDetail)
 
-import Html exposing (Html, div, text, img, figure, figcaption)
+import Html exposing (Html, div, ul, li, text, img, figure, figcaption)
 import Html.Attributes exposing (class, src, style)
 import Html.Events exposing (on)
 import Dict exposing (Dict)
@@ -27,8 +27,8 @@ parse pokemonCsvString pokemonToTypesMappingCsvString =
         Csv.parse pokemonCsvString |> .records |> List.filterMap (parsePokemon pokemonToTypesMapping)
 
 
-view : (Pokemon -> msg) -> Dict Int Type -> Pokemon -> Html msg
-view onClick allTypes pkm =
+view : Dict Int Type -> Pokemon -> Html msg
+view allTypes pkm =
     figure 
         [ backgroundFor pkm allTypes
         , class "pokemon"
@@ -38,7 +38,7 @@ view onClick allTypes pkm =
             ] []
         , figcaption 
             [ class "name"
-            ] 
+            ]
             [ text pkm.name
             ]
         ]
@@ -46,18 +46,24 @@ view onClick allTypes pkm =
 
 viewDetail : Dict Int Type -> Pokemon -> Html msg
 viewDetail allTypes pkm =
-    figure 
-        [ backgroundFor pkm allTypes
-        , class "pokemon"
+    div
+        [ class "details"
+        , backgroundFor pkm allTypes
         ]
-        [ img
-            [ src <| imageUrl pkm
-            ] []
-        , figcaption 
-            [ class "name"
-            ] 
-            [ text pkm.name
+        [ figure 
+            [ class "pokemon"
             ]
+            [ img
+                [ src <| imageUrl pkm
+                ] []
+            , figcaption 
+                [ class "name"
+                ] 
+                [ text pkm.name
+                ]
+            ]
+        , ul [ class "damageChart" ]
+            <| List.map viewTypeEffectivenessBadge <| calcTotalEffectivenessAgainst pkm allTypes
         ]
 
 
@@ -72,11 +78,11 @@ viewTypeEffectivenessBadge (type_, effectivenesss) =
             else if (abs (f - 0.25) < 0.001) then "¼"
             else String.fromFloat f
     in
-        div [ style "background-color" type_.color
+        li [ style "background-color" type_.color
             , class "effectivenessBadge"
             ]
-            [ div [] [ text  type_.name ]
-            , div [] [ text <| String.fromFloat effectivenesss ]
+            [ div [ class "type" ] [ text  type_.name ]
+            , div [ class "effectiveness" ] [ text <| beautify effectivenesss ]
             ]
 
 

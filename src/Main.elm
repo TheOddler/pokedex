@@ -58,11 +58,9 @@ view model =
             , value model.searchString
             , onInput SetSearch
             ] []
-        , div [ class "details" ]
-            [ case model.selected of
-                Just pkm -> Pokemon.viewDetail model.types pkm
-                Nothing -> div [] []
-            ]
+        , case model.selected of
+            Just pkm -> Pokemon.viewDetail model.types pkm
+            Nothing -> div [] []
         , ul [ class "list" ]
             <| List.map (viewWrapPokemon model) model.pokemon
         ]
@@ -76,4 +74,4 @@ viewWrapPokemon model pkm =
             ]
         , stopPropagationOn "click" <| Decode.succeed (Select pkm, True)
         ] 
-        [ Pokemon.view Select model.types pkm ]
+        [ Pokemon.view model.types pkm ]
