@@ -52,8 +52,7 @@ view model =
     div [ class "pokedex"
         , onClick Deselect
         ]
-        [ text "Pokédex"
-        , input
+        [ input
             [ id "search"
             , placeholder "Type to search for a Pokémon..."
             , value model.searchString

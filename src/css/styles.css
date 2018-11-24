@@ -4,8 +4,30 @@ body {
 
 
 
+
+#search {
+	position: fixed;
+	left: 50%;
+	top: 0%;
+ 	transform: translate(-50%, 0);
+	z-index: 200;
+	margin: 5pt;
+
+	padding: 5pt;
+	border-radius: 10pt;
+	border: 0;
+	text-align: center;
+	width: 150pt;
+
+	background-color: rgba(255,255,255,.8);
+}
+
+
+
+
 .pokedex .list {
 	text-align: center;
+	margin-top: 35pt;
 	padding: 0;
 }
 
@@ -34,9 +56,23 @@ body {
 
 .pokemon {
 	margin: 0;
+	/*background set in code*/
 }
 
 .pokemon img {
 	width: 96px;
 	height: 96px;
+}
+
+
+
+
+.pokedex .details {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+ 	transform: translate(-50%, -50%);
+	z-index: 200;
+
+	background-color: rgba(255,255,255,.8);
 }

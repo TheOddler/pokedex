@@ -28,56 +28,37 @@ parse pokemonCsvString pokemonToTypesMappingCsvString =
 
 
 view : (Pokemon -> msg) -> Dict Int Type -> Pokemon -> Html msg
-view onClick allTypes pkm = 
-    let
-        types = List.filterMap (\t -> Dict.get t allTypes) pkm.types
-        background =
-            case types of
-                [ one ] -> style "background-color" one.color
-                many -> style "background-image" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
-    in
-        figure 
-            [ background
-            , class "pokemon"
+view onClick allTypes pkm =
+    figure 
+        [ backgroundFor pkm allTypes
+        , class "pokemon"
+        ]
+        [ img
+            [ src <| imageUrl pkm
+            ] []
+        , figcaption 
+            [ class "name"
+            ] 
+            [ text pkm.name
             ]
-            [ img
-                [ src <| imageUrl pkm
-                ] []
-            , figcaption 
-                [ class "name"
-                ] 
-                [ text pkm.name
-                ]
-            ]
+        ]
 
 
 viewDetail : Dict Int Type -> Pokemon -> Html msg
 viewDetail allTypes pkm =
-    text pkm.name
-    -- column 
-    --     [ Border.rounded 10
-    --     , Background.gradient
-    --         { angle = pi / 2
-    --         , steps = List.filterMap (\i -> Dict.get i allTypes) pkm.types |> List.map .color |> List.concatMap (\c -> [c, c])
-    --         }
-    --     , padding 10
-    --     ]
-    --     [ image 
-    --         [ centerX
-    --         , height (shrink |> minimum 96)
-    --         , width (shrink |> minimum 96)
-    --         ]
-    --         { src = imageUrl pkm
-    --         , description = pkm.name
-    --         }
-    --     , el [centerX] <| text pkm.name
-    --     , row 
-    --         [ spacing 5
-    --         ]
-    --         ( calcTotalEffectivenessAgainst pkm allTypes
-    --         |> List.map viewTypeEffectivenessBadge
-    --         )
-    --     ]
+    figure 
+        [ backgroundFor pkm allTypes
+        , class "pokemon"
+        ]
+        [ img
+            [ src <| imageUrl pkm
+            ] []
+        , figcaption 
+            [ class "name"
+            ] 
+            [ text pkm.name
+            ]
+        ]
 
 
 -- Helper view functions
@@ -97,6 +78,16 @@ viewTypeEffectivenessBadge (type_, effectivenesss) =
             [ div [] [ text  type_.name ]
             , div [] [ text <| String.fromFloat effectivenesss ]
             ]
+
+
+backgroundFor : Pokemon -> Dict Int Type -> Html.Attribute msg
+backgroundFor pkm allTypes =
+    let
+        types = List.filterMap (\t -> Dict.get t allTypes) pkm.types
+    in
+        case types of
+            [ one ] -> style "background-color" one.color
+            many -> style "background-image" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
 
 
 -- Helper functions
