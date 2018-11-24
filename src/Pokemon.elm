@@ -1,16 +1,19 @@
 module Pokemon exposing (Pokemon, parse, view, viewDetail)
 
 import Html exposing (Html, text, img, figure, figcaption)
-import Html.Attributes exposing (class, src, attribute, style)
+import Html.Attributes exposing (class, src, style)
+import Html.Events exposing (on)
 import Dict exposing (Dict)
 import Csv
 import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
+import String.Extra exposing (toTitleCase)
 
 import Types exposing (Type)
 
 type alias Pokemon =
     { id: Int
+    , speciesId: Int
     , name: String
     , types: List Int
     }
@@ -37,10 +40,14 @@ view onClick allTypes pkm =
             [ background
             , class "pokemon"
             ]
-            [ img   [ src <| imageUrl pkm
-                    , attribute "onerror" "this.onerror=null;this.src='images/missing-image.png';"
-                    ] []
-            , figcaption [] [ text pkm.name ]
+            [ img
+                [ src <| imageUrl pkm
+                ] []
+            , figcaption 
+                [ class "name"
+                ] 
+                [ text pkm.name
+                ]
             ]
 
 
@@ -145,19 +152,25 @@ parsePokemonToTypeMapping mapping = -- pokemon_id,type_id,slot
 parsePokemon : List (Int, Int) -> List String -> Maybe Pokemon
 parsePokemon pokemonToTypesMapping csv = 
     case csv of
-        id::identifier::_ ->
-            case String.toInt id of
-                Just i -> Just 
-                    { id = i
-                    , name = identifier
+        idStr::identifier::speciesIdStr::_ ->
+            case (String.toInt idStr, String.toInt speciesIdStr) of
+                (Just id, Just speciesId) -> Just 
+                    { id = id
+                    , speciesId = speciesId
+                    , name = toTitleCase identifier
                     , types = 
                         pokemonToTypesMapping 
-                        |> List.filter (\(p, t) -> p == i)
+                        |> List.filter (\(p, t) -> p == id)
                         |> List.map (\(p, t) -> t)
                     }
-                Nothing -> Nothing
-        other -> Nothing
+                _ -> Nothing
+        _ -> Nothing
 
 
 imageUrl : Pokemon -> String
-imageUrl pkm = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ (String.fromInt pkm.id) ++ ".png"
+imageUrl pkm =
+    let
+        base = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+    in
+        if String.endsWith "-alola" pkm.name then base ++ (String.fromInt pkm.speciesId) ++ "-alola.png"
+        else base ++ (String.fromInt pkm.id) ++ ".png"

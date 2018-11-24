@@ -22,7 +22,7 @@ body {
 .pokedex .list .item:hover {
 	transform: scale(1.5, 1.5);
 	z-index: 100;
-	box-shadow: 1pt 2pt 2pt 2pt rgba(0, 0, 0, .5);
+	box-shadow: 1pt 2pt 2pt 2pt rgba(0, 0, 0, .3);
 }
 
 .pokedex .list .item.hidden {

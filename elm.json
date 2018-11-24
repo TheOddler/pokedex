@@ -11,6 +11,7 @@
             "elm/html": "1.0.0",
             "elm-community/list-extra": "8.1.0",
             "elm-community/maybe-extra": "5.0.0",
+            "elm-community/string-extra": "4.0.0",
             "lovasoa/elm-csv": "1.1.5"
         },
         "indirect": {

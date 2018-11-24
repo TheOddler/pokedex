@@ -1,8 +1,9 @@
 import Browser
 import Html exposing (Html, div, ul, li, text, input)
-import Html.Attributes exposing (class, id, placeholder, value)
+import Html.Attributes exposing (class, id, placeholder, value, classList)
 import Html.Events exposing (onInput)
 import Dict exposing (Dict)
+import String exposing (toLower)
 
 import Pokemon exposing (Pokemon)
 import Data.Pokemon
@@ -62,7 +63,9 @@ view model =
 viewWrapPokemon : Model -> Pokemon -> Html Msg
 viewWrapPokemon model pkm = 
     li 
-        [ class "item" 
-        , if String.contains model.searchString pkm.name then class "" else class "hidden"
+        [ classList
+            [ ("item", True)
+            , ("hidden", not <| String.contains (toLower model.searchString) (toLower pkm.name))
+            ]
         ] 
         [ Pokemon.view Select model.types pkm ]
