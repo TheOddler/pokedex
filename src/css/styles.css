@@ -22,7 +22,7 @@ body {
 .pokedex .list .item:hover {
 	transform: scale(1.5, 1.5);
 	z-index: 100;
-	box-shadow: 0 2pt 2pt 2pt rgba(0, 0, 0, .5);
+	box-shadow: 1pt 2pt 2pt 2pt rgba(0, 0, 0, .5);
 }
 
 .pokedex .list .item.hidden {
@@ -34,4 +34,9 @@ body {
 
 .pokemon {
 	margin: 0;
+}
+
+.pokemon img {
+	width: 96px;
+	height: 96px;
 }
