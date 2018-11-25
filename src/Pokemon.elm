@@ -7,14 +7,15 @@ import Dict exposing (Dict)
 import Csv
 import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
-import String.Extra exposing (toTitleCase)
+import Regex exposing (Regex, fromString, replace)
+import String.Extra exposing (humanize, toTitleCase)
 
 import Types exposing (Type, viewBadge, totalEffectivenessAgainst, idsToTypes, backgroundFor)
 
 type alias Pokemon =
     { id: Int
     , speciesId: Int
-    , name: String
+    , identifier: String
     , types: List Int
     }
 
@@ -39,7 +40,7 @@ view allTypes pkm =
         , figcaption 
             [ class "name"
             ]
-            [ text pkm.name
+            [ text <| beautyName pkm.identifier
             ]
         ]
 
@@ -64,7 +65,7 @@ viewDetail allTypes pkm =
                 , figcaption 
                     [ class "name"
                     ] 
-                    [ text pkm.name
+                    [ text <| beautyName pkm.identifier
                     ]
                 ]
             , div [ class "typeChart" ]
@@ -75,6 +76,27 @@ viewDetail allTypes pkm =
 
 
 -- Helper functions
+
+
+beautyName : String -> String
+beautyName name =
+    let
+        female : Regex
+        female = fromString "(\\bf\\b|\\bfemale\\b)" |> Maybe.withDefault Regex.never
+
+        male : Regex
+        male = fromString "(\\bm\\b|\\bmale\\b)" |> Maybe.withDefault Regex.never
+
+        moveMega : String -> String
+        moveMega n =
+            if String.contains "-mega" n then "Mega " ++ String.replace "-mega" "" n
+            else n
+    in name
+        |> replace female (always "♀")
+        |> replace male (always "♂")
+        |> moveMega
+        |> humanize
+        |> toTitleCase
 
 
 parsePokemonToTypeMappingsCsvString : String -> List (Int, Int)
@@ -102,7 +124,7 @@ parsePokemon pokemonToTypesMapping csv =
                 (Just id, Just speciesId) -> Just 
                     { id = id
                     , speciesId = speciesId
-                    , name = toTitleCase identifier
+                    , identifier = identifier
                     , types = 
                         pokemonToTypesMapping 
                         |> List.filter (\(p, t) -> p == id)
@@ -117,5 +139,5 @@ imageUrl pkm =
     let
         base = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
     in
-        if String.endsWith "-alola" pkm.name then base ++ (String.fromInt pkm.speciesId) ++ "-alola.png"
+        if String.endsWith "-alola" pkm.identifier then base ++ (String.fromInt pkm.speciesId) ++ "-alola.png"
         else base ++ (String.fromInt pkm.id) ++ ".png"

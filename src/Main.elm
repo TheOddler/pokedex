@@ -40,7 +40,7 @@ init =
         { searchString = ""
         , pokemon = allPokemon
         , types = Types.parse Data.Types.csv Data.TypeEffectiveness.csv
-        , selected = Deselected (List.head allPokemon |> Maybe.withDefault { id = -1, speciesId = -1,name = "", types = []})
+        , selected = Deselected (List.head allPokemon |> Maybe.withDefault { id = -1, speciesId = -1, identifier = "", types = []})
         }
 
 
@@ -81,7 +81,7 @@ viewWrapPokemon model pkm =
     div 
         [ classList
             [ ("item", True)
-            , ("hidden", not <| String.contains (toLower model.searchString) (toLower pkm.name))
+            , ("hidden", not <| String.contains (toLower model.searchString) pkm.identifier)
             ]
         , stopPropagationOn "click" <| Decode.succeed (Select pkm, True)
         ] 

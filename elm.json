@@ -10,13 +10,13 @@
             "elm/core": "1.0.2",
             "elm/html": "1.0.0",
             "elm/json": "1.1.2",
+            "elm/regex": "1.0.0",
             "elm-community/list-extra": "8.1.0",
             "elm-community/maybe-extra": "5.0.0",
             "elm-community/string-extra": "4.0.0",
             "lovasoa/elm-csv": "1.1.5"
         },
         "indirect": {
-            "elm/regex": "1.0.0",
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
             "elm/virtual-dom": "1.0.2"
