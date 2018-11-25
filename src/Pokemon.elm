@@ -9,7 +9,7 @@ import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
 import String.Extra exposing (toTitleCase)
 
-import Types exposing (Type)
+import Types exposing (Type, viewBadge, totalEffectivenessAgainst)
 
 type alias Pokemon =
     { id: Int
@@ -46,84 +46,43 @@ view allTypes pkm =
 
 viewDetail : Dict Int Type -> Pokemon -> Html msg
 viewDetail allTypes pkm =
-    div
-        [ class "details"
-        , backgroundFor pkm allTypes
-        ]
-        [ figure 
-            [ class "pokemon"
+    let
+        viewBedgeWE (t, e) = viewBadge t (Just e)
+    in
+        div
+            [ class "details"
+            , backgroundFor pkm allTypes
             ]
-            [ img
-                [ src <| imageUrl pkm
-                ] []
-            , figcaption 
-                [ class "name"
-                ] 
-                [ text pkm.name
+            [ figure 
+                [ class "pokemon"
                 ]
+                [ img
+                    [ src <| imageUrl pkm
+                    ] []
+                , figcaption 
+                    [ class "name"
+                    ] 
+                    [ text pkm.name
+                    ]
+                ]
+            , div [ class "damageChart" ]
+                <| List.map viewBedgeWE <| totalEffectivenessAgainst pkm.types allTypes
             ]
-        , ul [ class "damageChart" ]
-            <| List.map viewTypeEffectivenessBadge <| calcTotalEffectivenessAgainst pkm allTypes
-        ]
 
 
 -- Helper view functions
-
-
-viewTypeEffectivenessBadge : (Type, Float) -> Html msg
-viewTypeEffectivenessBadge (type_, effectivenesss) =
-    let
-        beautify f = 
-            if (abs (f - 0.5) < 0.001) then "½"
-            else if (abs (f - 0.25) < 0.001) then "¼"
-            else String.fromFloat f
-    in
-        li [ style "background-color" type_.color
-            , class "effectivenessBadge"
-            ]
-            [ div [ class "type" ] [ text  type_.name ]
-            , div [ class "effectiveness" ] [ text <| beautify effectivenesss ]
-            ]
 
 
 backgroundFor : Pokemon -> Dict Int Type -> Html.Attribute msg
 backgroundFor pkm allTypes =
     let
         types = List.filterMap (\t -> Dict.get t allTypes) pkm.types
+        duplicate c = [c, c]
     in
-        case types of
-            --[ one ] -> style "background-color" one.color
-            many -> style "background" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
+        style "background" <| "linear-gradient(to right, " ++ String.join "," (List.concatMap (.color >> duplicate) types) ++ ")"
 
 
 -- Helper functions
-
-
-calcTotalEffectivenessAgainst : Pokemon -> Dict Int Type -> List (Type, Float)
-calcTotalEffectivenessAgainst pkm allTypes =
-    let
-        effectivenessAgainstType : Int -> Type -> Float
-        effectivenessAgainstType targetId source = Dict.get targetId source.effectiveness |> Maybe.withDefault 1
-
-        typesEffectivenessAgainstType : Int -> List (Type, Float)
-        typesEffectivenessAgainstType targetId = List.map (\t -> (t, effectivenessAgainstType targetId t)) (Dict.values allTypes) |> List.filter (\(_, f) -> f /= 1)
-
-        typesEffectivenessAgainstThisPokemon : List (Type, Float)
-        typesEffectivenessAgainstThisPokemon = List.concatMap typesEffectivenessAgainstType pkm.types
-
-        combineOrAdd : List (Type, Float) -> (Type, Float) -> List (Type, Float) -> List (Type, Float)
-        combineOrAdd all toAdd existing =
-            let
-                (toAddT, toAddF) = toAdd
-            in
-                case List.any (\(t, _) -> t == toAddT) existing of
-                    True -> existing
-                    False -> (toAddT, List.product <| List.map (\(_, f) -> f) <| List.filter (\(t, _) -> t == toAddT) all) :: existing
-
-        combined : List (Type, Float)
-        combined = List.foldl (combineOrAdd typesEffectivenessAgainstThisPokemon) [] typesEffectivenessAgainstThisPokemon |> List.filter (\(_, f) -> f /= 1)
-    in
-        List.sortBy (\(_, f) -> -f) combined
 
 
 parsePokemonToTypeMappingsCsvString : String -> List (Int, Int)

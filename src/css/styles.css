@@ -115,7 +115,7 @@ body {
 	margin: 0;
 }
 
-.details .damageChart .effectivenessBadge {
+.details .damageChart .typeBadge {
 	margin: 2pt;
 	padding: 2pt 4pt;
 	border-radius: 4pt;
@@ -126,12 +126,12 @@ body {
 	display: inline-block;
 }
 
-.details .damageChart .effectivenessBadge .type {
+.details .damageChart .typeBadge .type {
 	text-transform: uppercase;
 	padding-right: 6pt;
 	display: inline-block;
 }
 
-.details .damageChart .effectivenessBadge .effectiveness {
+.details .damageChart .typeBadge .effectiveness {
 	display: inline-block;
 }

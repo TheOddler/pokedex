@@ -1,5 +1,7 @@
-module Types exposing (Type, parse)
+module Types exposing (Type, parse, viewBadge, totalEffectivenessAgainst)
 
+import Html exposing (Html, div, text)
+import Html.Attributes exposing (class, src, style)
 import Csv
 import Maybe.Extra
 import Dict exposing (Dict, fromList)
@@ -24,6 +26,52 @@ parse typesCsvString typeEffectivenessCsvString =
             |> List.filterMap (parseType effectiveness)
     in
         fromList types
+
+
+viewBadge : Type -> Maybe Float -> Html msg
+viewBadge type_ effectivenesss =
+    let
+        beautify f = 
+            if (abs (f - 0.5) < 0.001) then "½"
+            else if (abs (f - 0.25) < 0.001) then "¼"
+            else String.fromFloat f
+        typeHtml = div [ class "type" ] [ text  type_.name ]
+        allHtml =
+            case effectivenesss of
+                Just e -> [ typeHtml, div [ class "effectiveness" ] [ text <| beautify e ] ]
+                Nothing -> [ typeHtml ]
+    in
+        div [ style "background-color" type_.color
+            , class "typeBadge"
+            ]
+            allHtml
+
+
+totalEffectivenessAgainst : List Int -> Dict Int Type -> List (Type, Float)
+totalEffectivenessAgainst pkmTypeIds allTypes =
+    let
+        effectivenessAgainstType : Int -> Type -> Float
+        effectivenessAgainstType targetId source = Dict.get targetId source.effectiveness |> Maybe.withDefault 1
+
+        typesEffectivenessAgainstType : Int -> List (Type, Float)
+        typesEffectivenessAgainstType targetId = List.map (\t -> (t, effectivenessAgainstType targetId t)) (Dict.values allTypes) |> List.filter (\(_, f) -> f /= 1)
+
+        typesEffectivenessAgainstThisPokemon : List (Type, Float)
+        typesEffectivenessAgainstThisPokemon = List.concatMap typesEffectivenessAgainstType pkmTypeIds
+
+        combineOrAdd : List (Type, Float) -> (Type, Float) -> List (Type, Float) -> List (Type, Float)
+        combineOrAdd all toAdd existing =
+            let
+                (toAddT, toAddF) = toAdd
+            in
+                case List.any (\(t, _) -> t == toAddT) existing of
+                    True -> existing
+                    False -> (toAddT, List.product <| List.map (\(_, f) -> f) <| List.filter (\(t, _) -> t == toAddT) all) :: existing
+
+        combined : List (Type, Float)
+        combined = List.foldl (combineOrAdd typesEffectivenessAgainstThisPokemon) [] typesEffectivenessAgainstThisPokemon |> List.filter (\(_, f) -> f /= 1)
+    in
+        List.sortBy (\(_, f) -> -f) combined
 
 
 -- Helper functions
