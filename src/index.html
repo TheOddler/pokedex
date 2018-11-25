@@ -11,7 +11,11 @@
             // auto focus the search
             document.onkeydown = function(e) {
                 if (e.keyCode != 27) { //27 = escape, used by my Elm
-                    document.getElementById("search").focus();
+                    var search = document.getElementById("search")
+					if (document.activeElement != search){
+						search.select()
+					}
+					search.focus()
                 }
             }
 		</script>
