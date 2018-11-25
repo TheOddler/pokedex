@@ -138,6 +138,20 @@ imageUrl : Pokemon -> String
 imageUrl pkm =
     let
         base = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+        totems = -- Special case totems to use normal image (there are more, but those have a proper image)
+            [ 10128 -- Lurantis
+            , 10129 -- Salazzle
+            , 10146 -- Kommo-o
+            , 10153 -- Araquanid
+            , 10154 -- Togedemaru
+            ]
     in
-        if String.endsWith "-alola" pkm.identifier then base ++ (String.fromInt pkm.speciesId) ++ "-alola.png"
+        -- special ovverride for some of the Pikachu
+        if pkm.id >= 10080 && pkm.id <= 10085 then base ++ (String.fromInt pkm.id) ++ ".png"
+        -- special ovverride for some totem pokemon (no image found, so use normal one)
+        else if List.member pkm.id totems then base ++ (String.fromInt pkm.speciesId) ++ ".png"
+        -- special override for Meowstic female
+        else if pkm.identifier == "meowstic-female" then base ++ "female/" ++ (String.fromInt pkm.speciesId) ++ ".png"
+        -- special forms
+        else if pkm.id > 10000 && String.contains "-" pkm.identifier  then base ++ (String.fromInt pkm.speciesId) ++ "-" ++ String.Extra.rightOf "-" pkm.identifier ++ ".png"
         else base ++ (String.fromInt pkm.id) ++ ".png"
