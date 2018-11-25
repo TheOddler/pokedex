@@ -1,7 +1,8 @@
 import Browser
 import Html exposing (Html, div, text, input)
 import Html.Attributes exposing (class, id, placeholder, value, classList)
-import Html.Events exposing (onInput, onClick, stopPropagationOn)
+import Html.Events exposing (onInput, onClick)
+import Html.Lazy as Lazy
 import Dict exposing (Dict)
 import String exposing (toLower)
 import Json.Decode as Decode
@@ -61,7 +62,6 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "pokedex"
-        , onClick Deselect
         ]
         [ input
             [ id "search"
@@ -70,8 +70,8 @@ view model =
             , onInput SetSearch
             ] []
         , case model.selected of
-            Selected pkm -> div [ class "detailsWrapper" ] [ Pokemon.viewDetail model.types pkm ]
-            Deselected pkm -> div [ class "hidden", class "detailsWrapper" ] [ Pokemon.viewDetail model.types pkm ]
+            Selected pkm -> div [ class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail model.types pkm ]
+            Deselected pkm -> div [ class "hidden", class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail model.types pkm ]
         , div [ class "list" ]
             <| List.map (viewWrapPokemon model) model.pokemon
         ]
@@ -83,6 +83,6 @@ viewWrapPokemon model pkm =
             [ ("item", True)
             , ("hidden", not <| String.contains (toLower model.searchString) pkm.identifier)
             ]
-        , stopPropagationOn "click" <| Decode.succeed (Select pkm, True)
+        , onClick <| Select pkm
         ] 
-        [ Pokemon.view model.types pkm ]
+        [ Lazy.lazy2 Pokemon.view model.types pkm ]
