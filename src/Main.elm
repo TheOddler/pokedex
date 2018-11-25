@@ -1,5 +1,5 @@
 import Browser
-import Html exposing (Html, div, ul, li, text, input)
+import Html exposing (Html, div, text, input)
 import Html.Attributes exposing (class, id, placeholder, value, classList)
 import Html.Events exposing (onInput, onClick, stopPropagationOn)
 import Dict exposing (Dict)
@@ -72,13 +72,13 @@ view model =
         , case model.selected of
             Selected pkm -> div [ class "detailsWrapper" ] [ Pokemon.viewDetail model.types pkm ]
             Deselected pkm -> div [ class "hidden", class "detailsWrapper" ] [ Pokemon.viewDetail model.types pkm ]
-        , ul [ class "list" ]
+        , div [ class "list" ]
             <| List.map (viewWrapPokemon model) model.pokemon
         ]
 
 viewWrapPokemon : Model -> Pokemon -> Html Msg
 viewWrapPokemon model pkm = 
-    li 
+    div 
         [ classList
             [ ("item", True)
             , ("hidden", not <| String.contains (toLower model.searchString) (toLower pkm.name))
