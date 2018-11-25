@@ -9,7 +9,7 @@ import Maybe.Extra exposing (values)
 import List.Extra exposing (last)
 import String.Extra exposing (toTitleCase)
 
-import Types exposing (Type, viewBadge, totalEffectivenessAgainst)
+import Types exposing (Type, viewBadge, totalEffectivenessAgainst, idsToTypes)
 
 type alias Pokemon =
     { id: Int
@@ -47,7 +47,8 @@ view allTypes pkm =
 viewDetail : Dict Int Type -> Pokemon -> Html msg
 viewDetail allTypes pkm =
     let
-        viewBedgeWE (t, e) = viewBadge t (Just e)
+        viewBadgeWE (t, e) = viewBadge t (Just e)
+        viewBadgeWoE t = viewBadge t Nothing
     in
         div
             [ class "details"
@@ -65,8 +66,10 @@ viewDetail allTypes pkm =
                     [ text pkm.name
                     ]
                 ]
+            , div [ class "typeChart" ]
+                <| List.map viewBadgeWoE <| idsToTypes allTypes pkm.types
             , div [ class "damageChart" ]
-                <| List.map viewBedgeWE <| totalEffectivenessAgainst pkm.types allTypes
+                <| List.map viewBadgeWE <| totalEffectivenessAgainst pkm.types allTypes
             ]
 
 
@@ -76,7 +79,7 @@ viewDetail allTypes pkm =
 backgroundFor : Pokemon -> Dict Int Type -> Html.Attribute msg
 backgroundFor pkm allTypes =
     let
-        types = List.filterMap (\t -> Dict.get t allTypes) pkm.types
+        types = idsToTypes allTypes pkm.types
         duplicate c = [c, c]
     in
         style "background" <| "linear-gradient(to right, " ++ String.join "," (List.concatMap (.color >> duplicate) types) ++ ")"

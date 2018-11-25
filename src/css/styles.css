@@ -63,7 +63,7 @@ body {
 		1pt 2pt 2pt 2pt rgba(0, 0, 0, .3);
 }
 
-.list .pokemon figure {
+.list .pokemon {
 	padding: 0 2pt 6pt 2pt;
 }
 
@@ -121,7 +121,10 @@ body {
 	margin: 0;
 }
 
-.details .damageChart .typeBadge {
+
+
+
+.typeBadge {
 	margin: 2pt;
 	padding: 2pt 4pt;
 	border-radius: 4pt;
@@ -132,12 +135,12 @@ body {
 	display: inline-block;
 }
 
-.details .damageChart .typeBadge .type {
+.typeBadge .type {
 	text-transform: uppercase;
-	padding-right: 6pt;
 	display: inline-block;
 }
 
-.details .damageChart .typeBadge .effectiveness {
+.typeBadge .effectiveness {
 	display: inline-block;
+	padding-left: 6pt;
 }

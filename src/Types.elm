@@ -1,4 +1,4 @@
-module Types exposing (Type, parse, viewBadge, totalEffectivenessAgainst)
+module Types exposing (Type, parse, viewBadge, totalEffectivenessAgainst, idToType, idsToTypes)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, src, style)
@@ -74,6 +74,14 @@ totalEffectivenessAgainst pkmTypeIds allTypes =
         List.sortBy (\(_, f) -> -f) combined
 
 
+idToType : Dict Int Type -> Int -> Maybe Type
+idToType allTypes t = Dict.get t allTypes
+
+
+idsToTypes : Dict Int Type -> List Int -> List Type
+idsToTypes allTypes = List.filterMap <| idToType allTypes
+
+
 -- Helper functions
 
 
@@ -132,6 +140,7 @@ toColor name =
         "unknown" -> rgb255 255 255 255
         "shadow" -> rgb255 20 20 20
         _ -> rgb255 255 255 255
+
 
 rgb255 : Int -> Int -> Int -> String
 rgb255 r g b = "rgb(" ++ String.fromInt r ++ "," ++ String.fromInt g ++ "," ++ String.fromInt b ++ ")"
