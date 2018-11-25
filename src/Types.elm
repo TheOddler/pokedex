@@ -1,4 +1,4 @@
-module Types exposing (Type, parse, viewBadge, totalEffectivenessAgainst, idToType, idsToTypes)
+module Types exposing (Type, parse, viewBadge, totalEffectivenessAgainst, idToType, idsToTypes, backgroundFor)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, src, style)
@@ -80,6 +80,14 @@ idToType allTypes t = Dict.get t allTypes
 
 idsToTypes : Dict Int Type -> List Int -> List Type
 idsToTypes allTypes = List.filterMap <| idToType allTypes
+
+
+backgroundFor : List Type -> Html.Attribute msg
+backgroundFor types =
+    let
+        duplicate c = [c, c]
+    in
+        style "background" <| "linear-gradient(to right, " ++ String.join "," (List.concatMap (.color >> duplicate) types) ++ ")"
 
 
 -- Helper functions
