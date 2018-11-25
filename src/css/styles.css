@@ -104,6 +104,7 @@ body {
 
 .hidden .details {
 	transform: scale(0, 0);
+    opacity: 0;
 }
 
 .details .pokemon img {
