@@ -121,6 +121,13 @@ body {
 	margin: 0;
 }
 
+.details .damageChart::before {
+	content: "Type effectiveness:";
+	font-size: 120%;
+	display: block;
+	padding: 6pt;
+}
+
 
 
 
