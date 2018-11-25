@@ -29,44 +29,49 @@ body {
 
 
 
-.pokedex .list {
+.list {
 	text-align: center;
 	margin-top: 35pt;
 	padding: 0;
 }
 
-.pokedex .list .item {
-	cursor: pointer;
-	margin: 2pt;
-	border-radius: 10pt;
-	overflow: hidden;
-	transition: all .5s cubic-bezier(0, 1, .5, 1.5);
+.list .item {
 	display: inline-block;
 }
 
-.pokedex .list .item figure {
+
+
+
+.list .pokemon {
+	margin: 2pt;
+	/*background set in code*/
+	border-radius: 10pt;
+	overflow: hidden;
+	box-shadow:
+		inset 0 -2pt 2pt rgba(0, 0, 0, 0.2), 
+		inset 0 2pt 2pt rgba(255, 255, 255, 0.2);
+	cursor: pointer;
+	transition: all .5s cubic-bezier(0, 1, .5, 1.5);
+}
+
+.list .pokemon:hover {
+	transform: scale(1.5, 1.5);
+	z-index: 100;
+	box-shadow:
+		inset 0 -1pt 1pt rgba(0, 0, 0, 0.2), 
+		inset 0 1pt 1pt rgba(255, 255, 255, 0.2),
+		1pt 2pt 2pt 2pt rgba(0, 0, 0, .3);
+}
+
+.list .pokemon figure {
 	padding: 0 2pt 6pt 2pt;
 }
 
-.pokedex .list .item:hover {
-	transform: scale(1.5, 1.5);
-	z-index: 100;
-	box-shadow: 1pt 2pt 2pt 2pt rgba(0, 0, 0, .3);
-}
-
-.pokedex .list .item.hidden {
+.list .hidden .pokemon {
 	display: none;
 }
 
-
-
-
-.pokemon {
-	margin: 0;
-	/*background set in code*/
-}
-
-.pokemon img {
+.list .pokemon img {
 	width: 96px;
 	height: 96px;
 }
