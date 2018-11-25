@@ -93,7 +93,7 @@ backgroundFor pkm allTypes =
     in
         case types of
             --[ one ] -> style "background-color" one.color
-            many -> style "background-image" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
+            many -> style "background" <| "linear-gradient(to right, " ++ String.join "," (List.map .color types |> List.concatMap (\c -> [c, c])) ++ ")"
 
 
 -- Helper functions
