@@ -1,8 +1,4 @@
-module Data.Types exposing (..)
-
--- Data from https://github.com/veekun/pokedex/tree/master/pokedex/data/csv
-csv : String
-csv = """id,identifier,generation_id,damage_class_id
+id,identifier,generation_id,damage_class_id
 1,normal,1,2
 2,fighting,1,2
 3,flying,1,2
@@ -22,4 +18,4 @@ csv = """id,identifier,generation_id,damage_class_id
 17,dark,2,3
 18,fairy,6,
 10001,unknown,2,
-10002,shadow,3,"""
+10002,shadow,3,

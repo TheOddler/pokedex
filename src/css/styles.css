@@ -1,3 +1,9 @@
+html, body {
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+
 body {
 	background-color: rgb(230, 230, 230);
 	font-family: Arial, Helvetica, sans-serif;
@@ -5,6 +11,8 @@ body {
 	text-shadow: 1px 1px black, 0 0 2pt rgba(0, 0, 0, 0.5);
 	text-align: center;
 	overflow-x: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
 
@@ -25,13 +33,32 @@ body {
 
 	background-color: rgba(255,255,255,.8);
 }
+#loading, #error {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+ 	transform: translate(-50%, -50%);
+}
+#content {
+	flex: 1 0 auto;
+}
+#footer {
+	flex-shrink: 0;
+	padding: 4pt;
+}
+
+
+
+
+.pokedex {
+	padding-top: 35pt;
+}
 
 
 
 
 .list {
 	text-align: center;
-	margin-top: 35pt;
 	padding: 0;
 }
 

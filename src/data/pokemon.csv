@@ -1,8 +1,4 @@
-module Data.Pokemon exposing (csv)
-
--- Data from https://github.com/veekun/pokedex/tree/master/pokedex/data/csv
-csv : String
-csv = """id,identifier,species_id,height,weight,base_experience,order,is_default
+id,identifier,species_id,height,weight,base_experience,order,is_default
 1,bulbasaur,1,7,69,64,1,1
 2,ivysaur,2,10,130,142,2,1
 3,venusaur,3,20,1000,236,3,1
@@ -966,4 +962,4 @@ csv = """id,identifier,species_id,height,weight,base_experience,order,is_default
 10154,togedemaru-totem,777,6,130,152,920,0
 10155,necrozma-dusk,800,38,4600,306,948,0
 10156,necrozma-dawn,800,42,3500,306,949,0
-10157,necrozma-ultra,800,75,2300,339,950,0"""
+10157,necrozma-ultra,800,75,2300,339,950,0
