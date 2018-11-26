@@ -1,6 +1,6 @@
 import Browser
-import Html exposing (Html, div, text, input)
-import Html.Attributes exposing (class, id, placeholder, value, classList)
+import Html exposing (Html, div, text, input, a)
+import Html.Attributes exposing (class, id, placeholder, value, classList, href)
 import Html.Events exposing (onInput, onClick)
 import Http
 
@@ -10,7 +10,7 @@ import Pokedex exposing (Pokedex)
 type Model 
     = Loading (Maybe String) (Maybe String) (Maybe String) (Maybe String)
     | DoneLoading Pokedex
-    | Error Http.Error
+    | Error String Http.Error
 
 
 type Msg
@@ -67,22 +67,22 @@ update msg model =
                 GotPokemonCsv result ->
                     case result of
                         Ok csv -> (checkLoadingDone <| Loading (Just csv) ptt t te, Cmd.none)
-                        Err err -> (Error err, Cmd.none)
+                        Err err -> (Error "Failed getting 'Pokémon' CSV" err, Cmd.none)
                         
                 GotPokemonTypesCsv result ->
                     case result of
                         Ok csv -> (checkLoadingDone <| Loading p (Just csv) t te, Cmd.none)
-                        Err err -> (Error err, Cmd.none)
+                        Err err -> (Error "Failed getting 'Pokémon to types' CSV" err, Cmd.none)
                         
                 GotTypesCsv result ->
                     case result of
                         Ok csv -> (checkLoadingDone <| Loading p ptt (Just csv) te, Cmd.none)
-                        Err err -> (Error err, Cmd.none)
+                        Err err -> (Error "Failed getting 'types' CSV" err, Cmd.none)
                         
                 GotTypeEffectivenessCsv result ->
                     case result of
                         Ok csv -> (checkLoadingDone <| Loading p ptt t (Just csv), Cmd.none)
-                        Err err -> (Error err, Cmd.none)
+                        Err err -> (Error "Failed getting 'Type effectiveness' CSV" err, Cmd.none)
 
                 PokedexMsg pmsg -> (model, Cmd.none)
 
@@ -91,7 +91,7 @@ update msg model =
                 PokedexMsg m -> (DoneLoading <| Pokedex.update m dex, Cmd.none)
                 _ -> (model, Cmd.none)
 
-        Error err -> (model, Cmd.none)
+        Error _ _ -> (model, Cmd.none)
 
 
 checkLoadingDone : Model -> Model
@@ -107,13 +107,20 @@ view model =
         Loading p ptt t te -> 
             div [ id "loading" ]
                 [ text "Loading..." ]
-        Error error ->
-            div [ id "error" ]
-                [ case error of 
-                    Http.BadUrl url -> text <| "Error, bad url: " ++ url
-                    Http.Timeout -> text <| "Error, timeout"
-                    Http.NetworkError -> text <| "Error, network error"
-                    Http.BadStatus status -> text <| "Error, bad status: " ++ String.fromInt status
-                    Http.BadBody body -> text <| "Error, bad body: " ++ body
-                ]
+        Error message error ->
+            let errorMessage = case error of 
+                    Http.BadUrl url -> "Bad url: " ++ url
+                    Http.Timeout -> "Timeout"
+                    Http.NetworkError -> "Network error"
+                    Http.BadStatus status -> "Bad status: " ++ String.fromInt status
+                    Http.BadBody body -> "Bad body: " ++ body
+            in
+                div [ id "error" ]
+                    [ div [] [ text <| message ]
+                    , div [] [ text <| errorMessage ]
+                    , a [ href <| "mailto:pablo.bollansee@gmail.com?Subject=Error in Pokedex: " ++ message ++ "&body=" ++ errorMessage
+                        ]
+                        [ text "Click here to report this error."
+                        ]
+                    ]
         DoneLoading dex -> Html.map PokedexMsg <| Pokedex.view dex
