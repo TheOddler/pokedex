@@ -59,7 +59,7 @@ view model =
         ]
         [ input
             [ id "search"
-            , placeholder "Type to search for a Pokémon..."
+            , placeholder "Search for a Pokémon..."
             , value model.searchString
             , onInput SetSearch
             ] []
