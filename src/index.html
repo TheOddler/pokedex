@@ -1,36 +1,40 @@
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Pablo's BattleDex</title>
 
-		<link rel="stylesheet" type="text/css" href="css/styles.css">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<script src="elm.js"></script>
+	<title>Pablo's BattleDex</title>
 
-		<script>
-            // auto focus the search
-            document.onkeydown = function(e) {
-                if (e.keyCode != 27) { //27 = escape, used by my Elm
-                    var search = document.getElementById("search")
-					if (document.activeElement != search){
-						search.select()
-					}
-					search.focus()
-                }
-            }
-		</script>
-	</head>
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
 
-	<body>
-		<div id="content">
-			<div id="elm"></div>
-		</div>
-		<div id="footer">Data by <a href="https://github.com/veekun/pokedex/tree/master/pokedex/data/csv">Veekun</a>.</div>
+	<script src="elm.js"></script>
 
-		<script>
-            var app = Elm.Main.init({
-                node: document.getElementById('elm')
-            });
-        </script>
-	</body>
+	<script>
+		// auto focus the search
+		document.onkeydown = function (e) {
+			if (e.keyCode != 27) { //27 = escape, used by my Elm
+				var search = document.getElementById("search")
+				if (document.activeElement != search) {
+					search.select()
+				}
+				search.focus()
+			}
+		}
+	</script>
+</head>
+
+<body>
+	<div id="content">
+		<div id="elm"></div>
+	</div>
+	<div id="footer">Data by <a href="https://github.com/veekun/pokedex/tree/master/pokedex/data/csv">Veekun</a>.</div>
+
+	<script>
+		var app = Elm.Main.init({
+			node: document.getElementById('elm')
+		});
+	</script>
+</body>
+
 </html>
