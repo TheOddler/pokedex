@@ -6,5 +6,7 @@ repl-temp-*
 bin
 public
 elm.js
+# elm-json updates
+elm-upgrade-*
 # VS Code
 .vscode

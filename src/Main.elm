@@ -1,3 +1,5 @@
+module Main exposing (..)
+
 import Browser
 import Html exposing (Html, div, text, input, a)
 import Html.Attributes exposing (class, id, placeholder, value, classList, href)
