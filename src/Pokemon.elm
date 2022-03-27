@@ -1,157 +1,202 @@
-module Pokemon exposing (Pokemon, parse, view, viewDetail)
+module Pokemon exposing (Pokemon, decoder, view, viewDetail)
 
-import Html exposing (Html, div, ul, li, text, img, figure, figcaption)
-import Html.Attributes exposing (class, src, style)
-import Html.Events exposing (on)
-import Dict exposing (Dict)
-import Csv
+import Csv.Decode as Decode exposing (Decoder)
+import Html exposing (Html, div, figcaption, figure, img, text)
+import Html.Attributes exposing (class, src)
 import Maybe.Extra exposing (values)
-import List.Extra exposing (last)
-import Regex exposing (Regex, fromString, replace)
-import String.Extra exposing (humanize, toTitleCase)
+import Type exposing (Type, backgroundFor, viewBadge)
 
-import Types exposing (Type, viewBadge, totalEffectivenessAgainst, idsToTypes, backgroundFor)
 
 type alias Pokemon =
-    { id: Int
-    , speciesId: Int
-    , identifier: String
-    , types: List Int
+    { id : Int
+    , speciesID : Int
+    , name : String
+    , alternateFormName : Maybe String
+    , originalPokemonID : Maybe Int
+    , primaryType : Type
+    , secondaryType : Maybe Type
+    , evolvesFromID : Maybe Int
+    , evolutionDetails : Maybe String
+    , normal : Float
+    , fire : Float
+    , water : Float
+    , electric : Float
+    , grass : Float
+    , ice : Float
+    , fighting : Float
+    , poison : Float
+    , ground : Float
+    , flying : Float
+    , psychic : Float
+    , bug : Float
+    , rock : Float
+    , ghost : Float
+    , dragon : Float
+    , dark : Float
+    , steel : Float
+    , fairy : Float
     }
 
 
-parse : String -> String -> List Pokemon
-parse pokemonCsvString pokemonToTypesMappingCsvString = 
-    let
-        pokemonToTypesMapping = parsePokemonToTypeMappingsCsvString pokemonToTypesMappingCsvString
-    in
-        Csv.parse pokemonCsvString |> .records |> List.filterMap (parsePokemon pokemonToTypesMapping)
-
-
-view : Dict Int Type -> Pokemon -> Html msg
-view allTypes pkm =
-    figure 
-        [ backgroundFor <| idsToTypes allTypes pkm.types
+view : Pokemon -> Html msg
+view pkm =
+    figure
+        [ backgroundFor <| allTypes pkm
         , class "pokemon"
         ]
         [ img
             [ src <| imageUrl pkm
-            ] []
-        , figcaption 
+            ]
+            []
+        , figcaption
             [ class "name"
             ]
-            [ text <| beautyName pkm.identifier
+            [ text <| fullName pkm
             ]
         ]
 
 
-viewDetail : Dict Int Type -> Pokemon -> Html msg
-viewDetail allTypes pkm =
+viewDetail : Pokemon -> Html msg
+viewDetail pkm =
     let
-        viewBadgeWE (t, e) = viewBadge t (Just e)
-        viewBadgeWoE t = viewBadge t Nothing
-        types = idsToTypes allTypes pkm.types
+        viewBadgeWE ( t, e ) =
+            viewBadge t (Just e)
+
+        viewBadgeWoE t =
+            viewBadge t Nothing
+
+        types =
+            allTypes pkm
+
+        effectivenessList =
+            effectivenessAgainst pkm
     in
-        div
-            [ class "details"
-            , backgroundFor types
+    div
+        [ class "details"
+        , backgroundFor types
+        ]
+        [ figure
+            [ class "pokemon"
             ]
-            [ figure 
-                [ class "pokemon"
+            [ img
+                [ src <| imageUrl pkm
                 ]
-                [ img
-                    [ src <| imageUrl pkm
-                    ] []
-                , figcaption 
-                    [ class "name"
-                    ] 
-                    [ text <| beautyName pkm.identifier
-                    ]
+                []
+            , figcaption
+                [ class "name"
                 ]
-            , div [ class "typeChart" ]
-                <| List.map viewBadgeWoE types
-            , div [ class "damageChart" ]
-                <| List.map viewBadgeWE <| totalEffectivenessAgainst pkm.types allTypes
+                [ text <| fullName pkm
+                ]
             ]
+        , div [ class "typeChart" ] <|
+            List.map viewBadgeWoE types
+        , div [ class "effectivenessChartTitle" ] [ text ("Super effective against " ++ fullName pkm ++ ":") ]
+        , div [ class "superEffectiveChart" ] <|
+            List.map viewBadgeWE <|
+                List.filter isSuperEffective effectivenessList
+        , div [ class "effectivenessChartTitle" ] [ text ("Not very effective against " ++ fullName pkm ++ ":") ]
+        , div [ class "notVeryEffectiveChart" ] <|
+            List.map viewBadgeWE <|
+                List.filter isNotVeryEffective effectivenessList
+        ]
+
 
 
 -- Helper functions
 
 
-beautyName : String -> String
-beautyName name =
-    let
-        female : Regex
-        female = fromString "(\\bf\\b|\\bfemale\\b)" |> Maybe.withDefault Regex.never
+fullName : Pokemon -> String
+fullName pkm =
+    case pkm.alternateFormName of
+        Just alternateFormName ->
+            pkm.name ++ " (" ++ alternateFormName ++ ")"
 
-        male : Regex
-        male = fromString "(\\bm\\b|\\bmale\\b)" |> Maybe.withDefault Regex.never
-
-        moveMega : String -> String
-        moveMega n =
-            if String.contains "-mega" n then "Mega " ++ String.replace "-mega" "" n
-            else n
-    in name
-        |> replace female (always "♀")
-        |> replace male (always "♂")
-        |> moveMega
-        |> humanize
-        |> toTitleCase
+        Nothing ->
+            pkm.name
 
 
-parsePokemonToTypeMappingsCsvString : String -> List (Int, Int)
-parsePokemonToTypeMappingsCsvString csv =
-    Csv.parse csv
-    |> .records
-    |> List.filterMap parsePokemonToTypeMapping
+allTypes : Pokemon -> List Type
+allTypes pkm =
+    values [ Just pkm.primaryType, pkm.secondaryType ]
 
 
-parsePokemonToTypeMapping : List String -> Maybe (Int, Int)
-parsePokemonToTypeMapping mapping = -- pokemon_id,type_id,slot
-    case mapping of
-        pokemonIdString::typeIdString::_ -> 
-            case (String.toInt pokemonIdString, String.toInt typeIdString) of
-                (Just pokemonId, Just typeId) -> Just (pokemonId, typeId)
-                _ -> Nothing
-        _ -> Nothing
+effectivenessAgainst : Pokemon -> List ( Type, Float )
+effectivenessAgainst pkm =
+    [ ( Type.Normal, pkm.normal )
+    , ( Type.Fire, pkm.fire )
+    , ( Type.Water, pkm.water )
+    , ( Type.Electric, pkm.electric )
+    , ( Type.Grass, pkm.grass )
+    , ( Type.Ice, pkm.ice )
+    , ( Type.Fighting, pkm.fighting )
+    , ( Type.Poison, pkm.poison )
+    , ( Type.Ground, pkm.ground )
+    , ( Type.Flying, pkm.flying )
+    , ( Type.Psychic, pkm.psychic )
+    , ( Type.Bug, pkm.bug )
+    , ( Type.Rock, pkm.rock )
+    , ( Type.Ghost, pkm.ghost )
+    , ( Type.Dragon, pkm.dragon )
+    , ( Type.Dark, pkm.dark )
+    , ( Type.Steel, pkm.steel )
+    , ( Type.Fairy, pkm.fairy )
+    ]
 
 
-parsePokemon : List (Int, Int) -> List String -> Maybe Pokemon
-parsePokemon pokemonToTypesMapping csv = 
-    case csv of
-        idStr::identifier::speciesIdStr::_ ->
-            case (String.toInt idStr, String.toInt speciesIdStr) of
-                (Just id, Just speciesId) -> Just 
-                    { id = id
-                    , speciesId = speciesId
-                    , identifier = identifier
-                    , types = 
-                        pokemonToTypesMapping 
-                        |> List.filter (\(p, t) -> p == id)
-                        |> List.map (\(p, t) -> t)
-                    }
-                _ -> Nothing
-        _ -> Nothing
+isSuperEffective : ( Type, Float ) -> Bool
+isSuperEffective ( _, eff ) =
+    eff >= 1.5
+
+
+isNotVeryEffective : ( Type, Float ) -> Bool
+isNotVeryEffective ( _, eff ) =
+    eff < 0.75
+
+
+decoder : Decoder Pokemon
+decoder =
+    Decode.into Pokemon
+        |> Decode.pipeline (Decode.field "ID" Decode.int)
+        |> Decode.pipeline (Decode.field "Species ID" Decode.int)
+        |> Decode.pipeline (Decode.field "Name" Decode.string)
+        |> Decode.pipeline (Decode.field "Alternate Form Name" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Original Pokemon" (Decode.blank Decode.int))
+        |> Decode.pipeline (Decode.field "Primary Type" Type.decoder)
+        |> Decode.pipeline (Decode.field "Secondary Type" (Decode.blank Type.decoder))
+        |> Decode.pipeline (Decode.field "Evolves From" (Decode.blank Decode.int))
+        |> Decode.pipeline (Decode.field "Evolution Details" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Normal" Decode.float)
+        |> Decode.pipeline (Decode.field "Fire" Decode.float)
+        |> Decode.pipeline (Decode.field "Water" Decode.float)
+        |> Decode.pipeline (Decode.field "Electric" Decode.float)
+        |> Decode.pipeline (Decode.field "Grass" Decode.float)
+        |> Decode.pipeline (Decode.field "Ice" Decode.float)
+        |> Decode.pipeline (Decode.field "Fighting" Decode.float)
+        |> Decode.pipeline (Decode.field "Poison" Decode.float)
+        |> Decode.pipeline (Decode.field "Ground" Decode.float)
+        |> Decode.pipeline (Decode.field "Flying" Decode.float)
+        |> Decode.pipeline (Decode.field "Psychic" Decode.float)
+        |> Decode.pipeline (Decode.field "Bug" Decode.float)
+        |> Decode.pipeline (Decode.field "Rock" Decode.float)
+        |> Decode.pipeline (Decode.field "Ghost" Decode.float)
+        |> Decode.pipeline (Decode.field "Dragon" Decode.float)
+        |> Decode.pipeline (Decode.field "Dark" Decode.float)
+        |> Decode.pipeline (Decode.field "Steel" Decode.float)
+        |> Decode.pipeline (Decode.field "Fairy" Decode.float)
 
 
 imageUrl : Pokemon -> String
 imageUrl pkm =
     let
-        base = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
-        totems = -- Special case totems to use normal image (there are more, but those have a proper image)
-            [ 10128 -- Lurantis
-            , 10129 -- Salazzle
-            , 10146 -- Kommo-o
-            , 10153 -- Araquanid
-            , 10154 -- Togedemaru
-            ]
+        base =
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+
+        suffix =
+            case pkm.alternateFormName of
+                Just alternateFormName ->
+                    "-" ++ String.toLower alternateFormName
+
+                Nothing ->
+                    ""
     in
-        -- special ovverride for some of the Pikachu
-        if pkm.id >= 10080 && pkm.id <= 10085 then base ++ (String.fromInt pkm.id) ++ ".png"
-        -- special ovverride for some totem pokemon (no image found, so use normal one)
-        else if List.member pkm.id totems then base ++ (String.fromInt pkm.speciesId) ++ ".png"
-        -- special override for Meowstic female
-        else if pkm.identifier == "meowstic-female" then base ++ "female/" ++ (String.fromInt pkm.speciesId) ++ ".png"
-        -- special forms
-        else if pkm.id > 10000 && String.contains "-" pkm.identifier  then base ++ (String.fromInt pkm.speciesId) ++ "-" ++ String.Extra.rightOf "-" pkm.identifier ++ ".png"
-        else base ++ (String.fromInt pkm.id) ++ ".png"
+    base ++ String.fromInt pkm.speciesID ++ suffix ++ ".png"

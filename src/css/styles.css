@@ -143,16 +143,20 @@ body {
 	font-size: 150%;
 }
 
-.details .damageChart {
+.details .effectivenessChartTitle {
+	font-size: 120%;
+	display: block;
+	padding: 0.5em;
+}
+
+.details .superEffectiveChart {
 	padding: 0.5em;
 	margin: 0;
 }
 
-.details .damageChart::before {
-	content: "Type effectiveness:";
-	font-size: 120%;
-	display: block;
+.details .notVeryEffectiveChart {
 	padding: 0.5em;
+	margin: 0;
 }
 
 
