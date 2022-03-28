@@ -57,6 +57,15 @@ viewBadge type_ effectivenesss =
         allHtml
 
 
+decoder : Decoder Type
+decoder =
+    Decode.andThen
+        (\value ->
+            Decode.fromMaybe (value ++ " is not a valid Type") (parseType value)
+        )
+        Decode.string
+
+
 backgroundFor : List Type -> Html.Attribute msg
 backgroundFor types =
     let
@@ -183,15 +192,6 @@ parseType typeStr =
 
         _ ->
             Nothing
-
-
-decoder : Decoder Type
-decoder =
-    Decode.andThen
-        (\value ->
-            Decode.fromMaybe (value ++ " is not a valid Type") (parseType value)
-        )
-        Decode.string
 
 
 typeColor : Type -> String

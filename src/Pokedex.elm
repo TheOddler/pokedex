@@ -91,7 +91,7 @@ viewWrapPokemon model pkm =
     div
         [ classList
             [ ( "item", True )
-            , ( "hidden", not <| String.contains (toLower model.searchString) (toLower pkm.name) )
+            , ( "hidden", not <| String.contains (toLower model.searchString) (toLower pkm.fullName) )
             ]
         , onClick <| Select pkm
         ]
