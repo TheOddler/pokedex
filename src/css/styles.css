@@ -143,6 +143,20 @@ body {
 	font-size: 150%;
 }
 
+.details .evolvesFrom {
+	display: inline-block;
+	transform: scale(75%);
+}
+
+.details .pokemon {
+	display: inline-block;
+}
+
+.details .evolvesInto {
+	display: inline-block;
+	transform: scale(75%);
+}
+
 .details .effectivenessChartTitle {
 	font-size: 120%;
 	display: block;

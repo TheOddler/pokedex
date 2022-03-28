@@ -1,6 +1,6 @@
-module Pokemon exposing (Pokemon, decoder, view, viewDetail)
+module Pokemon exposing (Pokemon, fromCSVRows, view, viewDetail)
 
-import Csv.Decode as Decode exposing (Decoder)
+import Dict exposing (Dict)
 import Html exposing (Html, div, figcaption, figure, img, text)
 import Html.Attributes exposing (class, src)
 import Maybe.Extra as Maybe
@@ -9,11 +9,15 @@ import Type exposing (Type, backgroundFor, viewBadge)
 
 
 type alias Pokemon =
-    { fullName : String
+    { id : Int
+    , fullName : String
     , types : List Type
     , superEffective : List ( Type, Float )
     , notVeryEffective : List ( Type, Float )
     , imageUrl : String
+    , evolvesFromID : Maybe Int
+    , evolvesFromDetails : Maybe String
+    , evolvesIntoIDs : List Int
     }
 
 
@@ -35,32 +39,61 @@ view pkm =
         ]
 
 
-viewDetail : Pokemon -> Html msg
-viewDetail pkm =
+viewDetail : Dict Int Pokemon -> Pokemon -> Html msg
+viewDetail allPkm pkm =
     let
         viewBadgeWE ( t, e ) =
             viewBadge t (Just e)
 
         viewBadgeWoE t =
             viewBadge t Nothing
+
+        maybeEvolvesFrom =
+            case pkm.evolvesFromID of
+                Just evolvesFromID ->
+                    Dict.get evolvesFromID allPkm
+
+                Nothing ->
+                    Nothing
+
+        evolvesInto =
+            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesIntoIDs
+
+        viewPkmPortrait p class_ caption =
+            figure
+                [ class class_
+                ]
+                [ img
+                    [ src <| p.imageUrl
+                    ]
+                    []
+                , figcaption
+                    [ class "name"
+                    ]
+                    [ text <| caption
+                    ]
+                ]
     in
     div
         [ class "details"
         , backgroundFor pkm.types
         ]
-        [ figure
-            [ class "pokemon"
-            ]
-            [ img
-                [ src <| pkm.imageUrl
+        [ div [ class "evolutions " ] <|
+            Maybe.values
+                [ case maybeEvolvesFrom of
+                    Nothing ->
+                        Nothing
+
+                    Just evolvesFrom ->
+                        Just <| viewPkmPortrait evolvesFrom "evolvesFrom" (Maybe.withDefault "" pkm.evolvesFromDetails)
+                , Just <| viewPkmPortrait pkm "pokemon" pkm.fullName
+                , case evolvesInto of
+                    [] ->
+                        Nothing
+
+                    evolvesInto_ ->
+                        Just <| div [ class "evolvesInto" ] <| List.map (\p -> viewPkmPortrait p "evolvesIntoItem" (Maybe.withDefault "" p.evolvesFromDetails)) evolvesInto
                 ]
-                []
-            , figcaption
-                [ class "name"
-                ]
-                [ text <| pkm.fullName
-                ]
-            ]
         , div [ class "typeChart" ] <|
             List.map viewBadgeWoE pkm.types
         , div [ class "effectivenessChartTitle" ] [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
@@ -72,18 +105,19 @@ viewDetail pkm =
         ]
 
 
-decoder : Decoder Pokemon
-decoder =
-    Decode.map pokemonFromCSVRow PokemonCSVRow.decoder
+fromCSVRows : List PokemonCSVRow -> List Pokemon
+fromCSVRows pkmCSVRows =
+    List.map (fromCSVRow pkmCSVRows) pkmCSVRows
 
 
-pokemonFromCSVRow : PokemonCSVRow -> Pokemon
-pokemonFromCSVRow pkm =
+fromCSVRow : List PokemonCSVRow -> PokemonCSVRow -> Pokemon
+fromCSVRow pkmCSVRows pkm =
     let
         effectivenessList =
             PokemonCSVRow.effectivenessAgainst pkm
     in
-    { fullName =
+    { id = pkm.id
+    , fullName =
         case pkm.alternateFormName of
             Just alternateFormName ->
                 pkm.name ++ " (" ++ alternateFormName ++ ")"
@@ -94,6 +128,9 @@ pokemonFromCSVRow pkm =
     , superEffective = List.filter isSuperEffective effectivenessList
     , notVeryEffective = List.filter isNotVeryEffective effectivenessList
     , imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pkm.image ++ ".png"
+    , evolvesFromID = pkm.evolvesFromID
+    , evolvesFromDetails = pkm.evolutionDetails
+    , evolvesIntoIDs = List.map .id <| List.filter (\p -> p.evolvesFromID == Just pkm.id) pkmCSVRows
     }
 
 

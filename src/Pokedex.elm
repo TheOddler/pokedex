@@ -1,17 +1,20 @@
 module Pokedex exposing (Msg, Pokedex, init, update, view)
 
 import Csv.Decode as Decode
+import Dict exposing (Dict)
 import Html exposing (Html, div, input)
 import Html.Attributes exposing (class, classList, id, placeholder, value)
 import Html.Events exposing (onClick, onInput)
 import Html.Lazy as Lazy
 import Pokemon exposing (Pokemon)
+import PokemonCSVRow
 import String exposing (toLower)
 
 
 type alias Pokedex =
     { searchString : String
     , pokemon : List Pokemon
+    , pokemonIdDict : Dict Int Pokemon
     , selected : Selected
     }
 
@@ -29,11 +32,12 @@ type Selected
 
 init : String -> Result String Pokedex
 init pokemonCsv =
-    case Decode.decodeCsv Decode.FieldNamesFromFirstRow Pokemon.decoder pokemonCsv of
+    case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow PokemonCSVRow.decoder pokemonCsv) of
         Ok (first :: rest) ->
             Ok
                 { searchString = ""
                 , pokemon = first :: rest
+                , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
                 , selected = Deselected first
                 }
 
@@ -76,10 +80,10 @@ view model =
             []
         , case model.selected of
             Selected pkm ->
-                div [ class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail pkm ]
+                div [ class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail model.pokemonIdDict pkm ]
 
             Deselected pkm ->
-                div [ class "hidden", class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail pkm ]
+                div [ class "hidden", class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail model.pokemonIdDict pkm ]
         , div [ class "list" ] <|
             List.map (viewWrapPokemon model) model.pokemon
         ]
