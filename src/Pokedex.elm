@@ -5,14 +5,13 @@ import Html exposing (Html, div, input)
 import Html.Attributes exposing (class, classList, id, placeholder, value)
 import Html.Events exposing (onClick, onInput)
 import Html.Lazy as Lazy
-import List.Nonempty as NE exposing (Nonempty)
 import Pokemon exposing (Pokemon)
 import String exposing (toLower)
 
 
 type alias Pokedex =
     { searchString : String
-    , pokemon : Nonempty Pokemon
+    , pokemon : List Pokemon
     , selected : Selected
     }
 
@@ -34,7 +33,7 @@ init pokemonCsv =
         Ok (first :: rest) ->
             Ok
                 { searchString = ""
-                , pokemon = NE.Nonempty first rest
+                , pokemon = first :: rest
                 , selected = Deselected first
                 }
 
@@ -82,7 +81,7 @@ view model =
             Deselected pkm ->
                 div [ class "hidden", class "detailsWrapper", onClick Deselect ] [ Pokemon.viewDetail pkm ]
         , div [ class "list" ] <|
-            NE.toList (NE.map (viewWrapPokemon model) model.pokemon)
+            List.map (viewWrapPokemon model) model.pokemon
         ]
 
 
