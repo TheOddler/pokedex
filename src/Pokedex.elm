@@ -92,6 +92,11 @@ viewWrapPokemon model pkm =
             [ ( "item", True )
             , ( "hidden", not <| String.contains (toLower model.searchString) (toLower pkm.fullName) )
             ]
-        , onClick <| Select pkm
+        , onClick <|
+            if Selected pkm == model.selected then
+                Deselect
+
+            else
+                Select pkm
         ]
         [ Lazy.lazy Pokemon.view pkm ]
