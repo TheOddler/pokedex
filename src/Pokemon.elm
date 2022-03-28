@@ -35,6 +35,7 @@ type alias Pokemon =
     , dark : Float
     , steel : Float
     , fairy : Float
+    , image : String
     }
 
 
@@ -183,20 +184,9 @@ decoder =
         |> Decode.pipeline (Decode.field "Dark" Decode.float)
         |> Decode.pipeline (Decode.field "Steel" Decode.float)
         |> Decode.pipeline (Decode.field "Fairy" Decode.float)
+        |> Decode.pipeline (Decode.field "Image" Decode.string)
 
 
 imageUrl : Pokemon -> String
 imageUrl pkm =
-    let
-        base =
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
-
-        suffix =
-            case pkm.alternateFormName of
-                Just alternateFormName ->
-                    "-" ++ String.toLower alternateFormName
-
-                Nothing ->
-                    ""
-    in
-    base ++ String.fromInt pkm.speciesID ++ suffix ++ ".png"
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pkm.image ++ ".png"
