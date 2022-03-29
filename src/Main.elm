@@ -1,8 +1,9 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, a, div, text)
-import Html.Attributes exposing (href, id)
+import Css exposing (..)
+import Html.Styled as Html exposing (Html, a, div, text, toUnstyled)
+import Html.Styled.Attributes exposing (css, href)
 import Http
 import Pokedex exposing (Pokedex)
 
@@ -23,7 +24,7 @@ main =
         { init = init
         , update = update
         , subscriptions = subscriptions
-        , view = view
+        , view = view >> toUnstyled
         }
 
 
@@ -77,39 +78,68 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    case model of
-        Loading _ ->
-            div [ id "loading" ]
-                [ text "Loading..." ]
-
-        Error message error ->
-            let
-                errorMessage =
-                    case error of
-                        Http.BadUrl url ->
-                            "Bad url: " ++ url
-
-                        Http.Timeout ->
-                            "Timeout"
-
-                        Http.NetworkError ->
-                            "Network error"
-
-                        Http.BadStatus status ->
-                            "Bad status: " ++ String.fromInt status
-
-                        Http.BadBody body ->
-                            "Bad body: " ++ body
-            in
-            div [ id "error" ]
-                [ div [] [ text <| message ]
-                , div [] [ text <| errorMessage ]
-                , a
-                    [ href <| "mailto:pablo.bollansee@gmail.com?Subject=Error in Pokedex: " ++ message ++ "&body=" ++ errorMessage
+    div
+        [ css
+            [ fontFamily sansSerif
+            , color (rgb 255 255 255)
+            , property "text-shadow" "1px 1px black, 0 0 4px rgba(0, 0, 0, 0.5)"
+            , textAlign center
+            , overflowX hidden
+            , height (pct 100)
+            , backgroundColor (rgb 230 230 230)
+            ]
+        ]
+        [ case model of
+            Loading _ ->
+                div
+                    [ css [ infoStyle ]
                     ]
-                    [ text "Click here to report this error."
-                    ]
-                ]
+                    [ text "Loading..." ]
 
-        DoneLoading dex ->
-            Html.map PokedexMsg <| Pokedex.view dex
+            Error message error ->
+                let
+                    errorMessage =
+                        case error of
+                            Http.BadUrl url ->
+                                "Bad url: " ++ url
+
+                            Http.Timeout ->
+                                "Timeout"
+
+                            Http.NetworkError ->
+                                "Network error"
+
+                            Http.BadStatus status ->
+                                "Bad status: " ++ String.fromInt status
+
+                            Http.BadBody body ->
+                                "Bad body: " ++ body
+                in
+                div [ css [ infoStyle ] ]
+                    [ div [] [ text <| message ]
+                    , div [] [ text <| errorMessage ]
+                    , a
+                        [ href <| "mailto:pablo.bollansee@gmail.com?Subject=Error in Pokedex: " ++ message ++ "&body=" ++ errorMessage
+                        ]
+                        [ text "Click here to report this error."
+                        ]
+                    ]
+
+            DoneLoading dex ->
+                Html.map PokedexMsg <| Pokedex.view dex
+        , div []
+            [ text "Images from "
+            , a [ href "https://github.com/PokeAPI/sprites" ] [ text "PokeAPI/sprites" ]
+            , text "."
+            ]
+        ]
+
+
+infoStyle : Style
+infoStyle =
+    Css.batch
+        [ position fixed
+        , left (pct 50)
+        , top (pct 50)
+        , transform (translate2 (pct -50) (pct -50))
+        ]

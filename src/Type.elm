@@ -1,8 +1,14 @@
-module Type exposing (Type(..), backgroundFor, decoder, viewBadge)
+module Type exposing (Type(..), Typing(..), backgroundFor, decoder, viewBadge)
 
+import Css exposing (..)
 import Csv.Decode as Decode exposing (Decoder)
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class, style)
+import Html.Styled exposing (Html, div, text)
+import Html.Styled.Attributes exposing (css)
+
+
+type Typing
+    = Single Type
+    | Double Type Type
 
 
 type Type
@@ -40,21 +46,44 @@ viewBadge type_ effectivenesss =
                 String.fromFloat f
 
         typeHtml =
-            div [ class "type" ] [ text (typeName type_) ]
+            div
+                [ css
+                    [ textTransform uppercase
+                    , display inlineBlock
+                    ]
+                ]
+                [ text (typeName type_) ]
 
         allHtml =
             case effectivenesss of
                 Just e ->
-                    [ typeHtml, div [ class "effectiveness" ] [ text <| beautifyEffectiveness e ] ]
+                    [ typeHtml
+                    , div
+                        [ css [ display inlineBlock, paddingLeft (em 0.5) ] ]
+                        [ text <| beautifyEffectiveness e ]
+                    ]
 
                 Nothing ->
                     [ typeHtml ]
     in
     div
-        [ style "background-color" (typeColor type_)
-        , class "typeBadge"
+        [ css
+            [ backgroundColor (typeColor type_)
+            , badgeStyle
+            ]
         ]
         allHtml
+
+
+badgeStyle : Style
+badgeStyle =
+    Css.batch
+        [ margin (em 0.2)
+        , padding2 (em 0.2) (em 0.4)
+        , borderRadius (em 0.4)
+        , property "box-shadow" "inset 0 -2px 0 rgba(0, 0, 0, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.2);"
+        , display inlineBlock
+        ]
 
 
 decoder : Decoder Type
@@ -66,13 +95,15 @@ decoder =
         Decode.string
 
 
-backgroundFor : List Type -> Html.Attribute msg
-backgroundFor types =
-    let
-        duplicate c =
-            [ c, c ]
-    in
-    style "background" <| "linear-gradient(to right, " ++ String.join "," (List.concatMap (typeColor >> duplicate) types) ++ ")"
+backgroundFor : Typing -> Style
+backgroundFor typing =
+    backgroundImage <|
+        case typing of
+            Single type_ ->
+                linearGradient2 toRight (stop <| typeColor type_) (stop <| typeColor type_) []
+
+            Double first second ->
+                linearGradient2 toRight (stop <| typeColor first) (stop <| typeColor first) [ stop <| typeColor second, stop <| typeColor second ]
 
 
 typeName : Type -> String
@@ -194,64 +225,59 @@ parseType typeStr =
             Nothing
 
 
-typeColor : Type -> String
+typeColor : Type -> Color
 typeColor type_ =
     case type_ of
         Normal ->
-            rgb255 168 167 122
+            rgb 168 167 122
 
         Fire ->
-            rgb255 238 129 48
+            rgb 238 129 48
 
         Water ->
-            rgb255 99 144 240
+            rgb 99 144 240
 
         Electric ->
-            rgb255 247 208 44
+            rgb 247 208 44
 
         Grass ->
-            rgb255 122 199 76
+            rgb 122 199 76
 
         Ice ->
-            rgb255 150 217 214
+            rgb 150 217 214
 
         Fighting ->
-            rgb255 194 46 40
+            rgb 194 46 40
 
         Poison ->
-            rgb255 163 62 161
+            rgb 163 62 161
 
         Ground ->
-            rgb255 226 191 101
+            rgb 226 191 101
 
         Flying ->
-            rgb255 169 143 243
+            rgb 169 143 243
 
         Psychic ->
-            rgb255 249 85 135
+            rgb 249 85 135
 
         Bug ->
-            rgb255 166 185 26
+            rgb 166 185 26
 
         Rock ->
-            rgb255 182 161 54
+            rgb 182 161 54
 
         Ghost ->
-            rgb255 115 87 151
+            rgb 115 87 151
 
         Dragon ->
-            rgb255 111 53 252
+            rgb 111 53 252
 
         Dark ->
-            rgb255 112 87 70
+            rgb 112 87 70
 
         Steel ->
-            rgb255 183 183 206
+            rgb 183 183 206
 
         Fairy ->
-            rgb255 214 133 173
-
-
-rgb255 : Int -> Int -> Int -> String
-rgb255 r g b =
-    "rgb(" ++ String.fromInt r ++ "," ++ String.fromInt g ++ "," ++ String.fromInt b ++ ")"
+            rgb 214 133 173
