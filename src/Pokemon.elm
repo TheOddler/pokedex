@@ -1,4 +1,4 @@
-module Pokemon exposing (Pokemon, fromCSVRows, view, viewDetail)
+module Pokemon exposing (Mode(..), Msg(..), Pokemon, fromCSVRows, view, viewDetail)
 
 import Css exposing (..)
 import Css.Transitions as Transitions exposing (cubicBezier, transition)
@@ -25,10 +25,21 @@ type alias Pokemon =
     }
 
 
-view : (Pokemon -> msg) -> String -> Pokemon -> Html msg
-view selectMsg searchString pkm =
+type Mode
+    = TypeEffectiveness
+    | Evolution
+
+
+type Msg
+    = Select Pokemon
+    | Deselect
+    | ChangeMode Mode
+
+
+view : String -> Pokemon -> Html Msg
+view searchString pkm =
     div
-        [ onClick <| selectMsg pkm
+        [ onClick <| Select pkm
         , css <|
             if String.contains (toLower searchString) (toLower pkm.fullName) then
                 [ backgroundFor pkm.typing, viewBaseStyle ]
@@ -72,7 +83,7 @@ viewBaseStyle =
         ]
 
 
-viewDetail : Bool -> Dict Int Pokemon -> Pokemon -> Html msg
+viewDetail : Bool -> Dict Int Pokemon -> Pokemon -> Html Msg
 viewDetail visible allPkm pkm =
     let
         viewBadgeWithEff ( t, e ) =
@@ -105,21 +116,38 @@ viewDetail visible allPkm pkm =
                 ]
     in
     div
-        [ css
+        [ onClick Deselect
+        , css
             [ backgroundFor pkm.typing
+            , position fixed
+            , left (pct 50)
+            , top (pct 50)
+            , height auto
+            , zIndex (int 200)
             , pointerEventsAll
             , borderRadius (px 16)
             , overflow hidden
             , cursor zoomOut
             , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 2px 6px 6px 6px rgba(0, 0, 0, .3);"
             , property "transition" "all 0.3s ease-in-out"
+            , transition
+                [ Transitions.transform 300
+                , Transitions.opacity 300
+                ]
             , Css.batch <|
                 if visible then
-                    []
+                    [ transforms
+                        [ translate2 (pct -50) (pct -50)
+                        , scale2 1 1 -- must be set explicitly for the transition to work
+                        ]
+                    ]
 
                 else
-                    [ opacity (int 0)
-                    , transform <| scale2 0 0
+                    [ transforms
+                        [ translate2 (pct -50) (pct -50)
+                        , scale2 0 0
+                        ]
+                    , opacity (int 0)
                     ]
             ]
         ]

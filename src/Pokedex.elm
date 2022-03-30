@@ -3,9 +3,9 @@ module Pokedex exposing (Msg, Pokedex, init, update, view)
 import Css exposing (..)
 import Csv.Decode as Decode
 import Dict exposing (Dict)
-import Html.Styled exposing (Html, div, input)
+import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled.Events exposing (onInput)
 import Pokemon exposing (Pokemon)
 import PokemonCSVRow
 
@@ -15,25 +15,18 @@ type alias Pokedex =
     , pokemon : List Pokemon
     , pokemonIdDict : Dict Int Pokemon
     , selected : Selected
-    , mode : Mode
+    , mode : Pokemon.Mode
     }
 
 
 type Msg
     = SetSearch String
-    | Select Pokemon
-    | Deselect
-    | ChangeMode Mode
+    | PokemonMsg Pokemon.Msg
 
 
 type Selected
     = Selected Pokemon
     | Deselected Pokemon
-
-
-type Mode
-    = TypeEffectiveness
-    | Evolution
 
 
 init : String -> Result String Pokedex
@@ -45,7 +38,7 @@ init pokemonCsv =
                 , pokemon = first :: rest
                 , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
                 , selected = Deselected first
-                , mode = Evolution
+                , mode = Pokemon.Evolution
                 }
 
         Ok [] ->
@@ -61,19 +54,25 @@ update msg model =
         SetSearch s ->
             { model | searchString = s }
 
-        Select p ->
-            { model | selected = Selected p }
+        PokemonMsg pkmMsg ->
+            case pkmMsg of
+                Pokemon.Select p ->
+                    if model.selected == Selected p then
+                        update (PokemonMsg Pokemon.Deselect) model
 
-        Deselect ->
-            case model.selected of
-                Selected p ->
-                    { model | selected = Deselected p }
+                    else
+                        { model | selected = Selected p }
 
-                _ ->
-                    model
+                Pokemon.Deselect ->
+                    case model.selected of
+                        Selected p ->
+                            { model | selected = Deselected p }
 
-        ChangeMode mode ->
-            { model | mode = mode }
+                        _ ->
+                            model
+
+                Pokemon.ChangeMode mode ->
+                    { model | mode = mode }
 
 
 view : Pokedex -> Html Msg
@@ -90,27 +89,20 @@ view model =
             []
         , case model.selected of
             Selected pkm ->
-                div [ css [ detailsWrapperStyle ], onClick Deselect ] [ Pokemon.viewDetail True model.pokemonIdDict pkm ]
+                Html.map PokemonMsg <| Pokemon.viewDetail True model.pokemonIdDict pkm
 
             Deselected pkm ->
-                div
-                    [ css [ detailsWrapperStyle ]
-                    , onClick Deselect
-                    ]
-                    [ Pokemon.viewDetail False model.pokemonIdDict pkm
-                    ]
+                Html.map PokemonMsg <| Pokemon.viewDetail False model.pokemonIdDict pkm
         , div
             [ css
-                [ textAlign center
-                , padding (px 0)
-                , displayFlex
+                [ displayFlex
                 , flexWrap wrap
                 , justifyContent center
                 , alignItems stretch
                 ]
             ]
           <|
-            List.map (Pokemon.view Select model.searchString) model.pokemon
+            List.map (Html.map PokemonMsg << Pokemon.view model.searchString) model.pokemon
         ]
 
 
@@ -130,17 +122,4 @@ searchStyle =
         , width (em 18)
         , maxWidth (pct 90)
         , backgroundColor (rgba 255 255 255 0.8)
-        ]
-
-
-detailsWrapperStyle : Style
-detailsWrapperStyle =
-    Css.batch
-        [ pointerEvents none
-        , position fixed
-        , left (pct 50)
-        , top (pct 50)
-        , height auto
-        , zIndex (int 200)
-        , transform <| translate2 (pct -50) (pct -50)
         ]
