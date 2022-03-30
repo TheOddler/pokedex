@@ -95,6 +95,11 @@ view model =
             [ css
                 [ textAlign center
                 , padding (px 0)
+                , displayFlex
+                , flexWrap wrap
+                , justifyContent center
+                , alignItems stretch
+                , property "row-gap" "0.3em"
                 ]
             ]
           <|
@@ -138,14 +143,11 @@ viewWrapPokemon : Pokedex -> Pokemon -> Html Msg
 viewWrapPokemon model pkm =
     div
         [ css <|
-            Maybe.values
-                [ Just <| display inlineBlock
-                , if String.contains (toLower model.searchString) (toLower pkm.fullName) then
-                    Nothing
+            if String.contains (toLower model.searchString) (toLower pkm.fullName) then
+                []
 
-                  else
-                    Just <| display none
-                ]
+            else
+                [ display none ]
         , onClick <|
             if Selected pkm == model.selected then
                 Deselect
