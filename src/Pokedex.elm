@@ -6,7 +6,7 @@ import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onInput)
-import Pokemon exposing (Pokemon)
+import Pokemon exposing (Mode(..), Pokemon)
 import PokemonCSVRow
 
 
@@ -89,10 +89,10 @@ view model =
             []
         , case model.selected of
             Selected pkm ->
-                Html.map PokemonMsg <| Pokemon.viewDetail True model.pokemonIdDict pkm
+                Html.map PokemonMsg <| Pokemon.viewDetail True model.mode model.pokemonIdDict pkm
 
             Deselected pkm ->
-                Html.map PokemonMsg <| Pokemon.viewDetail False model.pokemonIdDict pkm
+                Html.map PokemonMsg <| Pokemon.viewDetail False model.mode model.pokemonIdDict pkm
         , div
             [ css
                 [ displayFlex
