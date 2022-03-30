@@ -6,11 +6,8 @@ import Dict exposing (Dict)
 import Html.Styled exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onInput)
-import Html.Styled.Lazy as Lazy
-import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
 import PokemonCSVRow
-import String exposing (toLower)
 
 
 type alias Pokedex =
@@ -18,6 +15,7 @@ type alias Pokedex =
     , pokemon : List Pokemon
     , pokemonIdDict : Dict Int Pokemon
     , selected : Selected
+    , mode : Mode
     }
 
 
@@ -25,11 +23,17 @@ type Msg
     = SetSearch String
     | Select Pokemon
     | Deselect
+    | ChangeMode Mode
 
 
 type Selected
     = Selected Pokemon
     | Deselected Pokemon
+
+
+type Mode
+    = TypeEffectiveness
+    | Evolution
 
 
 init : String -> Result String Pokedex
@@ -41,6 +45,7 @@ init pokemonCsv =
                 , pokemon = first :: rest
                 , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
                 , selected = Deselected first
+                , mode = Evolution
                 }
 
         Ok [] ->
@@ -66,6 +71,9 @@ update msg model =
 
                 _ ->
                     model
+
+        ChangeMode mode ->
+            { model | mode = mode }
 
 
 view : Pokedex -> Html Msg
@@ -99,11 +107,10 @@ view model =
                 , flexWrap wrap
                 , justifyContent center
                 , alignItems stretch
-                , property "row-gap" "0.3em"
                 ]
             ]
           <|
-            List.map (viewWrapPokemon model) model.pokemon
+            List.map (Pokemon.view Select model.searchString) model.pokemon
         ]
 
 
@@ -137,22 +144,3 @@ detailsWrapperStyle =
         , zIndex (int 200)
         , transform <| translate2 (pct -50) (pct -50)
         ]
-
-
-viewWrapPokemon : Pokedex -> Pokemon -> Html Msg
-viewWrapPokemon model pkm =
-    div
-        [ css <|
-            if String.contains (toLower model.searchString) (toLower pkm.fullName) then
-                []
-
-            else
-                [ display none ]
-        , onClick <|
-            if Selected pkm == model.selected then
-                Deselect
-
-            else
-                Select pkm
-        ]
-        [ Lazy.lazy Pokemon.view pkm ]

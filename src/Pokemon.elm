@@ -5,8 +5,10 @@ import Css.Transitions as Transitions exposing (cubicBezier, transition)
 import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Events exposing (onClick)
 import Maybe.Extra as Maybe
 import PokemonCSVRow exposing (PokemonCSVRow)
+import String exposing (toLower)
 import Type exposing (Type(..), Typing(..), backgroundFor, viewBadge)
 
 
@@ -23,31 +25,16 @@ type alias Pokemon =
     }
 
 
-view : Pokemon -> Html msg
-view pkm =
+view : (Pokemon -> msg) -> String -> Pokemon -> Html msg
+view selectMsg searchString pkm =
     div
-        [ css
-            [ margin (em 0.2)
-            , backgroundFor pkm.typing
-            , borderRadius (rem 1)
-            , overflow hidden
-            , boxSizing borderBox
-            , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2);"
-            , cursor pointer
-            , width (rem 7)
-            , height (pct 100)
-            , padding4 (em 0) (em 0.2) (em 0.5) (em 0.2)
-            , position relative -- to make zIndex work
-            , transition
-                [ Transitions.transform3 500 0 (cubicBezier 0 1 0.5 1.5)
-                , Transitions.boxShadow3 500 0 (cubicBezier 0 1 0.5 1.5)
-                ]
-            , hover
-                [ transform <| scale 1.5
-                , zIndex (int 100)
-                , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 1px 3px 3px 3px rgba(0, 0, 0, .3);"
-                ]
-            ]
+        [ onClick <| selectMsg pkm
+        , css <|
+            if String.contains (toLower searchString) (toLower pkm.fullName) then
+                [ backgroundFor pkm.typing, viewBaseStyle ]
+
+            else
+                [ backgroundFor pkm.typing, viewBaseStyle, display none ]
         ]
         [ img
             [ src pkm.imageUrl
@@ -58,6 +45,30 @@ view pkm =
             ]
             []
         , div [] [ text pkm.fullName ]
+        ]
+
+
+viewBaseStyle : Style
+viewBaseStyle =
+    Css.batch
+        [ margin (em 0.2)
+        , borderRadius (rem 1)
+        , overflow hidden
+        , boxSizing borderBox
+        , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2);"
+        , cursor pointer
+        , width (rem 7)
+        , padding4 (em 0) (em 0.2) (em 0.5) (em 0.2)
+        , position relative -- to make zIndex work
+        , transition
+            [ Transitions.transform3 500 0 (cubicBezier 0 1 0.5 1.5)
+            , Transitions.boxShadow3 500 0 (cubicBezier 0 1 0.5 1.5)
+            ]
+        , hover
+            [ transform <| scale 1.5
+            , zIndex (int 100)
+            , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 1px 3px 3px 3px rgba(0, 0, 0, .3);"
+            ]
         ]
 
 
