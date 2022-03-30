@@ -4,7 +4,7 @@ import Css exposing (..)
 import Css.Transitions as Transitions exposing (cubicBezier, transition)
 import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, figcaption, figure, img, text)
-import Html.Styled.Attributes exposing (class, css, src)
+import Html.Styled.Attributes exposing (css, src)
 import Maybe.Extra as Maybe
 import PokemonCSVRow exposing (PokemonCSVRow)
 import Type exposing (Type(..), Typing(..), backgroundFor, viewBadge)
@@ -34,6 +34,7 @@ view pkm =
             , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2);"
             , cursor pointer
             , padding4 (em 0) (em 0.2) (em 0.5) (em 0.2)
+            , position relative -- to make zIndex work
             , transition
                 [ Transitions.transform3 500 0 (cubicBezier 0 1 0.5 1.5)
                 , Transitions.boxShadow3 500 0 (cubicBezier 0 1 0.5 1.5)
