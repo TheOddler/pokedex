@@ -4,7 +4,7 @@ import Css exposing (..)
 import Csv.Decode as Decode
 import Dict exposing (Dict)
 import Html.Styled exposing (Html, div, input)
-import Html.Styled.Attributes exposing (class, css, id, placeholder, value)
+import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Html.Styled.Lazy as Lazy
 import Maybe.Extra as Maybe
