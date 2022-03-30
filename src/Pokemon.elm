@@ -159,7 +159,7 @@ viewDetail visible mode allPkm pkm =
         wrapEvolutionListView =
             div
                 [ css
-                    [ overflowX scroll
+                    [ overflowX auto
                     , width (pct 100)
                     , whiteSpace noWrap
                     , textAlign center
