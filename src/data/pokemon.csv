@@ -211,7 +211,7 @@ ID,Species ID,Name,Alternate Form Name,Original Pokemon,Primary Type,Secondary T
 259,166,Ledian,,,Bug,Flying,258,Level 18,1,2,1,2,0.25,2,0.25,1,0,2,1,0.5,4,1,1,1,1,1,166
 260,167,Spinarak,,,Bug,Poison,,,1,2,1,1,0.25,1,0.25,0.5,1,2,2,0.5,2,1,1,1,1,0.5,167
 261,168,Ariados,,,Bug,Poison,260,Level 22,1,2,1,1,0.25,1,0.25,0.5,1,2,2,0.5,2,1,1,1,1,0.5,168
-63,169,Crobat,,,Poison,Flying,62,,1,1,1,2,0.25,2,0.25,0.5,0,1,2,0.25,2,1,1,1,1,0.5,169
+63,169,Crobat,,,Poison,Flying,62,Level up with high friendship,1,1,1,2,0.25,2,0.25,0.5,0,1,2,0.25,2,1,1,1,1,0.5,169
 262,170,Chinchou,,,Water,Electric,,,1,0.5,0.5,0,2,0.5,1,1,2,0.5,1,1,1,1,1,1,0.25,1,170
 263,171,Lanturn,,,Water,Electric,262,Level 27,1,0.5,0.5,0,2,0.5,1,1,2,0.5,1,1,1,1,1,1,0.25,1,171
 88,172,Pichu,,,Electric,,,,1,1,1,0.5,1,1,1,1,2,0.5,1,1,1,1,1,1,0.5,1,172
