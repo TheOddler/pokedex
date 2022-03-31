@@ -1,6 +1,7 @@
 module Pokemon exposing (Mode(..), Msg(..), Pokemon, fromCSVRows, view, viewDetail)
 
 import Css exposing (..)
+import Css.Media as Media exposing (canHover, withMedia)
 import Css.Transitions as Transitions exposing (cubicBezier, transition)
 import Dict exposing (Dict)
 import Helpers exposing (stopPropagationOnClick)
@@ -50,10 +51,12 @@ view searchString pkm =
 
               else
                 display none
-            , hover
-                [ transform <| scale 1.5
-                , zIndex (int 100)
-                , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 1px 3px 3px 3px rgba(0, 0, 0, .3);"
+            , withMedia [ Media.all [ Media.hover canHover ] ]
+                [ hover
+                    [ transform <| scale 1.5
+                    , zIndex (int 100)
+                    , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 1px 3px 3px 3px rgba(0, 0, 0, .3);"
+                    ]
                 ]
             , transition
                 [ Transitions.transform3 500 0 (cubicBezier 0 1 0.5 1.5)
