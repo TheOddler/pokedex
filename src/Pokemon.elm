@@ -1,4 +1,15 @@
-module Pokemon exposing (Mode(..), Msg(..), Pokemon, fromCSVRows, view, viewDetail)
+module Pokemon exposing
+    ( Mode(..)
+    , Msg(..)
+    , Pokemon
+    , Selected(..)
+    , Settings
+    , fromCSVRows
+    , initSettings
+    , updateSettings
+    , view
+    , viewDetail
+    )
 
 import Css exposing (..)
 import Css.Media as Media exposing (canHover, withMedia)
@@ -9,6 +20,7 @@ import Html exposing (p)
 import Html.Styled as Html exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
 import Html.Styled.Events exposing (onClick)
+import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
 import PokemonCSVRow exposing (PokemonCSVRow)
 import String exposing (toLower)
@@ -28,6 +40,12 @@ type alias Pokemon =
     }
 
 
+type alias Settings =
+    { selected : Selected
+    , mode : Mode
+    }
+
+
 type Mode
     = TypeEffectiveness
     | Evolution
@@ -37,6 +55,60 @@ type Msg
     = Select Pokemon
     | Deselect
     | ChangeMode Mode
+
+
+type Selected
+    = Selected Pokemon
+    | Deselected Pokemon
+
+
+saveMode : Mode -> Cmd Msg
+saveMode mode =
+    LocalStorage.save LocalStorage.modeKey <|
+        case mode of
+            TypeEffectiveness ->
+                "TypeEffectiveness"
+
+            Evolution ->
+                "Evolution"
+
+
+initSettings : LocalStorage -> Pokemon -> Settings
+initSettings localSotrage first =
+    let
+        parseMode str =
+            case str of
+                "TypeEffectiveness" ->
+                    TypeEffectiveness
+
+                _ ->
+                    Evolution
+    in
+    { selected = Deselected first
+    , mode = Maybe.withDefault Evolution (Maybe.map parseMode localSotrage.mode)
+    }
+
+
+updateSettings : Msg -> Settings -> ( Settings, Cmd Msg )
+updateSettings msg model =
+    case msg of
+        Select p ->
+            if model.selected == Selected p then
+                updateSettings Deselect model
+
+            else
+                ( { model | selected = Selected p }, Cmd.none )
+
+        Deselect ->
+            case model.selected of
+                Selected p ->
+                    ( { model | selected = Deselected p }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ChangeMode mode ->
+            ( { model | mode = mode }, saveMode mode )
 
 
 view : String -> Pokemon -> Html Msg
@@ -91,8 +163,8 @@ viewBadgeStyle =
         ]
 
 
-viewDetail : Bool -> Mode -> Dict Int Pokemon -> Pokemon -> Html Msg
-viewDetail visible mode allPkm pkm =
+viewDetail : Bool -> Settings -> Dict Int Pokemon -> Pokemon -> Html Msg
+viewDetail visible settings allPkm pkm =
     let
         viewBadgeWithEff ( t, e ) =
             viewBadge t (Just e)
@@ -224,7 +296,7 @@ viewDetail visible mode allPkm pkm =
             ]
         ]
     <|
-        case mode of
+        case settings.mode of
             TypeEffectiveness ->
                 [ mainView
                 , typeEffectivenessView

@@ -6,6 +6,7 @@ import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onInput)
+import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Mode(..), Pokemon)
 import PokemonCSVRow
 
@@ -14,8 +15,7 @@ type alias Pokedex =
     { searchString : String
     , pokemon : List Pokemon
     , pokemonIdDict : Dict Int Pokemon
-    , selected : Selected
-    , mode : Pokemon.Mode
+    , pokemonSettings : Pokemon.Settings
     }
 
 
@@ -24,21 +24,15 @@ type Msg
     | PokemonMsg Pokemon.Msg
 
 
-type Selected
-    = Selected Pokemon
-    | Deselected Pokemon
-
-
-init : String -> Result String Pokedex
-init pokemonCsv =
+init : LocalStorage -> String -> Result String Pokedex
+init localStorage pokemonCsv =
     case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow PokemonCSVRow.decoder pokemonCsv) of
         Ok (first :: rest) ->
             Ok
                 { searchString = ""
                 , pokemon = first :: rest
                 , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
-                , selected = Deselected first
-                , mode = Pokemon.Evolution
+                , pokemonSettings = Pokemon.initSettings localStorage first
                 }
 
         Ok [] ->
@@ -48,31 +42,18 @@ init pokemonCsv =
             Err (Decode.errorToString err)
 
 
-update : Msg -> Pokedex -> Pokedex
+update : Msg -> Pokedex -> ( Pokedex, Cmd Msg )
 update msg model =
     case msg of
         SetSearch s ->
-            { model | searchString = s }
+            ( { model | searchString = s }, Cmd.none )
 
         PokemonMsg pkmMsg ->
-            case pkmMsg of
-                Pokemon.Select p ->
-                    if model.selected == Selected p then
-                        update (PokemonMsg Pokemon.Deselect) model
-
-                    else
-                        { model | selected = Selected p }
-
-                Pokemon.Deselect ->
-                    case model.selected of
-                        Selected p ->
-                            { model | selected = Deselected p }
-
-                        _ ->
-                            model
-
-                Pokemon.ChangeMode mode ->
-                    { model | mode = mode }
+            let
+                ( updatedSettings, cmd ) =
+                    Pokemon.updateSettings pkmMsg model.pokemonSettings
+            in
+            ( { model | pokemonSettings = updatedSettings }, Cmd.map PokemonMsg cmd )
 
 
 view : Pokedex -> Html Msg
@@ -87,12 +68,12 @@ view model =
             , onInput SetSearch
             ]
             []
-        , case model.selected of
-            Selected pkm ->
-                Html.map PokemonMsg <| Pokemon.viewDetail True model.mode model.pokemonIdDict pkm
+        , case model.pokemonSettings.selected of
+            Pokemon.Selected pkm ->
+                Html.map PokemonMsg <| Pokemon.viewDetail True model.pokemonSettings model.pokemonIdDict pkm
 
-            Deselected pkm ->
-                Html.map PokemonMsg <| Pokemon.viewDetail False model.mode model.pokemonIdDict pkm
+            Pokemon.Deselected pkm ->
+                Html.map PokemonMsg <| Pokemon.viewDetail False model.pokemonSettings model.pokemonIdDict pkm
         , div
             [ css
                 [ displayFlex

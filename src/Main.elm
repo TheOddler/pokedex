@@ -5,11 +5,12 @@ import Css exposing (..)
 import Html.Styled as Html exposing (Html, a, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css, href)
 import Http
+import LocalStorage exposing (LocalStorage)
 import Pokedex exposing (Pokedex)
 
 
 type Model
-    = Loading (Maybe String)
+    = Loading LocalStorage (Maybe String)
     | DoneLoading Pokedex
     | Error String Http.Error
 
@@ -19,6 +20,7 @@ type Msg
     | PokedexMsg Pokedex.Msg
 
 
+main : Program LocalStorage Model Msg
 main =
     Browser.element
         { init = init
@@ -28,9 +30,9 @@ main =
         }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Loading Nothing
+init : LocalStorage -> ( Model, Cmd Msg )
+init localStorage =
+    ( Loading localStorage Nothing
     , Http.get
         { url = "data/pokemon.csv"
         , expect = Http.expectString GotPokemonCsv
@@ -46,12 +48,12 @@ subscriptions _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case model of
-        Loading _ ->
+        Loading localStorage _ ->
             case msg of
                 GotPokemonCsv result ->
                     case result of
                         Ok csv ->
-                            case Pokedex.init csv of
+                            case Pokedex.init localStorage csv of
                                 Ok pokedex ->
                                     ( DoneLoading pokedex, Cmd.none )
 
@@ -67,7 +69,11 @@ update msg model =
         DoneLoading dex ->
             case msg of
                 PokedexMsg m ->
-                    ( DoneLoading <| Pokedex.update m dex, Cmd.none )
+                    let
+                        ( updatedModel, cmd ) =
+                            Pokedex.update m dex
+                    in
+                    ( DoneLoading updatedModel, Cmd.map PokedexMsg cmd )
 
                 _ ->
                     ( model, Cmd.none )
@@ -90,7 +96,7 @@ view model =
             ]
         ]
         [ case model of
-            Loading _ ->
+            Loading _ _ ->
                 div
                     [ css [ infoStyle ]
                     ]
