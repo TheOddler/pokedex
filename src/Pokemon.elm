@@ -24,7 +24,7 @@ import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
 import PokemonCSVRow exposing (PokemonCSVRow)
 import String exposing (toLower)
-import Type exposing (Type(..), Typing(..), backgroundFor, viewBadge)
+import Type exposing (Type(..), Typing(..))
 
 
 type alias Pokemon =
@@ -116,7 +116,7 @@ view searchString pkm =
     div
         [ onClick <| Select pkm
         , css <|
-            [ backgroundFor pkm.typing
+            [ Type.backgroundFor pkm.typing
             , viewBadgeStyle
             , if String.contains (toLower searchString) (toLower pkm.fullName) then
                 Css.batch []
@@ -167,7 +167,7 @@ viewDetail : Bool -> Settings -> Dict Int Pokemon -> Pokemon -> Html Msg
 viewDetail visible settings allPkm pkm =
     let
         viewBadgeWithEff ( t, e ) =
-            viewBadge t (Just e)
+            Type.viewBadge t (Just e)
 
         maybeEvolvesFrom =
             Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
@@ -189,14 +189,12 @@ viewDetail visible settings allPkm pkm =
                 , figcaption [ css [ fontSize (em 2) ] ] [ text pkm.fullName ]
                 ]
 
-        viewEvolition info p =
+        viewBadge p =
             div
                 [ stopPropagationOnClick <| Select p
                 , css
-                    [ backgroundFor p.typing
+                    [ Type.backgroundFor p.typing
                     , viewBadgeStyle
-                    , display inlineBlock
-                    , whiteSpace normal
                     , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 0px 1px 1px 1px rgba(0, 0, 0, 0.15);"
                     ]
                 ]
@@ -209,18 +207,39 @@ viewDetail visible settings allPkm pkm =
                     ]
                     []
                 , div [ css [ fontSize (em 1) ] ] [ text p.fullName ]
-                , div [ css [ fontSize (em 0.9) ] ] [ text info ]
                 ]
+
+        viewEvolition isPrevolution info p =
+            let
+                children =
+                    [ viewBadge p
+                    , div [ css [ fontSize (em 0.9) ] ] [ text info ]
+                    ]
+            in
+            div
+                [ css
+                    [ display inlineBlock
+                    , whiteSpace normal
+                    , width (rem 7)
+                    , margin (em 0.2)
+                    ]
+                ]
+            <|
+                if isPrevolution then
+                    children
+
+                else
+                    List.reverse children
 
         typeEffectivenessView =
             div []
                 [ div [] <|
                     case pkm.typing of
                         Single type_ ->
-                            [ viewBadge type_ Nothing ]
+                            [ Type.viewBadge type_ Nothing ]
 
                         Double first second ->
-                            [ viewBadge first Nothing, viewBadge second Nothing ]
+                            [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
                 , div [ css [ effectivenessChartTitleStyle ] ]
                     [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
                 , div [ css [ effectivenessChartStyle ] ] <|
@@ -260,7 +279,7 @@ viewDetail visible settings allPkm pkm =
     div
         [ onClick Deselect
         , css
-            [ backgroundFor pkm.typing
+            [ Type.backgroundFor pkm.typing
             , position fixed
             , left (pct 50)
             , maxWidth (pct 95)
@@ -304,9 +323,9 @@ viewDetail visible settings allPkm pkm =
                 ]
 
             Evolution ->
-                [ wrapEvolutionListView <| Maybe.values [ Maybe.map (viewEvolition <| Maybe.withDefault "" pkm.evolvesFromDetails) maybeEvolvesFrom ]
+                [ wrapEvolutionListView <| Maybe.values [ Maybe.map (viewEvolition True <| Maybe.withDefault "" pkm.evolvesFromDetails) maybeEvolvesFrom ]
                 , mainView
-                , wrapEvolutionListView <| List.map (\p -> viewEvolition (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
+                , wrapEvolutionListView <| List.map (\p -> viewEvolition False (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
                 , modeButton "show Type Effectiveness" TypeEffectiveness
                 ]
 
