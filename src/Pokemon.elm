@@ -375,9 +375,9 @@ fromCSVRow pkmCSVRows pkm =
     , superEffective = List.filter isSuperEffective effectivenessList
     , notVeryEffective = List.filter isNotVeryEffective effectivenessList
     , imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pkm.image ++ ".png"
-    , evolvesFromID = Maybe.or pkm.evolvesFromID pkm.originalPokemonID
+    , evolvesFromID = pkm.evolvesFromID
     , evolvesFromDetails = pkm.evolutionDetails
-    , evolvesIntoIDs = List.map .id <| List.filter (\p -> p.evolvesFromID == Just pkm.id || p.originalPokemonID == Just pkm.id) pkmCSVRows
+    , evolvesIntoIDs = List.map .id <| List.filter (\p -> p.evolvesFromID == Just pkm.id) pkmCSVRows
     }
 
 
