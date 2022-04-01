@@ -1,6 +1,7 @@
 module PokemonCSVRow exposing (..)
 
 import Csv.Decode as Decode exposing (Decoder)
+import Maybe.Extra as Maybe
 import Type exposing (Type)
 
 
@@ -12,8 +13,10 @@ type alias PokemonCSVRow =
     , originalPokemonID : Maybe Int
     , primaryType : Type
     , secondaryType : Maybe Type
-    , evolvesFromID : Maybe Int
+    , evolvesFromID : List Int
     , evolutionDetails : Maybe String
+    , transformGroupID : Maybe Int
+    , transformGroupDetails : Maybe String
     , normal : Float
     , fire : Float
     , water : Float
@@ -46,8 +49,10 @@ decoder =
         |> Decode.pipeline (Decode.field "Original Pokemon" (Decode.blank Decode.int))
         |> Decode.pipeline (Decode.field "Primary Type" Type.decoder)
         |> Decode.pipeline (Decode.field "Secondary Type" (Decode.blank Type.decoder))
-        |> Decode.pipeline (Decode.field "Evolves From" (Decode.blank Decode.int))
+        |> Decode.pipeline (Decode.field "Evolves From" intListDecoder)
         |> Decode.pipeline (Decode.field "Evolution Details" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Transform Group" (Decode.blank Decode.int))
+        |> Decode.pipeline (Decode.field "Transform Details" (Decode.blank Decode.string))
         |> Decode.pipeline (Decode.field "Normal" Decode.float)
         |> Decode.pipeline (Decode.field "Fire" Decode.float)
         |> Decode.pipeline (Decode.field "Water" Decode.float)
@@ -90,3 +95,32 @@ effectivenessAgainst pkm =
     , ( Type.Steel, pkm.steel )
     , ( Type.Fairy, pkm.fairy )
     ]
+
+
+intListDecoder : Decoder (List Int)
+intListDecoder =
+    Decode.andThen
+        (\maybeString ->
+            let
+                strings =
+                    case maybeString of
+                        Nothing ->
+                            []
+
+                        Just string ->
+                            String.split ";" string
+
+                listMaybeInts =
+                    List.map String.toInt strings
+
+                maybeIntsList =
+                    Maybe.combine listMaybeInts
+            in
+            case maybeIntsList of
+                Nothing ->
+                    Decode.fail <| "Failed parsing int list"
+
+                Just ints ->
+                    Decode.succeed ints
+        )
+        (Decode.blank Decode.string)

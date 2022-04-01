@@ -500,12 +500,12 @@ ID,Species ID,Name,Alternate Form Name,Original Pokemon,Primary Type,Secondary T
 608,410,Shieldon,,,Rock,Steel,,,,,0.25,1,2,1,1,0.5,4,0,4,0.25,0.5,0.5,0.5,1,0.5,1,1,0.5,410
 609,411,Bastiodon,,,Rock,Steel,608,Level 30,,,0.25,1,2,1,1,0.5,4,0,4,0.25,0.5,0.5,0.5,1,0.5,1,1,0.5,411
 610,412,Burmy,Plant,,Bug,,,,5,If it last battled in grass,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,412
-1606,412,Burmy,Sandy,610,Bug,,,,5,If it last battled in a cave,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,412
-1607,412,Burmy,Trash,610,Bug,,,,5,If it last battled in a building,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,412
+1606,412,Burmy,Sandy,610,Bug,,,,5,If it last battled in a cave,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,412-sandy
+1607,412,Burmy,Trash,610,Bug,,,,5,If it last battled in a building,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,412-trash
 611,413,Wormadam,Plant,,Bug,Grass,610,Level 20 when female,,,1,4,0.5,0.5,0.25,2,0.5,2,0.25,4,1,2,2,1,1,1,1,1,413
 1568,413,Wormadam,Sandy,611,Bug,Ground,1606,Level 20 when female,,,1,2,2,0,1,2,0.5,0.5,0.5,2,1,1,1,1,1,1,1,1,413-sandy
 1569,413,Wormadam,Trash,611,Bug,Steel,1607,Level 20 when female,,,0.5,4,1,1,0.25,0.5,1,0,1,1,0.5,0.5,1,1,0.5,1,0.5,0.5,413-trash
-612,414,Mothim,,,Bug,Flying,610,Level 20 when male,,,1,2,1,2,0.25,2,0.25,1,0,2,1,0.5,4,1,1,1,1,1,414
+612,414,Mothim,,,Bug,Flying,610;1606;1607,Level 20 when male,,,1,2,1,2,0.25,2,0.25,1,0,2,1,0.5,4,1,1,1,1,1,414
 613,415,Combee,,,Bug,Flying,,,,,1,2,1,2,0.25,2,0.25,1,0,2,1,0.5,4,1,1,1,1,1,415
 614,416,Vespiquen,,,Bug,Flying,613,Level 21 When Female,,,1,2,1,2,0.25,2,0.25,1,0,2,1,0.5,4,1,1,1,1,1,416
 615,417,Pachirisu,,,Electric,,,,,,1,1,1,0.5,1,1,1,1,2,0.5,1,1,1,1,1,1,0.5,1,417

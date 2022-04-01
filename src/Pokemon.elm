@@ -34,9 +34,11 @@ type alias Pokemon =
     , superEffective : List ( Type, Float )
     , notVeryEffective : List ( Type, Float )
     , imageUrl : String
-    , evolvesFromID : Maybe Int
+    , evolvesFromIDs : List Int
     , evolvesFromDetails : Maybe String
     , evolvesIntoIDs : List Int
+    , transformGroupDetails : Maybe String
+    , othersInTransformGroup : List Int
     }
 
 
@@ -48,7 +50,27 @@ type alias Settings =
 
 type Mode
     = TypeEffectiveness
-    | Evolution
+    | Evolutions
+
+
+modeToString : Mode -> String
+modeToString mode =
+    case mode of
+        TypeEffectiveness ->
+            "TypeEffectiveness"
+
+        Evolutions ->
+            "Evolutions"
+
+
+modeFromString : String -> Mode
+modeFromString str =
+    case str of
+        "TypeEffectiveness" ->
+            TypeEffectiveness
+
+        _ ->
+            Evolutions
 
 
 type Msg
@@ -64,28 +86,13 @@ type Selected
 
 saveMode : Mode -> Cmd Msg
 saveMode mode =
-    LocalStorage.save LocalStorage.modeKey <|
-        case mode of
-            TypeEffectiveness ->
-                "TypeEffectiveness"
-
-            Evolution ->
-                "Evolution"
+    LocalStorage.save LocalStorage.modeKey <| modeToString mode
 
 
 initSettings : LocalStorage -> Pokemon -> Settings
 initSettings localSotrage first =
-    let
-        parseMode str =
-            case str of
-                "TypeEffectiveness" ->
-                    TypeEffectiveness
-
-                _ ->
-                    Evolution
-    in
     { selected = Deselected first
-    , mode = Maybe.withDefault Evolution (Maybe.map parseMode localSotrage.mode)
+    , mode = Maybe.withDefault Evolutions (Maybe.map modeFromString localSotrage.mode)
     }
 
 
@@ -169,11 +176,15 @@ viewDetail visible settings allPkm pkm =
         viewBadgeWithEff ( t, e ) =
             Type.viewBadge t (Just e)
 
-        maybeEvolvesFrom =
-            Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
+        evolvesFrom =
+            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesFromIDs
 
+        -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
         evolvesInto =
             Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesIntoIDs
+
+        transformsInto =
+            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.othersInTransformGroup
 
         mainView =
             figure
@@ -275,6 +286,27 @@ viewDetail visible settings allPkm pkm =
                     ]
                 ]
                 [ text text_ ]
+
+        typeEffectivenessButton =
+            modeButton "show Type Effectiveness" TypeEffectiveness
+
+        evolutionsButton =
+            let
+                label =
+                    case ( evolvesInto, transformsInto ) of
+                        ( [], [] ) ->
+                            "show Evolutions"
+
+                        ( _, [] ) ->
+                            "show Evolutions"
+
+                        ( [], _ ) ->
+                            "show Transformations"
+
+                        ( _, _ ) ->
+                            "show Transformations & Evolutions"
+            in
+            modeButton label Evolutions
     in
     div
         [ onClick Deselect
@@ -319,14 +351,18 @@ viewDetail visible settings allPkm pkm =
             TypeEffectiveness ->
                 [ mainView
                 , typeEffectivenessView
-                , modeButton "show Evolutions" Evolution
+                , evolutionsButton
                 ]
 
-            Evolution ->
-                [ wrapEvolutionListView <| Maybe.values [ Maybe.map (viewEvolition True <| Maybe.withDefault "" pkm.evolvesFromDetails) maybeEvolvesFrom ]
+            Evolutions ->
+                [ wrapEvolutionListView <| List.map (\p -> viewEvolition True (Maybe.withDefault "" pkm.evolvesFromDetails) p) evolvesFrom
                 , mainView
-                , wrapEvolutionListView <| List.map (\p -> viewEvolition False (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
-                , modeButton "show Type Effectiveness" TypeEffectiveness
+                , wrapEvolutionListView <|
+                    List.concat
+                        [ List.map (\p -> viewEvolition False (Maybe.withDefault "" p.transformGroupDetails) p) transformsInto
+                        , List.map (\p -> viewEvolition False (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
+                        ]
+                , typeEffectivenessButton
                 ]
 
 
@@ -375,9 +411,17 @@ fromCSVRow pkmCSVRows pkm =
     , superEffective = List.filter isSuperEffective effectivenessList
     , notVeryEffective = List.filter isNotVeryEffective effectivenessList
     , imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" ++ pkm.image ++ ".png"
-    , evolvesFromID = pkm.evolvesFromID
+    , evolvesFromIDs = pkm.evolvesFromID
     , evolvesFromDetails = pkm.evolutionDetails
-    , evolvesIntoIDs = List.map .id <| List.filter (\p -> p.evolvesFromID == Just pkm.id) pkmCSVRows
+    , evolvesIntoIDs = List.map .id <| List.filter (\p -> List.member pkm.id p.evolvesFromID) pkmCSVRows
+    , transformGroupDetails = pkm.transformGroupDetails
+    , othersInTransformGroup =
+        case pkm.transformGroupID of
+            Nothing ->
+                []
+
+            Just transformGroupID ->
+                List.map .id <| List.filter (\p -> p.transformGroupID == Just transformGroupID && p.id /= pkm.id) pkmCSVRows
     }
 
 
