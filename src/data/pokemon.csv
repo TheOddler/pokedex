@@ -107,7 +107,7 @@ ID,Species ID,Name,Alternate Form Name,Original Pokemon,Primary Type,Secondary T
 1366,79,Slowpoke,Galar,1319,Psychic,,,,,,1,1,1,1,1,1,0.5,1,1,1,0.5,2,1,2,1,2,1,1,10164
 1330,80,Slowbro,,,Water,Psychic,1319,Level 37,,,1,0.5,0.5,2,2,0.5,0.5,1,1,1,0.5,2,1,2,1,2,0.5,1,80
 1368,80,Slowbro,Galar,1330,Poison,Psychic,1366,Use Galarica Cuff,,,1,1,1,1,0.5,1,0.25,0.5,2,1,1,1,1,2,1,2,1,0.5,10165
-1367,80,Slowbro,Mega,,Water,Psychic,1330,Holding Slowbronite‎,,,1,0.5,0.5,2,2,0.5,0.5,1,1,1,0.5,2,1,2,1,2,0.5,1,80-mega
+1367,80,Slowbro,Mega,,Water,Psychic,1330,Holding Slowbronite,,,1,0.5,0.5,2,2,0.5,0.5,1,1,1,0.5,2,1,2,1,2,0.5,1,80-mega
 46,81,Magnemite,,,Electric,Steel,,,,,0.5,2,1,0.5,0.5,0.5,2,0,4,0.25,0.5,0.5,0.5,1,0.5,1,0.25,0.5,81
 1341,82,Magneton,,,Electric,Steel,46,Level 30,,,0.5,2,1,0.5,0.5,0.5,2,0,4,0.25,0.5,0.5,0.5,1,0.5,1,0.25,0.5,82
 1342,83,Farfetch'd,,,Normal,Flying,,,,,1,1,1,2,0.5,2,1,1,0,1,1,0.5,2,0,1,1,1,1,83
@@ -328,9 +328,9 @@ ID,Species ID,Name,Alternate Form Name,Original Pokemon,Primary Type,Secondary T
 392,264,Linoone,,,Normal,,391,Level 20,,,1,1,1,1,1,1,2,1,1,1,1,1,1,0,1,1,1,1,264
 1467,264,Linoone,Galar,392,Dark,Normal,1466,Level 20,,,1,1,1,1,1,1,4,1,1,1,0,2,1,0,1,0.5,1,2,10175
 393,265,Wurmple,,,Bug,,,,,,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,265
-394,266,Silcoon,,,Bug,,393,Level 7 Based On Personality Value,,,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,266
+394,266,Silcoon,,,Bug,,393,Level 7 based on a hidden value,,,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,266
 395,267,Beautifly,,,Bug,Flying,394,Level 10,,,1,2,1,2,0.25,2,0.25,1,0,2,1,0.5,4,1,1,1,1,1,267
-396,268,Cascoon,,,Bug,,393,Level 7 Based On Personality Value,,,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,268
+396,268,Cascoon,,,Bug,,393,Level 7 based on a hidden value,,,1,2,1,1,0.5,1,0.5,1,0.5,2,1,1,2,1,1,1,1,1,268
 397,269,Dustox,,,Bug,Poison,396,Level 10,,,1,2,1,1,0.25,1,0.25,0.5,1,2,2,0.5,2,1,1,1,1,0.5,269
 398,270,Lotad,,,Water,Grass,,,,,1,1,0.25,1,1,1,1,2,0.5,2,1,2,1,1,1,1,0.5,1,270
 399,271,Lombre,,,Water,Grass,398,Level 14,,,1,1,0.25,1,1,1,1,2,0.5,2,1,2,1,1,1,1,0.5,1,271
@@ -388,12 +388,12 @@ ID,Species ID,Name,Alternate Form Name,Original Pokemon,Primary Type,Secondary T
 445,317,Swalot,,,Poison,,444,Level 26,,,1,1,1,1,0.5,1,0.5,0.5,2,1,2,0.5,1,1,1,1,1,0.5,317
 446,318,Carvanha,,,Water,Dark,,,,,1,0.5,0.5,2,2,0.5,2,1,1,1,0,2,1,0.5,1,0.5,0.5,2,318
 447,319,Sharpedo,,,Water,Dark,446,Level 30,,,1,0.5,0.5,2,2,0.5,2,1,1,1,0,2,1,0.5,1,0.5,0.5,2,319
-1587,319,Sharpedo,Mega,,Water,Dark,447,Holding Sharpedonite‎,,,1,0.5,0.5,2,2,0.5,2,1,1,1,0,2,1,0.5,1,0.5,0.5,2,319-mega
+1587,319,Sharpedo,Mega,,Water,Dark,447,Holding Sharpedonite,,,1,0.5,0.5,2,2,0.5,2,1,1,1,0,2,1,0.5,1,0.5,0.5,2,319-mega
 448,320,Wailmer,,,Water,,,,,,1,0.5,0.5,2,2,0.5,1,1,1,1,1,1,1,1,1,1,0.5,1,320
 449,321,Wailord,,,Water,,448,Level 40,,,1,0.5,0.5,2,2,0.5,1,1,1,1,1,1,1,1,1,1,0.5,1,321
 450,322,Numel,,,Fire,Ground,,,,,1,0.5,4,0,1,1,1,0.5,2,1,1,0.5,1,1,1,1,0.5,0.5,322
 451,323,Camerupt,,,Fire,Ground,450,Level 33,,,1,0.5,4,0,1,1,1,0.5,2,1,1,0.5,1,1,1,1,0.5,0.5,323
-1588,323,Camerupt,Mega,,Fire,Ground,451,Holding Cameruptite‎,,,1,0.5,3,0,1,1,1,0.5,1.5,1,1,0.5,1,1,1,1,0.5,0.5,323-mega
+1588,323,Camerupt,Mega,,Fire,Ground,451,Holding Cameruptite,,,1,0.5,3,0,1,1,1,0.5,1.5,1,1,0.5,1,1,1,1,0.5,0.5,323-mega
 452,324,Torkoal,,,Fire,,,,,,1,0.5,2,1,0.5,0.5,1,1,2,1,1,0.5,2,1,1,1,0.5,0.5,324
 453,325,Spoink,,,Psychic,,,,,,1,0.5,1,1,1,0.5,0.5,1,1,1,0.5,2,1,2,1,2,1,1,325
 454,326,Grumpig,,,Psychic,,453,Level 32,,,1,0.5,1,1,1,0.5,0.5,1,1,1,0.5,2,1,2,1,2,1,1,326
