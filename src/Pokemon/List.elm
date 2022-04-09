@@ -3,9 +3,11 @@ module Pokemon.List exposing (view)
 import Css exposing (..)
 import Css.Media as Media exposing (canHover, withMedia)
 import Css.Transitions as Transitions exposing (cubicBezier, transition)
-import Html.Styled exposing (..)
+import Html.Styled exposing (Html, div, img, text)
 import Html.Styled.Attributes exposing (css, src)
 import Html.Styled.Events exposing (onClick)
+import Html.Styled.Lazy as Lazy
+import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
 import Pokemon.Details
 import Pokemon.SharedStyles as SharedStyles
@@ -23,22 +25,73 @@ view pokemonList filter =
             ]
         ]
     <|
-        List.map (\p -> viewListElement (filter p) p) pokemonList
+        List.map (\p -> viewListElementWrapper (filter p) p) pokemonList
 
 
-viewListElement : Bool -> Pokemon -> Html Pokemon.Details.Msg
-viewListElement isVisible pkm =
+viewListElementWrapper : Bool -> Pokemon -> Html Pokemon.Details.Msg
+viewListElementWrapper isVisible pkm =
+    let
+        style =
+            margin (em 0.2)
+
+        invisibleStyle =
+            display none
+    in
+    div
+        [ css <|
+            if isVisible then
+                [ style ]
+
+            else
+                [ style, invisibleStyle ]
+        ]
+        [ Lazy.lazy viewListElement pkm ]
+
+
+viewListElementWrapperAnimated : Bool -> Pokemon -> Html Pokemon.Details.Msg
+viewListElementWrapperAnimated isVisible pkm =
+    let
+        style =
+            Css.batch
+                [ width (rem 7)
+                , margin (em 0.2)
+                , transition
+                    [ Transitions.width3 200 0 Transitions.easeInOut
+                    , Transitions.visibility3 200 0 Transitions.easeInOut
+                    ]
+                ]
+
+        invisibleStyle =
+            Css.batch
+                [ width (px 0)
+                , padding (em 0)
+                , margin (em 0)
+                , visibility hidden
+                ]
+    in
+    div
+        [ css <|
+            Maybe.values
+                [ Just style
+                , if isVisible then
+                    Nothing
+
+                  else
+                    Just invisibleStyle
+                ]
+        ]
+        [ Lazy.lazy viewListElement pkm ]
+
+
+viewListElement : Pokemon -> Html Pokemon.Details.Msg
+viewListElement pkm =
     div
         [ onClick <| Pokemon.Details.Select pkm
         , css <|
             [ Type.backgroundFor pkm.typing
             , SharedStyles.badgeStyle
-            , if isVisible then
-                Css.batch []
-
-              else
-                display none
             , position relative -- to make zIndex work
+            , height (pct 100)
             , withMedia [ Media.all [ Media.hover canHover ] ]
                 [ hover
                     [ transform <| scale 1.5
