@@ -77,8 +77,31 @@ view model =
 
 
 searchPokemonFilter : String -> Pokemon -> Bool
-searchPokemonFilter searchStr pkm =
-    String.contains searchStr (toLower pkm.fullName)
+searchPokemonFilter searchStr_ pkm =
+    let
+        searchStr =
+            toLower searchStr_
+
+        nameMatch =
+            String.contains searchStr (toLower pkm.fullName)
+
+        evolvesFromDetailsMatch =
+            case pkm.evolvesFromDetails of
+                Nothing ->
+                    False
+
+                Just evolvesFromDetails ->
+                    String.contains searchStr (toLower evolvesFromDetails)
+
+        transformGroupDetailsMatch =
+            case pkm.transformGroupDetails of
+                Nothing ->
+                    False
+
+                Just transformGroupDetails ->
+                    String.contains searchStr (toLower transformGroupDetails)
+    in
+    nameMatch || evolvesFromDetailsMatch || transformGroupDetailsMatch
 
 
 searchStyle : Style
