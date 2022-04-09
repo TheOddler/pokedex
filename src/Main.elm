@@ -83,7 +83,7 @@ view model =
         [ css
             [ height (pct 100)
             , color (rgb 255 255 255)
-            , backgroundColor (rgb 230 230 230)
+            , backgroundColor (rgb 0 0 0)
             , property "text-shadow" "1px 1px black, 0 0 4px rgba(0, 0, 0, 0.5)"
             , fontFamily sansSerif
             , textAlign center
