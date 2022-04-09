@@ -6,6 +6,7 @@ import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onInput)
+import Http
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
 import Pokemon.Details
@@ -18,31 +19,28 @@ type alias Pokedex =
     { searchString : String
     , pokemon : List Pokemon
     , pokemonIdDict : Dict Int Pokemon
-    , details : Pokemon.Details.Model
+    , details : Maybe Pokemon.Details.Model
     }
 
 
 type Msg
     = SetSearch String
     | PokemonDetailsMsg Pokemon.Details.Msg
+    | DoneLoading LocalStorage (Result Http.Error String)
 
 
-init : LocalStorage -> String -> Result String Pokedex
-init localStorage pokemonCsv =
-    case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow PokemonCSVRow.decoder pokemonCsv) of
-        Ok (first :: rest) ->
-            Ok
-                { searchString = ""
-                , pokemon = first :: rest
-                , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
-                , details = Pokemon.Details.init localStorage first
-                }
-
-        Ok [] ->
-            Err "CSV file was empty."
-
-        Err err ->
-            Err (Decode.errorToString err)
+init : LocalStorage -> ( Pokedex, Cmd Msg )
+init localStorage =
+    ( { searchString = ""
+      , pokemon = []
+      , pokemonIdDict = Dict.empty
+      , details = Nothing
+      }
+    , Http.get
+        { url = "data/pokemon.csv"
+        , expect = Http.expectString (DoneLoading localStorage)
+        }
+    )
 
 
 update : Msg -> Pokedex -> ( Pokedex, Cmd Msg )
@@ -52,11 +50,38 @@ update msg model =
             ( { model | searchString = s }, Cmd.none )
 
         PokemonDetailsMsg pkmDetailsMsg ->
-            let
-                ( updatedDetails, cmd ) =
-                    Pokemon.Details.update pkmDetailsMsg model.details
-            in
-            ( { model | details = updatedDetails }, Cmd.map PokemonDetailsMsg cmd )
+            case model.details of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just details ->
+                    let
+                        ( updatedDetails, cmd ) =
+                            Pokemon.Details.update pkmDetailsMsg details
+                    in
+                    ( { model | details = Just updatedDetails }, Cmd.map PokemonDetailsMsg cmd )
+
+        DoneLoading localStorage errorOrCsv ->
+            case errorOrCsv of
+                Err _ ->
+                    ( model, Cmd.none )
+
+                Ok csv ->
+                    case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow PokemonCSVRow.decoder csv) of
+                        Ok (first :: rest) ->
+                            ( { model
+                                | pokemon = first :: rest
+                                , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
+                                , details = Just <| Pokemon.Details.init localStorage first
+                              }
+                            , Cmd.none
+                            )
+
+                        Ok [] ->
+                            ( model, Cmd.none )
+
+                        Err _ ->
+                            ( model, Cmd.none )
 
 
 view : Pokedex -> Html Msg
@@ -71,7 +96,12 @@ view model =
             , onInput SetSearch
             ]
             []
-        , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemonIdDict model.details
+        , case model.details of
+            Just details ->
+                Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemonIdDict details
+
+            Nothing ->
+                div [] []
         , Html.map PokemonDetailsMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
         ]
 
