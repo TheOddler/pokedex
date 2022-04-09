@@ -1,29 +1,19 @@
 module Pokemon exposing
-    ( Mode(..)
-    , Msg(..)
+    ( Msg(..)
     , Pokemon
     , Selected(..)
     , Settings
     , fromCSVRows
     , initSettings
     , updateSettings
-    , view
-    , viewDetail
     )
 
 import Css exposing (..)
-import Css.Media as Media exposing (canHover, withMedia)
-import Css.Transitions as Transitions exposing (cubicBezier, transition)
-import Dict exposing (Dict)
-import Helpers exposing (stopPropagationOnClick)
 import Html exposing (p)
-import Html.Styled as Html exposing (Html, button, div, figcaption, figure, img, text)
-import Html.Styled.Attributes exposing (css, src)
-import Html.Styled.Events exposing (onClick)
 import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
+import Pokemon.Mode as Mode exposing (Mode, toString)
 import PokemonCSVRow exposing (PokemonCSVRow)
-import String exposing (toLower)
 import Type exposing (Type(..), Typing(..))
 
 
@@ -42,37 +32,6 @@ type alias Pokemon =
     }
 
 
-type alias Settings =
-    { selected : Selected
-    , mode : Mode
-    }
-
-
-type Mode
-    = TypeEffectiveness
-    | Evolutions
-
-
-modeToString : Mode -> String
-modeToString mode =
-    case mode of
-        TypeEffectiveness ->
-            "TypeEffectiveness"
-
-        Evolutions ->
-            "Evolutions"
-
-
-modeFromString : String -> Mode
-modeFromString str =
-    case str of
-        "TypeEffectiveness" ->
-            TypeEffectiveness
-
-        _ ->
-            Evolutions
-
-
 type Msg
     = Select Pokemon
     | Deselect
@@ -84,302 +43,41 @@ type Selected
     | Deselected Pokemon
 
 
-saveMode : Mode -> Cmd Msg
-saveMode mode =
-    LocalStorage.save LocalStorage.modeKey <| modeToString mode
+type alias Settings =
+    { pokemon : Pokemon
+    , mode : Mode
+    , visible : Bool -- this allows us to always draw the view for nicer animations
+    }
 
 
 initSettings : LocalStorage -> Pokemon -> Settings
 initSettings localSotrage first =
-    { selected = Deselected first
-    , mode = Maybe.withDefault Evolutions (Maybe.map modeFromString localSotrage.mode)
+    { pokemon = first
+    , mode = Maybe.withDefault Mode.Evolutions (Maybe.map Mode.fromString localSotrage.mode)
+    , visible = False
     }
 
 
 updateSettings : Msg -> Settings -> ( Settings, Cmd Msg )
-updateSettings msg model =
+updateSettings msg settings =
     case msg of
         Select p ->
-            if model.selected == Selected p then
-                updateSettings Deselect model
+            if settings.pokemon == p then
+                updateSettings Deselect settings
 
             else
-                ( { model | selected = Selected p }, Cmd.none )
+                ( { settings | pokemon = p, visible = True }, Cmd.none )
 
         Deselect ->
-            case model.selected of
-                Selected p ->
-                    ( { model | selected = Deselected p }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            ( { settings | visible = False }, Cmd.none )
 
         ChangeMode mode ->
-            ( { model | mode = mode }, saveMode mode )
+            ( { settings | mode = mode }, saveMode mode )
 
 
-view : String -> Pokemon -> Html Msg
-view searchString pkm =
-    div
-        [ onClick <| Select pkm
-        , css <|
-            [ Type.backgroundFor pkm.typing
-            , viewBadgeStyle
-            , if String.contains (toLower searchString) (toLower pkm.fullName) then
-                Css.batch []
-
-              else
-                display none
-            , withMedia [ Media.all [ Media.hover canHover ] ]
-                [ hover
-                    [ transform <| scale 1.5
-                    , zIndex (int 100)
-                    , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 1px 3px 3px 3px rgba(0, 0, 0, .3);"
-                    ]
-                ]
-            , transition
-                [ Transitions.transform3 500 0 (cubicBezier 0 1 0.5 1.5)
-                , Transitions.boxShadow3 500 0 (cubicBezier 0 1 0.5 1.5)
-                ]
-            ]
-        ]
-        [ img
-            [ src pkm.imageUrl
-            , css
-                [ width (rem 6)
-                , height (rem 6)
-                ]
-            ]
-            []
-        , div [] [ text pkm.fullName ]
-        ]
-
-
-viewBadgeStyle : Style
-viewBadgeStyle =
-    Css.batch
-        [ margin (em 0.2)
-        , borderRadius (rem 1)
-        , overflow hidden
-        , boxSizing borderBox
-        , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2);"
-        , cursor pointer
-        , width (rem 7)
-        , padding4 (em 0) (em 0.2) (em 0.5) (em 0.2)
-        , position relative -- to make zIndex work
-        ]
-
-
-viewDetail : Bool -> Settings -> Dict Int Pokemon -> Pokemon -> Html Msg
-viewDetail visible settings allPkm pkm =
-    let
-        viewBadgeWithEff ( t, e ) =
-            Type.viewBadge t (Just e)
-
-        evolvesFrom =
-            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesFromIDs
-
-        -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
-        evolvesInto =
-            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesIntoIDs
-
-        transformsInto =
-            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.othersInTransformGroup
-
-        mainView =
-            figure
-                []
-                [ img
-                    [ src <| pkm.imageUrl
-                    , css
-                        [ width (px 192)
-                        , height auto
-                        ]
-                    ]
-                    []
-                , figcaption [ css [ fontSize (em 2) ] ] [ text pkm.fullName ]
-                ]
-
-        viewBadge p =
-            div
-                [ stopPropagationOnClick <| Select p
-                , css
-                    [ Type.backgroundFor p.typing
-                    , viewBadgeStyle
-                    , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 0px 1px 1px 1px rgba(0, 0, 0, 0.15);"
-                    ]
-                ]
-                [ img
-                    [ src p.imageUrl
-                    , css
-                        [ width (px 96)
-                        , height auto
-                        ]
-                    ]
-                    []
-                , div [ css [ fontSize (em 1) ] ] [ text p.fullName ]
-                ]
-
-        viewEvolition isPrevolution info p =
-            let
-                children =
-                    [ viewBadge p
-                    , div [ css [ fontSize (em 0.9) ] ] [ text info ]
-                    ]
-            in
-            div
-                [ css
-                    [ display inlineBlock
-                    , whiteSpace normal
-                    , width (rem 7)
-                    , margin (em 0.2)
-                    ]
-                ]
-            <|
-                if isPrevolution then
-                    children
-
-                else
-                    List.reverse children
-
-        typeEffectivenessView =
-            div []
-                [ div [] <|
-                    case pkm.typing of
-                        Single type_ ->
-                            [ Type.viewBadge type_ Nothing ]
-
-                        Double first second ->
-                            [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
-                , div [ css [ effectivenessChartTitleStyle ] ]
-                    [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
-                , div [ css [ effectivenessChartStyle ] ] <|
-                    List.map viewBadgeWithEff pkm.superEffective
-                , div [ css [ effectivenessChartTitleStyle ] ]
-                    [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
-                , div [ css [ effectivenessChartStyle ] ] <|
-                    List.map viewBadgeWithEff pkm.notVeryEffective
-                ]
-
-        wrapEvolutionListView =
-            div
-                [ css
-                    [ overflowX auto
-                    , width (pct 100)
-                    , whiteSpace noWrap
-                    , textAlign center
-                    ]
-                ]
-
-        modeButton text_ toMode =
-            button
-                [ stopPropagationOnClick (ChangeMode toMode)
-                , css
-                    [ marginTop (em 1)
-                    , fontSize (em 1)
-                    , textAlign center
-                    , padding2 (em 0.5) (em 1)
-                    , borderRadius (em 5)
-                    , border (px 0)
-                    , backgroundColor (rgba 255 255 255 0.4)
-                    , cursor pointer
-                    ]
-                ]
-                [ text text_ ]
-
-        typeEffectivenessButton =
-            modeButton "show Type Effectiveness" TypeEffectiveness
-
-        evolutionsButton =
-            let
-                label =
-                    case ( evolvesInto, transformsInto ) of
-                        ( [], [] ) ->
-                            "show Evolutions"
-
-                        ( _, [] ) ->
-                            "show Evolutions"
-
-                        ( [], _ ) ->
-                            "show Transformations"
-
-                        ( _, _ ) ->
-                            "show Transformations & Evolutions"
-            in
-            modeButton label Evolutions
-    in
-    div
-        [ onClick Deselect
-        , css
-            [ Type.backgroundFor pkm.typing
-            , position fixed
-            , left (pct 50)
-            , maxWidth (pct 95)
-            , top (pct 50)
-            , height auto
-            , zIndex (int 200)
-            , pointerEventsAll
-            , borderRadius (px 16)
-            , overflow hidden
-            , cursor zoomOut
-            , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 2px 6px 6px 6px rgba(0, 0, 0, .3);"
-            , paddingTop (em 0.8)
-            , paddingBottom (em 0.8)
-            , transition
-                [ Transitions.transform 300
-                , Transitions.opacity 300
-                ]
-            , Css.batch <|
-                if visible then
-                    [ transforms
-                        [ translate2 (pct -50) (pct -50)
-                        , scale2 1 1 -- must be set explicitly for the transition to work
-                        ]
-                    ]
-
-                else
-                    [ transforms
-                        [ translate2 (pct -50) (pct -50)
-                        , scale2 0 0
-                        ]
-                    , opacity (int 0)
-                    ]
-            ]
-        ]
-    <|
-        case settings.mode of
-            TypeEffectiveness ->
-                [ mainView
-                , typeEffectivenessView
-                , evolutionsButton
-                ]
-
-            Evolutions ->
-                [ wrapEvolutionListView <| List.map (\p -> viewEvolition True (Maybe.withDefault "" pkm.evolvesFromDetails) p) evolvesFrom
-                , mainView
-                , wrapEvolutionListView <|
-                    List.concat
-                        [ List.map (\p -> viewEvolition False (Maybe.withDefault "" p.transformGroupDetails) p) transformsInto
-                        , List.map (\p -> viewEvolition False (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
-                        ]
-                , typeEffectivenessButton
-                ]
-
-
-effectivenessChartTitleStyle : Style
-effectivenessChartTitleStyle =
-    Css.batch
-        [ fontSize (pct 120)
-        , display block
-        , margin (em 0.5)
-        ]
-
-
-effectivenessChartStyle : Style
-effectivenessChartStyle =
-    Css.batch
-        [ margin (em 0)
-        ]
+saveMode : Mode -> Cmd Msg
+saveMode mode =
+    LocalStorage.save LocalStorage.modeKey <| toString mode
 
 
 fromCSVRows : List PokemonCSVRow -> List Pokemon
@@ -392,6 +90,12 @@ fromCSVRow pkmCSVRows pkm =
     let
         effectivenessList =
             PokemonCSVRow.effectivenessAgainst pkm
+
+        isSuperEffective ( _, eff ) =
+            eff >= 1.5
+
+        isNotVeryEffective ( _, eff ) =
+            eff < 0.75
     in
     { id = pkm.id
     , fullName =
@@ -423,13 +127,3 @@ fromCSVRow pkmCSVRows pkm =
             Just transformGroupID ->
                 List.map .id <| List.filter (\p -> p.transformGroupID == Just transformGroupID && p.id /= pkm.id) pkmCSVRows
     }
-
-
-isSuperEffective : ( Type, Float ) -> Bool
-isSuperEffective ( _, eff ) =
-    eff >= 1.5
-
-
-isNotVeryEffective : ( Type, Float ) -> Bool
-isNotVeryEffective ( _, eff ) =
-    eff < 0.75

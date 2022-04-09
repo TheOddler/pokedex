@@ -7,8 +7,11 @@ import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onInput)
 import LocalStorage exposing (LocalStorage)
-import Pokemon exposing (Mode(..), Pokemon)
+import Pokemon exposing (Pokemon)
+import Pokemon.Details
+import Pokemon.List
 import PokemonCSVRow
+import String exposing (toLower)
 
 
 type alias Pokedex =
@@ -68,23 +71,14 @@ view model =
             , onInput SetSearch
             ]
             []
-        , case model.pokemonSettings.selected of
-            Pokemon.Selected pkm ->
-                Html.map PokemonMsg <| Pokemon.viewDetail True model.pokemonSettings model.pokemonIdDict pkm
-
-            Pokemon.Deselected pkm ->
-                Html.map PokemonMsg <| Pokemon.viewDetail False model.pokemonSettings model.pokemonIdDict pkm
-        , div
-            [ css
-                [ displayFlex
-                , flexWrap wrap
-                , justifyContent center
-                , alignItems stretch
-                ]
-            ]
-          <|
-            List.map (Html.map PokemonMsg << Pokemon.view model.searchString) model.pokemon
+        , Html.map PokemonMsg <| Pokemon.Details.view model.pokemonIdDict model.pokemonSettings
+        , Html.map PokemonMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
         ]
+
+
+searchPokemonFilter : String -> Pokemon -> Bool
+searchPokemonFilter searchStr pkm =
+    String.contains searchStr (toLower pkm.fullName)
 
 
 searchStyle : Style
