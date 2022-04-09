@@ -3,6 +3,7 @@ build:
 	mkdir -p public/data
 
 	cp src/index.html public
+	cp src/favicon.svg public
 	cp src/data/* public/data/
 	
 	elm make src/Main.elm --output=public/elm.js --optimize
