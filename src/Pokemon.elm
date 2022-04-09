@@ -1,17 +1,10 @@
 module Pokemon exposing
-    ( Msg(..)
-    , Pokemon
-    , Settings
+    ( Pokemon
     , fromCSVRows
-    , initSettings
-    , updateSettings
     )
 
 import Css exposing (..)
 import Html exposing (p)
-import LocalStorage exposing (LocalStorage)
-import Maybe.Extra as Maybe
-import Pokemon.Mode as Mode exposing (Mode, toString)
 import PokemonCSVRow exposing (PokemonCSVRow)
 import Type exposing (Type(..), Typing(..))
 
@@ -29,49 +22,6 @@ type alias Pokemon =
     , transformGroupDetails : Maybe String
     , othersInTransformGroup : List Int
     }
-
-
-type Msg
-    = Select Pokemon
-    | Deselect
-    | ChangeMode Mode
-
-
-type alias Settings =
-    { pokemon : Pokemon
-    , mode : Mode
-    , visible : Bool -- this allows us to always draw the view for nicer animations
-    }
-
-
-initSettings : LocalStorage -> Pokemon -> Settings
-initSettings localSotrage first =
-    { pokemon = first
-    , mode = Maybe.withDefault Mode.Evolutions (Maybe.map Mode.fromString localSotrage.mode)
-    , visible = False
-    }
-
-
-updateSettings : Msg -> Settings -> ( Settings, Cmd Msg )
-updateSettings msg settings =
-    case msg of
-        Select p ->
-            if settings.pokemon == p then
-                updateSettings Deselect settings
-
-            else
-                ( { settings | pokemon = p, visible = True }, Cmd.none )
-
-        Deselect ->
-            ( { settings | visible = False }, Cmd.none )
-
-        ChangeMode mode ->
-            ( { settings | mode = mode }, saveMode mode )
-
-
-saveMode : Mode -> Cmd Msg
-saveMode mode =
-    LocalStorage.save LocalStorage.modeKey <| toString mode
 
 
 fromCSVRows : List PokemonCSVRow -> List Pokemon

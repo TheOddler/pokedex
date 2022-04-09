@@ -7,14 +7,58 @@ import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
 import Html.Styled.Events exposing (onClick)
+import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
-import Pokemon exposing (Msg(..), Pokemon)
-import Pokemon.Mode exposing (Mode(..))
+import Pokemon exposing (Pokemon)
+import Pokemon.Mode as Mode exposing (Mode(..))
 import Pokemon.SharedStyles as SharedStyles
 import Type exposing (Typing(..))
 
 
-view : Dict Int Pokemon -> Pokemon.Settings -> Html Pokemon.Msg
+type Msg
+    = Select Pokemon
+    | Deselect
+    | ChangeMode Mode
+
+
+type alias Model =
+    { pokemon : Pokemon
+    , mode : Mode
+    , visible : Bool -- this allows us to always draw the view for nicer animations
+    }
+
+
+init : LocalStorage -> Pokemon -> Model
+init localStorage first =
+    { pokemon = first
+    , mode = Maybe.withDefault Mode.Evolutions (Maybe.map Mode.fromString localStorage.mode)
+    , visible = False
+    }
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Select p ->
+            if model.pokemon == p then
+                update Deselect model
+
+            else
+                ( { model | pokemon = p, visible = True }, Cmd.none )
+
+        Deselect ->
+            ( { model | visible = False }, Cmd.none )
+
+        ChangeMode mode ->
+            ( { model | mode = mode }, saveMode mode )
+
+
+saveMode : Mode -> Cmd Msg
+saveMode mode =
+    LocalStorage.save LocalStorage.modeKey <| Mode.toString mode
+
+
+view : Dict Int Pokemon -> Model -> Html Msg
 view allPkm model =
     let
         pkm =

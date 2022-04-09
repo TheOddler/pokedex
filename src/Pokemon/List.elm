@@ -7,11 +7,12 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, src)
 import Html.Styled.Events exposing (onClick)
 import Pokemon exposing (Pokemon)
+import Pokemon.Details
 import Pokemon.SharedStyles as SharedStyles
 import Type
 
 
-view : List Pokemon -> (Pokemon -> Bool) -> Html Pokemon.Msg
+view : List Pokemon -> (Pokemon -> Bool) -> Html Pokemon.Details.Msg
 view pokemonList filter =
     div
         [ css
@@ -25,10 +26,10 @@ view pokemonList filter =
         List.map (\p -> viewListElement (filter p) p) pokemonList
 
 
-viewListElement : Bool -> Pokemon -> Html Pokemon.Msg
+viewListElement : Bool -> Pokemon -> Html Pokemon.Details.Msg
 viewListElement isVisible pkm =
     div
-        [ onClick <| Pokemon.Select pkm
+        [ onClick <| Pokemon.Details.Select pkm
         , css <|
             [ Type.backgroundFor pkm.typing
             , SharedStyles.badgeStyle

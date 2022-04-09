@@ -18,13 +18,13 @@ type alias Pokedex =
     { searchString : String
     , pokemon : List Pokemon
     , pokemonIdDict : Dict Int Pokemon
-    , pokemonSettings : Pokemon.Settings
+    , details : Pokemon.Details.Model
     }
 
 
 type Msg
     = SetSearch String
-    | PokemonMsg Pokemon.Msg
+    | PokemonDetailsMsg Pokemon.Details.Msg
 
 
 init : LocalStorage -> String -> Result String Pokedex
@@ -35,7 +35,7 @@ init localStorage pokemonCsv =
                 { searchString = ""
                 , pokemon = first :: rest
                 , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
-                , pokemonSettings = Pokemon.initSettings localStorage first
+                , details = Pokemon.Details.init localStorage first
                 }
 
         Ok [] ->
@@ -51,12 +51,12 @@ update msg model =
         SetSearch s ->
             ( { model | searchString = s }, Cmd.none )
 
-        PokemonMsg pkmMsg ->
+        PokemonDetailsMsg pkmDetailsMsg ->
             let
-                ( updatedSettings, cmd ) =
-                    Pokemon.updateSettings pkmMsg model.pokemonSettings
+                ( updatedDetails, cmd ) =
+                    Pokemon.Details.update pkmDetailsMsg model.details
             in
-            ( { model | pokemonSettings = updatedSettings }, Cmd.map PokemonMsg cmd )
+            ( { model | details = updatedDetails }, Cmd.map PokemonDetailsMsg cmd )
 
 
 view : Pokedex -> Html Msg
@@ -71,8 +71,8 @@ view model =
             , onInput SetSearch
             ]
             []
-        , Html.map PokemonMsg <| Pokemon.Details.view model.pokemonIdDict model.pokemonSettings
-        , Html.map PokemonMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
+        , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemonIdDict model.details
+        , Html.map PokemonDetailsMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
         ]
 
 
