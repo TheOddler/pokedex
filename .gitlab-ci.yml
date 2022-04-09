@@ -4,12 +4,7 @@ pages:
   stage: deploy
   script:
   - npm install -g elm@latest-0.19.1 --unsafe-perm=true --allow-root
-  - mkdir public
-  - mkdir public/data
-  - cp src/index.html public
-  - cp src/favicon.svg public
-  - cp src/data/* public/data/
-  - elm make src/Main.elm --output=public/elm.js --optimize
+  - make build
   artifacts:
     paths:
     - public

@@ -1,10 +1,11 @@
 build:
 	mkdir -p public
 	mkdir -p public/data
+	mkdir -p public/icons
 
 	cp src/index.html public
-	cp src/favicon.svg public
 	cp src/data/* public/data/
+	cp src/icons/* public/icons/
 	
 	elm make src/Main.elm --output=public/elm.js --optimize
 
