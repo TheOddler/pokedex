@@ -40,7 +40,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Select p ->
-            if model.pokemon == p then
+            if model.visible == True && model.pokemon == p then
                 update Deselect model
 
             else
