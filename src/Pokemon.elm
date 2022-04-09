@@ -1,7 +1,6 @@
 module Pokemon exposing
     ( Msg(..)
     , Pokemon
-    , Selected(..)
     , Settings
     , fromCSVRows
     , initSettings
@@ -36,11 +35,6 @@ type Msg
     = Select Pokemon
     | Deselect
     | ChangeMode Mode
-
-
-type Selected
-    = Selected Pokemon
-    | Deselected Pokemon
 
 
 type alias Settings =
