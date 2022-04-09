@@ -88,6 +88,7 @@ view model =
             , fontFamily sansSerif
             , textAlign center
             , overflowX hidden
+            , overflowY scroll
             , displayFlex
             , flexDirection column
             ]
