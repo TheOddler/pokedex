@@ -4,6 +4,7 @@ build:
 	mkdir -p public/icons
 
 	cp src/index.html public
+	cp src/site.webmanifest public
 	cp src/data/* public/data/
 	cp src/icons/* public/icons/
 	
