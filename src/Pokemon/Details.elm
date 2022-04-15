@@ -82,7 +82,7 @@ view allPkm model =
                 [ img
                     [ src <| pkm.imageUrl
                     , css
-                        [ width (px 192)
+                        [ width (rem 8)
                         , height auto
                         ]
                     ]
@@ -102,7 +102,7 @@ view allPkm model =
                 [ img
                     [ src p.imageUrl
                     , css
-                        [ width (px 96)
+                        [ width (rem 6)
                         , height auto
                         ]
                     ]
