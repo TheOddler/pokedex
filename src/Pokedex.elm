@@ -8,9 +8,9 @@ import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
+import Pokemon.CSVRow
 import Pokemon.Details
 import Pokemon.List
-import PokemonCSVRow
 import String exposing (toLower)
 
 
@@ -29,7 +29,7 @@ type Msg
 
 init : LocalStorage -> String -> Result String Pokedex
 init localStorage csv =
-    case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow PokemonCSVRow.decoder csv) of
+    case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow Pokemon.CSVRow.decoder csv) of
         Ok (first :: rest) ->
             Ok
                 { searchString = ""

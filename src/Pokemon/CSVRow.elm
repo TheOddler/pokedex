@@ -1,4 +1,4 @@
-module PokemonCSVRow exposing (..)
+module Pokemon.CSVRow exposing (..)
 
 import Csv.Decode as Decode exposing (Decoder)
 import Maybe.Extra as Maybe
@@ -35,7 +35,8 @@ type alias PokemonCSVRow =
     , dark : Float
     , steel : Float
     , fairy : Float
-    , image : String
+    , imageGen : Maybe String
+    , imageID : Maybe String
     }
 
 
@@ -71,7 +72,8 @@ decoder =
         |> Decode.pipeline (Decode.field "Dark" Decode.float)
         |> Decode.pipeline (Decode.field "Steel" Decode.float)
         |> Decode.pipeline (Decode.field "Fairy" Decode.float)
-        |> Decode.pipeline (Decode.field "Image" Decode.string)
+        |> Decode.pipeline (Decode.field "Image Gen" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Image ID" (Decode.blank Decode.string))
 
 
 effectivenessAgainst : PokemonCSVRow -> List ( Type, Float )

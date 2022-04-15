@@ -120,7 +120,7 @@ view model =
             ]
         , div []
             [ text "Images from "
-            , a [ href "https://github.com/PokeAPI/sprites" ] [ text "PokeAPI/sprites" ]
+            , a [ href "https://pokemondb.net/sprites" ] [ text "PokemonDB.net" ]
             , text "."
             ]
         ]
