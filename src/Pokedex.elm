@@ -5,7 +5,7 @@ import Csv.Decode as Decode
 import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
-import Html.Styled.Events exposing (onFocus, onInput)
+import Html.Styled.Events exposing (onClick, onFocus, onInput)
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
 import Pokemon.Details
@@ -62,7 +62,9 @@ update msg model =
 view : Pokedex -> Html Msg
 view model =
     div
-        [ css [ paddingTop (em 4) ] ]
+        [ css [ paddingTop (em 4) ]
+        , onClick <| PokemonDetailsMsg Pokemon.Details.Deselect
+        ]
         [ input
             [ id "search" -- Needed for the auto select script
             , css [ searchStyle ]

@@ -6,7 +6,6 @@ import Dict exposing (Dict)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
-import Html.Styled.Events exposing (onClick)
 import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
@@ -200,7 +199,7 @@ view allPkm model =
             modeButton label Evolutions
     in
     div
-        [ onClick Deselect
+        [ stopPropagationOnClick Deselect
         , css
             [ Type.backgroundFor pkm.typing
             , position fixed

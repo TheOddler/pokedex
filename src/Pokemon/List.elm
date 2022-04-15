@@ -3,9 +3,9 @@ module Pokemon.List exposing (view)
 import Css exposing (..)
 import Css.Media as Media exposing (canHover, withMedia)
 import Css.Transitions as Transitions exposing (cubicBezier, transition)
+import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, div, img, text)
 import Html.Styled.Attributes exposing (css, src)
-import Html.Styled.Events exposing (onClick)
 import Html.Styled.Lazy as Lazy
 import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
@@ -86,7 +86,7 @@ viewListElementWrapperAnimated isVisible pkm =
 viewListElement : Pokemon -> Html Pokemon.Details.Msg
 viewListElement pkm =
     div
-        [ onClick <| Pokemon.Details.Select pkm
+        [ stopPropagationOnClick <| Pokemon.Details.Select pkm
         , css <|
             [ Type.backgroundFor pkm.typing
             , SharedStyles.badgeStyle
