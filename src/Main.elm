@@ -118,10 +118,7 @@ view model =
             , a [ href "https://gitlab.com/TheOddler/pokedex" ] [ text "gitlab.com/TheOddler/pokedex" ]
             , text "."
             ]
-        , div
-            [ css
-                [ marginTop auto ]
-            ]
+        , div []
             [ text "Images from "
             , a [ href "https://github.com/PokeAPI/sprites" ] [ text "PokeAPI/sprites" ]
             , text "."
