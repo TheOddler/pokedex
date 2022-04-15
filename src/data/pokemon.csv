@@ -902,7 +902,7 @@ ID,Species ID,Name,Alternate Form Name,Full Name,Original Pokemon,Primary Type,S
 1271,745,Lycanroc,,,,Rock,,1270,Level 25 During The Day,,,0.5,0.5,2,1,2,1,2,0.5,2,0.5,1,1,1,1,1,1,2,1,,
 1403,745,Lycanroc,Dusk,,1271,Rock,,1270,Level 25 With Own Tempo Between 5-6pm,,,0.5,0.5,2,1,2,1,2,0.5,2,0.5,1,1,1,1,1,1,2,1,,
 1402,745,Lycanroc,Midnight,,1271,Rock,,1270,Level 25 During The Night,,,0.5,0.5,2,1,2,1,2,0.5,2,0.5,1,1,1,1,1,1,2,1,,
-1272,746,Wishiwashi,Single,Singe Wishiwashi,,Water,,,,20,If HP below 25%,1,0.5,0.5,2,2,0.5,1,1,1,1,1,1,1,1,1,1,0.5,1,,
+1272,746,Wishiwashi,,Singe Wishiwashi,,Water,,,,20,If HP below 25%,1,0.5,0.5,2,2,0.5,1,1,1,1,1,1,1,1,1,1,0.5,1,,
 1581,746,Wishiwashi,School,Wishiwashi School,1272,Water,,,,20,If HP above 25% and level 20+,1,0.5,0.5,2,2,0.5,1,1,1,1,1,1,1,1,1,1,0.5,1,,
 1273,747,Mareanie,,,,Poison,Water,,,,,1,0.5,0.5,2,1,0.5,0.5,0.5,2,1,2,0.5,1,1,1,1,0.5,0.5,,
 1274,748,Toxapex,,,,Poison,Water,1273,Level 38,,,1,0.5,0.5,2,1,0.5,0.5,0.5,2,1,2,0.5,1,1,1,1,0.5,0.5,,
