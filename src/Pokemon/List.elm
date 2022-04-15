@@ -109,6 +109,7 @@ viewListElement pkm =
             [ src pkm.imageUrl
             , css
                 [ width (rem 6)
+                , minHeight (rem 6)
                 ]
             ]
             []
