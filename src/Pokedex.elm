@@ -5,7 +5,7 @@ import Csv.Decode as Decode
 import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
-import Html.Styled.Events exposing (onInput)
+import Html.Styled.Events exposing (onFocus, onInput)
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
 import Pokemon.Details
@@ -69,6 +69,7 @@ view model =
             , placeholder "Search for a Pokémon..."
             , value model.searchString
             , onInput SetSearch
+            , onFocus <| PokemonDetailsMsg Pokemon.Details.Deselect
             ]
             []
         , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemonIdDict model.details
