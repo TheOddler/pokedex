@@ -84,12 +84,17 @@ fromCSVRow pkmCSVRows pkm =
     in
     { id = pkm.id
     , fullName =
-        case pkm.alternateFormName of
-            Just alternateFormName ->
-                pkm.name ++ " (" ++ alternateFormName ++ ")"
+        case pkm.fullName of
+            Just fullName ->
+                fullName
 
             Nothing ->
-                pkm.name
+                case pkm.alternateFormName of
+                    Just alternateFormName ->
+                        alternateFormName ++ " " ++ pkm.name
+
+                    Nothing ->
+                        pkm.name
     , typing =
         case pkm.secondaryType of
             Just second ->

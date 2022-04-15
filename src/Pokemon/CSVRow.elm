@@ -10,6 +10,7 @@ type alias PokemonCSVRow =
     , speciesID : Int
     , name : String
     , alternateFormName : Maybe String
+    , fullName : Maybe String
     , originalPokemonID : Maybe Int
     , primaryType : Type
     , secondaryType : Maybe Type
@@ -47,6 +48,7 @@ decoder =
         |> Decode.pipeline (Decode.field "Species ID" Decode.int)
         |> Decode.pipeline (Decode.field "Name" Decode.string)
         |> Decode.pipeline (Decode.field "Alternate Form Name" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Full Name" (Decode.blank Decode.string))
         |> Decode.pipeline (Decode.field "Original Pokemon" (Decode.blank Decode.int))
         |> Decode.pipeline (Decode.field "Primary Type" Type.decoder)
         |> Decode.pipeline (Decode.field "Secondary Type" (Decode.blank Type.decoder))
