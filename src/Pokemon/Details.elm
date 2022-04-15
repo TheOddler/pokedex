@@ -200,15 +200,38 @@ view allPkm model =
 
         -- The button is fake because you can close by clicking anywhere really.
         fakeCloseButton =
+            let
+                size =
+                    1.7
+
+                thickness =
+                    0.2
+
+                barStyle degrees =
+                    [ position absolute
+                    , left (em <| size / 2)
+                    , height (em size)
+                    , width (em thickness)
+                    , property "content" "' '"
+                    , backgroundColor <| rgb 0 0 0
+                    , transform <| rotate (deg degrees)
+                    ]
+            in
             div
                 [ css
                     [ position absolute
-                    , top (em 0)
-                    , right (em 0.2)
-                    , fontSize (em 2)
+                    , top (em 0.5)
+                    , right (em 0.5)
+                    , opacity (num 0.3)
+                    , width (em size)
+                    , height (em size)
+                    , before <| barStyle 45
+                    , after <| barStyle -45
+                    , hover [ opacity (num 1) ]
+                    , cursor pointer
                     ]
                 ]
-                [ text "⨯" ]
+                []
     in
     div
         [ stopPropagationOnClick Deselect
