@@ -1057,9 +1057,9 @@ ID,Species ID,Name,Alternate Form Name,Original Pokemon,Primary Type,Secondary T
 41,898,Calyrex,,,Psychic,Grass,,,27,Undo fusion,1,2,0.5,0.5,0.5,2,0.5,2,0.5,2,0.5,4,1,2,1,2,1,1,898
 1604,898,Calyrex,Ice Rider,41,Psychic,Ice,,,27,Fuse with Glastrier,1,2,1,1,1,0.5,1,1,1,1,0.5,2,2,2,1,2,2,1,10193
 1605,898,Calyrex,Shadow Rider,41,Psychic,Ghost,,,27,Fuse with Spectrier,0,1,1,1,1,1,0,0.5,1,1,0.5,1,1,4,1,4,1,1,10194
-1609,899,Wyrdeer,,,Normal,Psychic,,,,,1,1,1,1,1,1,1,1,1,1,0.5,2,1,0,1,2,1,1,-1
-1610,900,Kleavor,,,Bug,Rock,,,,,0.5,1,2,1,1,1,1,0.5,1,1,1,1,2,1,1,1,2,1,-1
-1611,901,Ursaluna,,,Normal,Ground,,,,,1,1,2,0,2,2,2,0.5,1,1,1,1,0.5,0,1,1,1,1,-1
+1609,899,Wyrdeer,,,Normal,Psychic,358,Use Psyshield Bash 20 times in Agile Style,,,1,1,1,1,1,1,1,1,1,1,0.5,2,1,0,1,2,1,1,-1
+1610,900,Kleavor,,,Bug,Rock,219,Use Black Augurite,,,0.5,1,2,1,1,1,1,0.5,1,1,1,1,2,1,1,1,2,1,-1
+1611,901,Ursaluna,,,Normal,Ground,341,Use Peat Block under a full moon,,,1,1,2,0,2,2,2,0.5,1,1,1,1,0.5,0,1,1,1,1,-1
 1612,902,Basculegion,,,Water,Ghost,1608,After losing at least 294 HP from recoil damage,,,0,0.5,0.5,2,2,0.5,0,0.5,1,1,1,0.5,1,2,1,2,0.5,1,-1
 1614,903,Sneasler,,,Fighting,Poison,1613,Use Razor Claw during the day,,,1,1,1,1,0.5,1,0.5,0.5,2,2,4,0.25,0.5,1,1,0.5,1,1,-1
 1616,904,Overqwil,,,Dark,Poison,1615,Use Barb Barrage in Strong Style 20 times,,,1,1,1,1,0.5,1,1,0.5,2,1,0,1,1,0.5,1,0.5,1,1,-1
