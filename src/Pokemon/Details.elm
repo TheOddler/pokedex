@@ -197,6 +197,18 @@ view allPkm model =
                             "show Transformations & Evolutions"
             in
             modeButton label Evolutions
+
+        -- The button is fake because you can close by clicking anywhere really.
+        fakeCloseButton =
+            div
+                [ css
+                    [ position absolute
+                    , top (em 0)
+                    , right (em 0.2)
+                    , fontSize (em 2)
+                    ]
+                ]
+                [ text "⨯" ]
     in
     div
         [ stopPropagationOnClick Deselect
@@ -242,6 +254,7 @@ view allPkm model =
                 [ mainView
                 , typeEffectivenessView
                 , evolutionsButton
+                , fakeCloseButton
                 ]
 
             Evolutions ->
@@ -253,6 +266,7 @@ view allPkm model =
                         , List.map (\p -> viewEvolition False (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
                         ]
                 , typeEffectivenessButton
+                , fakeCloseButton
                 ]
 
 
