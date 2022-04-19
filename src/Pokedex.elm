@@ -11,6 +11,7 @@ import Pokemon exposing (Pokemon)
 import Pokemon.CSVRow
 import Pokemon.Details
 import Pokemon.List
+import Simple.Fuzzy as Fuzzy
 import String exposing (toLower)
 
 
@@ -80,13 +81,10 @@ view model =
 
 
 searchPokemonFilter : String -> Pokemon -> Bool
-searchPokemonFilter searchStr_ pkm =
+searchPokemonFilter searchStr pkm =
     let
-        searchStr =
-            toLower searchStr_
-
         nameMatch =
-            String.contains searchStr (toLower pkm.fullName)
+            Fuzzy.match searchStr pkm.fullName
 
         evolvesFromDetailsMatch =
             case pkm.evolvesFromDetails of
@@ -94,7 +92,7 @@ searchPokemonFilter searchStr_ pkm =
                     False
 
                 Just evolvesFromDetails ->
-                    String.contains searchStr (toLower evolvesFromDetails)
+                    Fuzzy.match searchStr evolvesFromDetails
 
         transformGroupDetailsMatch =
             case pkm.transformGroupDetails of
@@ -102,7 +100,7 @@ searchPokemonFilter searchStr_ pkm =
                     False
 
                 Just transformGroupDetails ->
-                    String.contains searchStr (toLower transformGroupDetails)
+                    Fuzzy.match searchStr transformGroupDetails
     in
     nameMatch || evolvesFromDetailsMatch || transformGroupDetailsMatch
 
