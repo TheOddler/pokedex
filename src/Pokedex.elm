@@ -86,13 +86,16 @@ searchPokemonFilter searchStr pkm =
         nameMatch =
             Fuzzy.match searchStr pkm.fullName
 
+        lowerSearchStr =
+            toLower searchStr
+
         evolvesFromDetailsMatch =
             case pkm.evolvesFromDetails of
                 Nothing ->
                     False
 
                 Just evolvesFromDetails ->
-                    Fuzzy.match searchStr evolvesFromDetails
+                    String.contains lowerSearchStr (toLower evolvesFromDetails)
 
         transformGroupDetailsMatch =
             case pkm.transformGroupDetails of
@@ -100,7 +103,7 @@ searchPokemonFilter searchStr pkm =
                     False
 
                 Just transformGroupDetails ->
-                    Fuzzy.match searchStr transformGroupDetails
+                    String.contains lowerSearchStr (toLower transformGroupDetails)
     in
     nameMatch || evolvesFromDetailsMatch || transformGroupDetailsMatch
 
