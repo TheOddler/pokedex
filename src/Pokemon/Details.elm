@@ -2,10 +2,10 @@ module Pokemon.Details exposing (..)
 
 import Css exposing (..)
 import Css.Transitions as Transitions exposing (transition)
-import Dict exposing (Dict)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
+import IntDict exposing (IntDict)
 import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
@@ -57,7 +57,7 @@ saveMode mode =
     LocalStorage.save LocalStorage.modeKey <| Mode.toString mode
 
 
-view : Dict Int Pokemon -> Model -> Html Msg
+view : IntDict Pokemon -> Model -> Html Msg
 view allPkm model =
     let
         pkm =
@@ -67,14 +67,14 @@ view allPkm model =
             Type.viewBadge t (Just e)
 
         evolvesFrom =
-            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesFromIDs
+            Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.evolvesFromIDs
 
         -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
         evolvesInto =
-            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.evolvesIntoIDs
+            Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.evolvesIntoIDs
 
         transformsInto =
-            Maybe.values <| List.map (\i -> Dict.get i allPkm) pkm.othersInTransformGroup
+            Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.othersInTransformGroup
 
         mainView =
             figure

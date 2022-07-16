@@ -2,10 +2,10 @@ module Pokedex exposing (Msg, Pokedex, init, update, view)
 
 import Css exposing (..)
 import Csv.Decode as Decode
-import Dict exposing (Dict)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
+import IntDict exposing (IntDict)
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
 import Pokemon.CSVRow
@@ -17,7 +17,7 @@ import Simple.Fuzzy as Fuzzy
 type alias Pokedex =
     { searchString : String
     , pokemon : List Pokemon
-    , pokemonIdDict : Dict Int Pokemon
+    , pokemonIdDict : IntDict Pokemon
     , details : Pokemon.Details.Model
     }
 
@@ -34,7 +34,7 @@ init localStorage csv =
             Ok
                 { searchString = ""
                 , pokemon = first :: rest
-                , pokemonIdDict = Dict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
+                , pokemonIdDict = IntDict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
                 , details = Pokemon.Details.init localStorage first
                 }
 
