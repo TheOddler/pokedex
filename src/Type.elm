@@ -52,7 +52,7 @@ viewBadge type_ effectivenesss =
                     , display inlineBlock
                     ]
                 ]
-                [ text (typeName type_) ]
+                [ text (toString type_) ]
 
         allHtml =
             case effectivenesss of
@@ -68,7 +68,7 @@ viewBadge type_ effectivenesss =
     in
     div
         [ css
-            [ backgroundColor (typeColor type_)
+            [ backgroundColor (toColor type_)
             , badgeStyle
             ]
         ]
@@ -90,7 +90,7 @@ decoder : Decoder Type
 decoder =
     Decode.andThen
         (\value ->
-            Decode.fromMaybe (value ++ " is not a valid Type") (parseType value)
+            Decode.fromMaybe (value ++ " is not a valid Type") (fromString value)
         )
         Decode.string
 
@@ -100,14 +100,14 @@ backgroundFor typing =
     backgroundImage <|
         case typing of
             Single type_ ->
-                linearGradient2 toRight (stop <| typeColor type_) (stop <| typeColor type_) []
+                linearGradient2 toRight (stop <| toColor type_) (stop <| toColor type_) []
 
             Double first second ->
-                linearGradient2 toRight (stop <| typeColor first) (stop <| typeColor first) [ stop <| typeColor second, stop <| typeColor second ]
+                linearGradient2 toRight (stop <| toColor first) (stop <| toColor first) [ stop <| toColor second, stop <| toColor second ]
 
 
-typeName : Type -> String
-typeName type_ =
+toString : Type -> String
+toString type_ =
     case type_ of
         Normal ->
             "Normal"
@@ -164,8 +164,8 @@ typeName type_ =
             "Fairy"
 
 
-parseType : String -> Maybe Type
-parseType typeStr =
+fromString : String -> Maybe Type
+fromString typeStr =
     case typeStr of
         "Normal" ->
             Just Normal
@@ -225,8 +225,8 @@ parseType typeStr =
             Nothing
 
 
-typeColor : Type -> Color
-typeColor type_ =
+toColor : Type -> Color
+toColor type_ =
     case type_ of
         Normal ->
             rgb 168 167 122
