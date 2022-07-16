@@ -82,30 +82,7 @@ view model =
 
 searchPokemonFilter : String -> Pokemon -> Bool
 searchPokemonFilter searchStr pkm =
-    let
-        nameMatch =
-            Fuzzy.match searchStr pkm.fullName
-
-        lowerSearchStr =
-            toLower searchStr
-
-        evolvesFromDetailsMatch =
-            case pkm.evolvesFromDetails of
-                Nothing ->
-                    False
-
-                Just evolvesFromDetails ->
-                    String.contains lowerSearchStr (toLower evolvesFromDetails)
-
-        transformGroupDetailsMatch =
-            case pkm.transformGroupDetails of
-                Nothing ->
-                    False
-
-                Just transformGroupDetails ->
-                    String.contains lowerSearchStr (toLower transformGroupDetails)
-    in
-    nameMatch || evolvesFromDetailsMatch || transformGroupDetailsMatch
+    Fuzzy.match searchStr pkm.fullName
 
 
 searchStyle : Style
