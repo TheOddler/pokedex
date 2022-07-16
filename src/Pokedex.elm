@@ -12,7 +12,6 @@ import Pokemon.CSVRow
 import Pokemon.Details
 import Pokemon.List
 import Simple.Fuzzy as Fuzzy
-import String exposing (toLower)
 
 
 type alias Pokedex =
