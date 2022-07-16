@@ -4,7 +4,6 @@ module Pokemon exposing
     )
 
 import Css exposing (..)
-import Html exposing (p)
 import Pokemon.CSVRow exposing (PokemonCSVRow)
 import String.Extra as String
 import StringHelpers as String
