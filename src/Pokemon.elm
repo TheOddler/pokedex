@@ -8,6 +8,7 @@ import Pokemon.CSVRow exposing (PokemonCSVRow)
 import String.Extra as String
 import StringHelpers as String
 import Type exposing (Type(..), Typing(..))
+import TypeEffectiveness
 
 
 type alias Pokemon =
@@ -34,13 +35,13 @@ fromCSVRow : List PokemonCSVRow -> PokemonCSVRow -> Pokemon
 fromCSVRow pkmCSVRows pkm =
     let
         effectivenessList =
-            Pokemon.CSVRow.effectivenessAgainst pkm
+            TypeEffectiveness.getAll pkm.primaryType pkm.secondaryType pkm.ability
 
         isSuperEffective ( _, eff ) =
-            eff >= 1.5
+            eff > 1.1
 
         isNotVeryEffective ( _, eff ) =
-            eff < 0.75
+            eff < 0.9
 
         imageIDCleanup =
             String.removeAll [ ".", "'", ":", "%" ]
