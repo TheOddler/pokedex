@@ -7,7 +7,6 @@ import Type exposing (Type)
 
 type alias PokemonCSVRow =
     { id : Int
-    , speciesID : Int
     , name : String
     , alternateFormName : Maybe String
     , fullName : Maybe String
@@ -45,7 +44,6 @@ decoder : Decoder PokemonCSVRow
 decoder =
     Decode.into PokemonCSVRow
         |> Decode.pipeline (Decode.field "ID" Decode.int)
-        |> Decode.pipeline (Decode.field "Species ID" Decode.int)
         |> Decode.pipeline (Decode.field "Name" Decode.string)
         |> Decode.pipeline (Decode.field "Alternate Form Name" (Decode.blank Decode.string))
         |> Decode.pipeline (Decode.field "Full Name" (Decode.blank Decode.string))
