@@ -1,23 +1,27 @@
 module TypeEffectiveness exposing (getAll)
 
-import Ability exposing (Ability(..))
+import Ability exposing (Ability(..), Effect(..))
 import Type exposing (Type(..))
 
 
 getAll : Type -> Maybe Type -> Maybe Ability -> List ( Type, Float )
 getAll primaryType secondaryType ability =
     let
-        abilityOverride t eff =
-            case ability of
-                Nothing ->
-                    eff
-
-                Just a ->
-                    abilityEffectivenessOverride t a eff
-
         calcFor t =
-            abilityOverride t (attackEffectiveness t primaryType)
-                * abilityOverride t (Maybe.withDefault 1 (Maybe.map (attackEffectiveness t) secondaryType))
+            let
+                effectivenessFromTyping =
+                    attackEffectiveness t primaryType
+                        * Maybe.withDefault 1 (Maybe.map (attackEffectiveness t) secondaryType)
+
+                maybeAbilityEffect =
+                    Maybe.map (Ability.getEffect t) ability
+            in
+            case maybeAbilityEffect of
+                Nothing ->
+                    effectivenessFromTyping
+
+                Just abilityEffect ->
+                    applyAbilityEffect abilityEffect effectivenessFromTyping
     in
     [ ( Type.Normal, calcFor Type.Normal )
     , ( Type.Fire, calcFor Type.Fire )
@@ -410,73 +414,17 @@ attackEffectiveness attacker defender =
             1
 
 
-abilityEffectivenessOverride : Type -> Ability -> Float -> Float
-abilityEffectivenessOverride attacker defenderAbility effectiveness =
-    case ( attacker, defenderAbility ) of
-        ( Electric, DeltaStream ) ->
-            1
+applyAbilityEffect : Ability.Effect -> Float -> Float
+applyAbilityEffect effect =
+    case effect of
+        None ->
+            (*) 1
 
-        ( Ice, DeltaStream ) ->
-            1
+        Override o ->
+            \_ -> o
 
-        ( Rock, DeltaStream ) ->
-            1
+        Multiply m ->
+            (*) m
 
-        ( Water, DesolateLand ) ->
-            0
-
-        ( Water, DrySkin ) ->
-            0
-
-        ( Fire, DrySkin ) ->
-            effectiveness * 1.25
-
-        ( Fire, FlashFire ) ->
-            0
-
-        ( Ground, Levitate ) ->
-            0
-
-        ( Electric, LightningRod ) ->
-            0
-
-        ( Electric, MotorDrive ) ->
-            0
-
-        ( Fire, PrimordialSea ) ->
-            0
-
-        ( _, PrismArmor ) ->
-            if effectiveness > 1.1 then
-                effectiveness * 0.75
-
-            else
-                effectiveness
-
-        ( Grass, SapSipper ) ->
-            0
-
-        ( Fire, ThickFat ) ->
-            effectiveness * 0.5
-
-        ( Ice, ThickFat ) ->
-            effectiveness * 0.5
-
-        ( Electric, VoltAbsorb ) ->
-            0
-
-        ( Water, WaterAbsorb ) ->
-            0
-
-        ( Fire, WaterBubble ) ->
-            effectiveness * 0.5
-
-        ( _, WonderGuard ) ->
-            if effectiveness > 1.1 then
-                effectiveness
-
-            else
-                0
-
-        ( _, _ ) ->
-            effectiveness
+        Calc f ->
+            \e -> f e
