@@ -115,7 +115,7 @@ view model =
                 [ marginTop auto ]
             ]
             [ text "Source code available at "
-            , a [ href "https://gitlab.com/TheOddler/pokedex" ] [ text "gitlab.com/TheOddler/pokedex" ]
+            , a [ href "https://github.com/TheOddler/pokedex" ] [ text "github.com/TheOddler/pokedex" ]
             , text "."
             ]
         , div []
