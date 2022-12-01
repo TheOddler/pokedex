@@ -25,6 +25,7 @@ type alias Pokedex =
 type Msg
     = SetSearch String
     | PokemonDetailsMsg Pokemon.Details.Msg
+    | ClearAll
 
 
 init : LocalStorage -> String -> Result String Pokedex
@@ -58,6 +59,12 @@ update msg model =
             in
             ( { model | details = updatedDetails }, Cmd.map PokemonDetailsMsg cmd )
 
+        ClearAll ->
+            update (SetSearch "") model
+                -- throw away the Cmd from set search as it's just none anyway
+                |> Tuple.first
+                |> update (PokemonDetailsMsg Pokemon.Details.Deselect)
+
 
 view : Pokedex -> Html Msg
 view model =
@@ -71,7 +78,7 @@ view model =
             , placeholder "Search for a Pokémon..."
             , value model.searchString
             , onInput SetSearch
-            , onFocus <| PokemonDetailsMsg Pokemon.Details.Deselect
+            , onFocus ClearAll
             ]
             []
         , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemonIdDict model.details
