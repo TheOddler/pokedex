@@ -3,46 +3,35 @@ module Pokemon exposing
     , fromCSVRows
     )
 
+import Ability exposing (Ability)
 import Css exposing (..)
 import Pokemon.CSVRow exposing (PokemonCSVRow)
 import String.Extra as String
 import StringHelpers as String
 import Type exposing (Type(..), Typing(..))
-import TypeEffectiveness
 
 
 type alias Pokemon =
     { id : Int
     , fullName : String
     , typing : Typing
-    , superEffective : List ( Type, Float )
-    , notVeryEffective : List ( Type, Float )
+    , ability : Maybe Ability
     , imageUrl : String
     , evolvesFromIDs : List Int
     , evolvesFromDetails : Maybe String
-    , evolvesIntoIDs : List Int
+    , transformGroupID : Maybe Int
     , transformGroupDetails : Maybe String
-    , othersInTransformGroup : List Int
     }
 
 
 fromCSVRows : List PokemonCSVRow -> List Pokemon
 fromCSVRows pkmCSVRows =
-    List.map (fromCSVRow pkmCSVRows) pkmCSVRows
+    List.map fromCSVRow pkmCSVRows
 
 
-fromCSVRow : List PokemonCSVRow -> PokemonCSVRow -> Pokemon
-fromCSVRow pkmCSVRows pkm =
+fromCSVRow : PokemonCSVRow -> Pokemon
+fromCSVRow pkm =
     let
-        effectivenessList =
-            TypeEffectiveness.getAll pkm.primaryType pkm.secondaryType pkm.ability
-
-        isSuperEffective ( _, eff ) =
-            eff > 1.1
-
-        isNotVeryEffective ( _, eff ) =
-            eff < 0.9
-
         imageIDCleanup =
             String.removeAll [ ".", "'", ":", "%" ]
                 << String.replaceAll [ ( " ", "-" ), ( "♀", "f" ), ( "♂", "m" ) ]
@@ -102,18 +91,10 @@ fromCSVRow pkmCSVRows pkm =
 
             Nothing ->
                 Single pkm.primaryType
-    , superEffective = List.filter isSuperEffective effectivenessList
-    , notVeryEffective = List.filter isNotVeryEffective effectivenessList
+    , ability = pkm.ability
     , imageUrl = "https://img.pokemondb.net/sprites/" ++ imageGen ++ "/normal/" ++ imageID ++ ".png"
     , evolvesFromIDs = pkm.evolvesFromID
     , evolvesFromDetails = pkm.evolutionDetails
-    , evolvesIntoIDs = List.map .id <| List.filter (\p -> List.member pkm.id p.evolvesFromID) pkmCSVRows
+    , transformGroupID = pkm.transformGroupID
     , transformGroupDetails = pkm.transformGroupDetails
-    , othersInTransformGroup =
-        case pkm.transformGroupID of
-            Nothing ->
-                []
-
-            Just transformGroupID ->
-                List.map .id <| List.filter (\p -> p.transformGroupID == Just transformGroupID && p.id /= pkm.id) pkmCSVRows
     }

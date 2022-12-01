@@ -12,6 +12,7 @@ import Pokemon exposing (Pokemon)
 import Pokemon.Mode as Mode exposing (Mode(..))
 import Pokemon.SharedStyles as SharedStyles
 import Type exposing (Typing(..))
+import TypeEffectiveness
 
 
 type Msg
@@ -69,12 +70,23 @@ view allPkm model =
         evolvesFrom =
             Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.evolvesFromIDs
 
+        evolvesIntoIDs =
+            IntDict.keys <| IntDict.filter (\_ p -> List.member pkm.id p.evolvesFromIDs) allPkm
+
+        otherIDsInTransformGroup =
+            case pkm.transformGroupID of
+                Nothing ->
+                    []
+
+                Just transformGroupID ->
+                    IntDict.keys <| IntDict.filter (\_ p -> p.transformGroupID == Just transformGroupID && p.id /= pkm.id) allPkm
+
         -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
         evolvesInto =
-            Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.evolvesIntoIDs
+            Maybe.values <| List.map (\i -> IntDict.get i allPkm) evolvesIntoIDs
 
         transformsInto =
-            Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.othersInTransformGroup
+            Maybe.values <| List.map (\i -> IntDict.get i allPkm) otherIDsInTransformGroup
 
         mainView =
             figure
@@ -132,6 +144,21 @@ view allPkm model =
                 else
                     List.reverse children
 
+        effectivenessList =
+            TypeEffectiveness.getAll pkm.typing pkm.ability
+
+        isSuperEffective ( _, eff ) =
+            eff > 1.1
+
+        isNotVeryEffective ( _, eff ) =
+            eff < 0.9
+
+        superEffective =
+            List.filter isSuperEffective effectivenessList
+
+        notVeryEffective =
+            List.filter isNotVeryEffective effectivenessList
+
         typeEffectivenessView =
             div []
                 [ div [] <|
@@ -144,11 +171,11 @@ view allPkm model =
                 , div [ css [ effectivenessChartTitleStyle ] ]
                     [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
                 , div [ css [ effectivenessChartStyle ] ] <|
-                    List.map viewBadgeWithEff pkm.superEffective
+                    List.map viewBadgeWithEff superEffective
                 , div [ css [ effectivenessChartTitleStyle ] ]
                     [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
                 , div [ css [ effectivenessChartStyle ] ] <|
-                    List.map viewBadgeWithEff pkm.notVeryEffective
+                    List.map viewBadgeWithEff notVeryEffective
                 ]
 
         wrapEvolutionListView =

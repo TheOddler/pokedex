@@ -1,27 +1,29 @@
 module TypeEffectiveness exposing (getAll)
 
 import Ability exposing (Ability(..), Effect(..))
-import Type exposing (Type(..))
+import Type exposing (Type(..), Typing(..))
 
 
-getAll : Type -> Maybe Type -> Maybe Ability -> List ( Type, Float )
-getAll primaryType secondaryType ability =
+getAll : Typing -> Maybe Ability -> List ( Type, Float )
+getAll typing ability =
     let
-        calcFor t =
+        calcFor attackType =
             let
                 effectivenessFromTyping =
-                    attackEffectiveness t primaryType
-                        * Maybe.withDefault 1 (Maybe.map (attackEffectiveness t) secondaryType)
+                    case typing of
+                        Single t ->
+                            attackEffectiveness attackType t
 
-                maybeAbilityEffect =
-                    Maybe.map (Ability.getEffect t) ability
+                        Double t1 t2 ->
+                            attackEffectiveness attackType t1
+                                * attackEffectiveness attackType t2
             in
-            case maybeAbilityEffect of
+            case ability of
+                Just a ->
+                    applyAbilityEffect (Ability.getEffect attackType a) effectivenessFromTyping
+
                 Nothing ->
                     effectivenessFromTyping
-
-                Just abilityEffect ->
-                    applyAbilityEffect abilityEffect effectivenessFromTyping
     in
     [ ( Type.Normal, calcFor Type.Normal )
     , ( Type.Fire, calcFor Type.Fire )
