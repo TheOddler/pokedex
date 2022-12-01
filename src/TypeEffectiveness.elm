@@ -1,16 +1,23 @@
 module TypeEffectiveness exposing (getAll)
 
-import Ability exposing (Ability)
+import Ability exposing (Ability(..))
 import Type exposing (Type(..))
 
 
 getAll : Type -> Maybe Type -> Maybe Ability -> List ( Type, Float )
 getAll primaryType secondaryType ability =
     let
+        abilityOverride t eff =
+            case ability of
+                Nothing ->
+                    eff
+
+                Just a ->
+                    abilityEffectivenessOverride t a eff
+
         calcFor t =
-            attackEffectiveness t primaryType
-                * Maybe.withDefault 1 (Maybe.map (attackEffectiveness t) secondaryType)
-                * Maybe.withDefault 1 (Maybe.map (abilityEffectivenessMultiplier t) ability)
+            abilityOverride t (attackEffectiveness t primaryType)
+                * abilityOverride t (Maybe.withDefault 1 (Maybe.map (attackEffectiveness t) secondaryType))
     in
     [ ( Type.Normal, calcFor Type.Normal )
     , ( Type.Fire, calcFor Type.Fire )
@@ -270,13 +277,206 @@ attackEffectiveness attacker defender =
         ( Psychic, Steel ) ->
             0.5
 
-        --To continue here with BUG
+        ( Bug, Fire ) ->
+            0.5
+
+        ( Bug, Grass ) ->
+            2
+
+        ( Bug, Fighting ) ->
+            0.5
+
+        ( Bug, Poison ) ->
+            0.5
+
+        ( Bug, Flying ) ->
+            0.5
+
+        ( Bug, Psychic ) ->
+            2
+
+        ( Bug, Ghost ) ->
+            0.5
+
+        ( Bug, Dark ) ->
+            0.5
+
+        ( Bug, Steel ) ->
+            0.5
+
+        ( Bug, Fairy ) ->
+            0.5
+
+        ( Rock, Fairy ) ->
+            0.5
+
+        ( Rock, Fire ) ->
+            2
+
+        ( Rock, Ice ) ->
+            2
+
+        ( Rock, Fighting ) ->
+            0.5
+
+        ( Rock, Ground ) ->
+            0.5
+
+        ( Rock, Flying ) ->
+            2
+
+        ( Rock, Bug ) ->
+            2
+
+        ( Rock, Steel ) ->
+            0.5
+
+        ( Ghost, Normal ) ->
+            0
+
+        ( Ghost, Psychic ) ->
+            2
+
+        ( Ghost, Ghost ) ->
+            2
+
+        ( Ghost, Dark ) ->
+            0.5
+
+        ( Dragon, Dragon ) ->
+            2
+
+        ( Dragon, Steel ) ->
+            0.5
+
+        ( Dragon, Fairy ) ->
+            0
+
+        ( Dark, Fighting ) ->
+            0.5
+
+        ( Dark, Psychic ) ->
+            2
+
+        ( Dark, Ghost ) ->
+            2
+
+        ( Dark, Dark ) ->
+            0.5
+
+        ( Dark, Fairy ) ->
+            0.5
+
+        ( Steel, Fire ) ->
+            0.5
+
+        ( Steel, Water ) ->
+            0.5
+
+        ( Steel, Electric ) ->
+            0.5
+
+        ( Steel, Ice ) ->
+            2
+
+        ( Steel, Rock ) ->
+            2
+
+        ( Steel, Steel ) ->
+            0.5
+
+        ( Steel, Fairy ) ->
+            2
+
+        ( Fairy, Fire ) ->
+            0.5
+
+        ( Fairy, Fighting ) ->
+            2
+
+        ( Fairy, Poison ) ->
+            0.5
+
+        ( Fairy, Dragon ) ->
+            2
+
+        ( Fairy, Dark ) ->
+            2
+
+        ( Fairy, Steel ) ->
+            0.5
+
         ( _, _ ) ->
             1
 
 
-abilityEffectivenessMultiplier : Type -> Ability -> Float
-abilityEffectivenessMultiplier attacker defenderAbility =
+abilityEffectivenessOverride : Type -> Ability -> Float -> Float
+abilityEffectivenessOverride attacker defenderAbility effectiveness =
     case ( attacker, defenderAbility ) of
-        ( _, _ ) ->
+        ( Electric, DeltaStream ) ->
             1
+
+        ( Ice, DeltaStream ) ->
+            1
+
+        ( Rock, DeltaStream ) ->
+            1
+
+        ( Water, DesolateLand ) ->
+            0
+
+        ( Water, DrySkin ) ->
+            0
+
+        ( Fire, DrySkin ) ->
+            effectiveness * 1.25
+
+        ( Fire, FlashFire ) ->
+            0
+
+        ( Ground, Levitate ) ->
+            0
+
+        ( Electric, LightningRod ) ->
+            0
+
+        ( Electric, MotorDrive ) ->
+            0
+
+        ( Fire, PrimordialSea ) ->
+            0
+
+        ( _, PrismArmor ) ->
+            if effectiveness > 1.1 then
+                effectiveness * 0.75
+
+            else
+                effectiveness
+
+        ( Grass, SapSipper ) ->
+            0
+
+        ( Fire, ThickFat ) ->
+            effectiveness * 0.5
+
+        ( Ice, ThickFat ) ->
+            effectiveness * 0.5
+
+        ( Electric, VoltAbsorb ) ->
+            0
+
+        ( Water, WaterAbsorb ) ->
+            0
+
+        ( Fire, WaterBubble ) ->
+            effectiveness * 0.5
+
+        ( _, WonderGuard ) ->
+            if effectiveness > 1.1 then
+                effectiveness
+
+            else
+                0
+
+        ( _, _ ) ->
+            effectiveness
