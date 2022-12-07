@@ -8,7 +8,7 @@ import Html.Styled.Attributes exposing (css, src)
 import IntDict exposing (IntDict)
 import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
-import Pokemon exposing (Pokemon)
+import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..), shareTransformGroup)
 import Pokemon.Mode as Mode exposing (Mode(..))
 import Pokemon.SharedStyles as SharedStyles
 import Type exposing (Typing(..))
@@ -68,18 +68,18 @@ view allPkm model =
             Type.viewBadge t (Just e)
 
         evolvesFrom =
-            Maybe.values <| List.map (\i -> IntDict.get i allPkm) pkm.evolvesFromIDs
-
-        evolvesIntoIDs =
-            IntDict.keys <| IntDict.filter (\_ p -> List.member pkm.id p.evolvesFromIDs) allPkm
-
-        otherIDsInTransformGroup =
-            case pkm.transformGroupID of
-                Nothing ->
+            case pkm.evolutionData of
+                DoesNotEvolve ->
                     []
 
-                Just transformGroupID ->
-                    IntDict.keys <| IntDict.filter (\_ p -> p.transformGroupID == Just transformGroupID && p.id /= pkm.id) allPkm
+                EvolvesFrom ids _ ->
+                    Maybe.values <| List.map (\i -> IntDict.get i allPkm) ids
+
+        evolvesIntoIDs =
+            IntDict.keys <| IntDict.filter (\_ -> Pokemon.evolvesFrom pkm) allPkm
+
+        otherIDsInTransformGroup =
+            IntDict.keys <| IntDict.filter (\_ p -> shareTransformGroup pkm p && p.id /= pkm.id) allPkm
 
         -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
         evolvesInto =
@@ -122,7 +122,23 @@ view allPkm model =
                 , div [ css [ fontSize (em 1) ] ] [ text p.fullName ]
                 ]
 
-        viewEvolition isPrevolution info p =
+        evolutionDetailsToString p =
+            case p.evolutionData of
+                DoesNotEvolve ->
+                    ""
+
+                EvolvesFrom _ details ->
+                    details
+
+        transformationDetailsToString p =
+            case p.transformationData of
+                DoesNotTransform ->
+                    ""
+
+                Transforms _ details ->
+                    details
+
+        viewEvolution isPrevolution info p =
             let
                 children =
                     [ viewBadge p
@@ -308,12 +324,13 @@ view allPkm model =
                 ]
 
             Evolutions ->
-                [ wrapEvolutionListView <| List.map (\p -> viewEvolition True (Maybe.withDefault "" pkm.evolvesFromDetails) p) evolvesFrom
+                [ wrapEvolutionListView <|
+                    List.map (viewEvolution True <| evolutionDetailsToString pkm) evolvesFrom
                 , mainView
                 , wrapEvolutionListView <|
                     List.concat
-                        [ List.map (\p -> viewEvolition False (Maybe.withDefault "" p.transformGroupDetails) p) transformsInto
-                        , List.map (\p -> viewEvolition False (Maybe.withDefault "" p.evolvesFromDetails) p) evolvesInto
+                        [ List.map (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
+                        , List.map (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
                         ]
                 , typeEffectivenessButton
                 , fakeCloseButton

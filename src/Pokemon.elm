@@ -1,7 +1,4 @@
-module Pokemon exposing
-    ( Pokemon
-    , fromCSVRows
-    )
+module Pokemon exposing (..)
 
 import Ability exposing (Ability)
 import Css exposing (..)
@@ -11,16 +8,24 @@ import StringHelpers as String
 import Type exposing (Type(..), Typing(..))
 
 
+type EvolutionData
+    = DoesNotEvolve
+    | EvolvesFrom (List Int) String
+
+
+type TransformationData
+    = DoesNotTransform
+    | Transforms Int String
+
+
 type alias Pokemon =
     { id : Int
     , fullName : String
     , typing : Typing
     , ability : Maybe Ability
     , imageUrl : String
-    , evolvesFromIDs : List Int
-    , evolvesFromDetails : Maybe String
-    , transformGroupID : Maybe Int
-    , transformGroupDetails : Maybe String
+    , evolutionData : EvolutionData
+    , transformationData : TransformationData
     }
 
 
@@ -93,8 +98,38 @@ fromCSVRow pkm =
                 Single pkm.primaryType
     , ability = pkm.ability
     , imageUrl = "https://img.pokemondb.net/sprites/" ++ imageGen ++ "/normal/" ++ imageID ++ ".png"
-    , evolvesFromIDs = pkm.evolvesFromID
-    , evolvesFromDetails = pkm.evolutionDetails
-    , transformGroupID = pkm.transformGroupID
-    , transformGroupDetails = pkm.transformGroupDetails
+    , evolutionData =
+        case pkm.evolvesFromID of
+            [] ->
+                DoesNotEvolve
+
+            ids ->
+                EvolvesFrom ids pkm.evolutionDetails
+    , transformationData =
+        case pkm.transformGroupID of
+            Nothing ->
+                DoesNotTransform
+
+            Just id ->
+                Transforms id pkm.transformGroupDetails
     }
+
+
+shareTransformGroup : Pokemon -> Pokemon -> Bool
+shareTransformGroup p1 p2 =
+    case ( p1.transformationData, p2.transformationData ) of
+        ( Transforms id1 _, Transforms id2 _ ) ->
+            id1 == id2
+
+        _ ->
+            False
+
+
+evolvesFrom : Pokemon -> Pokemon -> Bool
+evolvesFrom evolution base =
+    case base.evolutionData of
+        DoesNotEvolve ->
+            False
+
+        EvolvesFrom ids _ ->
+            List.member evolution.id ids

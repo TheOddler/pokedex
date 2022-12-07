@@ -16,9 +16,9 @@ type alias PokemonCSVRow =
     , secondaryType : Maybe Type
     , ability : Maybe Ability
     , evolvesFromID : List Int
-    , evolutionDetails : Maybe String
+    , evolutionDetails : String
     , transformGroupID : Maybe Int
-    , transformGroupDetails : Maybe String
+    , transformGroupDetails : String
     , imageGen : Maybe String
     , imageID : Maybe String
     }
@@ -36,9 +36,9 @@ decoder =
         |> Decode.pipeline (Decode.field "Secondary Type" (Decode.blank Type.decoder))
         |> Decode.pipeline (Decode.field "Ability" (Decode.blank Ability.decoder))
         |> Decode.pipeline (Decode.field "Evolves From" intListDecoder)
-        |> Decode.pipeline (Decode.field "Evolution Details" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Evolution Details" Decode.string)
         |> Decode.pipeline (Decode.field "Transform Group" (Decode.blank Decode.int))
-        |> Decode.pipeline (Decode.field "Transform Details" (Decode.blank Decode.string))
+        |> Decode.pipeline (Decode.field "Transform Details" Decode.string)
         |> Decode.pipeline (Decode.field "Image Gen" (Decode.blank Decode.string))
         |> Decode.pipeline (Decode.field "Image ID" (Decode.blank Decode.string))
 
