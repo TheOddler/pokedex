@@ -30,7 +30,7 @@ jobs:
         uses: actions/configure-pages@v1
 
       - name: Install elm
-        run: npm install -g elm@latest-0.19.1 --unsafe-perm=true --allow-root
+        run: npm install -g elm@latest-0.19.1 uglify-js --unsafe-perm=true --allow-root
       - name: Build
         run: make build
 
