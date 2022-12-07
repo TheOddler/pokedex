@@ -5,10 +5,10 @@ import Css.Transitions as Transitions exposing (transition)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
-import IntDict exposing (IntDict)
 import LocalStorage exposing (LocalStorage)
 import Maybe.Extra as Maybe
-import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..), shareTransformGroup)
+import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..))
+import Pokemon.Helpers exposing (shareTransformGroup, withID)
 import Pokemon.Mode as Mode exposing (Mode(..))
 import Pokemon.SharedStyles as SharedStyles
 import Type exposing (Typing(..))
@@ -58,7 +58,7 @@ saveMode mode =
     LocalStorage.save LocalStorage.modeKey <| Mode.toString mode
 
 
-view : IntDict Pokemon -> Model -> Html Msg
+view : List Pokemon -> Model -> Html Msg
 view allPkm model =
     let
         pkm =
@@ -73,20 +73,20 @@ view allPkm model =
                     []
 
                 EvolvesFrom ids _ ->
-                    Maybe.values <| List.map (\i -> IntDict.get i allPkm) ids
+                    Maybe.values <| List.map withID ids
 
         evolvesIntoIDs =
-            IntDict.keys <| IntDict.filter (\_ -> Pokemon.evolvesFrom pkm) allPkm
+            List.map .id <| List.filter (Pokemon.Helpers.evolvesFrom pkm) allPkm
 
         otherIDsInTransformGroup =
-            IntDict.keys <| IntDict.filter (\_ p -> shareTransformGroup pkm p && p.id /= pkm.id) allPkm
+            List.map .id <| List.filter (\p -> shareTransformGroup pkm p && p.id /= pkm.id) allPkm
 
         -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
         evolvesInto =
-            Maybe.values <| List.map (\i -> IntDict.get i allPkm) evolvesIntoIDs
+            Maybe.values <| List.map withID evolvesIntoIDs
 
         transformsInto =
-            Maybe.values <| List.map (\i -> IntDict.get i allPkm) otherIDsInTransformGroup
+            Maybe.values <| List.map withID otherIDsInTransformGroup
 
         mainView =
             figure

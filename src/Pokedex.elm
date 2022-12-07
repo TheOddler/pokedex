@@ -4,7 +4,6 @@ import Css exposing (..)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
-import IntDict exposing (IntDict)
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
 import Pokemon.Data
@@ -16,7 +15,6 @@ import Simple.Fuzzy as Fuzzy
 type alias Pokedex =
     { searchString : String
     , pokemon : List Pokemon
-    , pokemonIdDict : IntDict Pokemon
     , details : Pokemon.Details.Model
     }
 
@@ -31,7 +29,6 @@ init : LocalStorage -> Pokedex
 init localStorage =
     { searchString = ""
     , pokemon = Pokemon.Data.all
-    , pokemonIdDict = IntDict.fromList <| List.map (\p -> ( p.id, p )) Pokemon.Data.all
     , details = Pokemon.Details.init localStorage Pokemon.Data.first
     }
 
@@ -71,7 +68,7 @@ view model =
             , onFocus ClearAll
             ]
             []
-        , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemonIdDict model.details
+        , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemon model.details
         , Html.map PokemonDetailsMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
         ]
 
