@@ -3,7 +3,7 @@ image: node:latest
 pages:
   stage: deploy
   script:
-  - npm install -g elm@latest-0.19.1 --unsafe-perm=true --allow-root
+  - npm install -g elm@latest-0.19.1 uglify-js --unsafe-perm=true --allow-root
   - make build
   artifacts:
     paths:

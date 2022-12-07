@@ -1,14 +1,13 @@
 module Pokedex exposing (Msg, Pokedex, init, update, view)
 
 import Css exposing (..)
-import Csv.Decode as Decode
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
 import IntDict exposing (IntDict)
 import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
-import Pokemon.CSVRow
+import Pokemon.Data
 import Pokemon.Details
 import Pokemon.List
 import Simple.Fuzzy as Fuzzy
@@ -28,22 +27,13 @@ type Msg
     | ClearAll
 
 
-init : LocalStorage -> String -> Result String Pokedex
-init localStorage csv =
-    case Result.map Pokemon.fromCSVRows (Decode.decodeCsv Decode.FieldNamesFromFirstRow Pokemon.CSVRow.decoder csv) of
-        Ok (first :: rest) ->
-            Ok
-                { searchString = ""
-                , pokemon = first :: rest
-                , pokemonIdDict = IntDict.fromList <| List.map (\p -> ( p.id, p )) (first :: rest)
-                , details = Pokemon.Details.init localStorage first
-                }
-
-        Ok [] ->
-            Err "CSV was empty."
-
-        Err err ->
-            Err <| Decode.errorToString err
+init : LocalStorage -> Pokedex
+init localStorage =
+    { searchString = ""
+    , pokemon = Pokemon.Data.all
+    , pokemonIdDict = IntDict.fromList <| List.map (\p -> ( p.id, p )) Pokemon.Data.all
+    , details = Pokemon.Details.init localStorage Pokemon.Data.first
+    }
 
 
 update : Msg -> Pokedex -> ( Pokedex, Cmd Msg )
