@@ -327,10 +327,14 @@ view allPkm model =
                     List.map (viewEvolution True <| evolutionDetailsToString pkm) evolvesFrom
                 , mainView
                 , wrapEvolutionListView <|
-                    List.concat
-                        [ List.map (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
-                        , List.map (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
-                        ]
+                    if evolvesFrom == [] && evolvesInto == [] && transformsInto == [] then
+                        [ text "Does not evolve" ]
+
+                    else
+                        List.concat
+                            [ List.map (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
+                            , List.map (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
+                            ]
                 , typeEffectivenessButton
                 , fakeCloseButton
                 ]
