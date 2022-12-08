@@ -794,7 +794,7 @@ all =
       , fullName = "Annihilape"
       , typing = Double Fighting Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Annihilape"
+      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "annihilape"
       , evolutionData = EvolvesFrom [ 924 ] "After using Rage Fist 20 times"
       , transformationData = DoesNotTransform
       }
@@ -2621,7 +2621,7 @@ all =
       , fullName = nameFromData "Wooper" "Paldean" ""
       , typing = Double Poison Ground
       , ability = Just WaterAbsorb
-      , imageUrl = imgUrlForAlternateForm "Wooper" "Paldean"
+      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "wooper-paldean"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2630,7 +2630,7 @@ all =
       , fullName = "Clodsire"
       , typing = Double Poison Ground
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Clodsire"
+      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "clodsire"
       , evolutionData = EvolvesFrom [ 1651 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -2711,7 +2711,7 @@ all =
       , fullName = "Farigiraf"
       , typing = Double Normal Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Farigiraf"
+      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "farigiraf"
       , evolutionData = EvolvesFrom [ 327 ] "Level while knowing Twin Beam"
       , transformationData = DoesNotTransform
       }
@@ -2747,7 +2747,7 @@ all =
       , fullName = "Dudunsparce"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dudunsparce"
+      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "dudunsparce"
       , evolutionData = EvolvesFrom [ 330 ] "Level while knowing Hyper Drill"
       , transformationData = DoesNotTransform
       }
@@ -6914,7 +6914,7 @@ all =
       , fullName = "Kingambit"
       , typing = Double Dark Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kingambit"
+      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "kingambit"
       , evolutionData = EvolvesFrom [ 999 ] "Level after defeating three Bisharp that lead a pack of Pawniard"
       , transformationData = DoesNotTransform
       }
@@ -8243,10 +8243,10 @@ all =
       }
     , { id = 1272
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Wishiwashi" "" "Singe Wishiwashi"
+      , fullName = nameFromData "Wishiwashi" "Solo" "Solo Wishiwashi"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Wishiwashi" ""
+      , imageUrl = imgUrlForAlternateForm "Wishiwashi" "solo"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 20 "If HP below 25%"
       }
