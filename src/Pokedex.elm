@@ -1,14 +1,15 @@
 module Pokedex exposing (Msg, Pokedex, init, update, view)
 
+import Amyfy exposing (amyfyPokemon)
 import Css exposing (..)
 import Html.Styled as Html exposing (Html, div, input)
 import Html.Styled.Attributes exposing (css, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
-import LocalStorage exposing (LocalStorage)
 import Pokemon exposing (Pokemon)
 import Pokemon.Data
 import Pokemon.Details
 import Pokemon.List
+import Pokemon.Mode exposing (Mode(..))
 import Simple.Fuzzy as Fuzzy
 
 
@@ -25,11 +26,16 @@ type Msg
     | ClearAll
 
 
-init : LocalStorage -> Pokedex
-init localStorage =
+init : Maybe Mode -> Bool -> Pokedex
+init mode amyfy =
     { searchString = ""
-    , pokemon = Pokemon.Data.all
-    , details = Pokemon.Details.init localStorage Pokemon.Data.first
+    , pokemon =
+        if amyfy then
+            List.map amyfyPokemon Pokemon.Data.all
+
+        else
+            Pokemon.Data.all
+    , details = Pokemon.Details.init mode Pokemon.Data.first
     }
 
 

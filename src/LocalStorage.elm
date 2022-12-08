@@ -1,4 +1,4 @@
-port module LocalStorage exposing (LocalStorage, modeKey, save)
+port module LocalStorage exposing (modeKey, save)
 
 
 type alias Key =
@@ -7,11 +7,6 @@ type alias Key =
 
 type alias Value =
     String
-
-
-type alias LocalStorage =
-    { mode : Maybe Value
-    }
 
 
 modeKey : Key

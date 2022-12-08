@@ -46,7 +46,7 @@
 	<script>
 		const app = Elm.Main.init({
 			node: document.getElementById('elm'),
-			flags: { mode: null, ...localStorage }
+			flags: { mode: null, amyfy: (window.location.search == "?amyfy"), ...localStorage }
 		});
 
 		app.ports.saveLocalStorage.subscribe(function (message) {

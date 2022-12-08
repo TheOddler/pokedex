@@ -5,10 +5,9 @@ import Css.Transitions as Transitions exposing (transition)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Styled.Attributes exposing (css, src)
-import LocalStorage exposing (LocalStorage)
+import LocalStorage
 import Maybe.Extra as Maybe
-import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..))
-import Pokemon.Helpers exposing (shareTransformGroup, withID)
+import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..), shareTransformGroup, withID)
 import Pokemon.Mode as Mode exposing (Mode(..))
 import Pokemon.SharedStyles as SharedStyles
 import Type exposing (Typing(..))
@@ -28,10 +27,10 @@ type alias Model =
     }
 
 
-init : LocalStorage -> Pokemon -> Model
-init localStorage first =
+init : Maybe Mode -> Pokemon -> Model
+init mode first =
     { pokemon = first
-    , mode = Maybe.withDefault Mode.Evolutions (Maybe.map Mode.fromString localStorage.mode)
+    , mode = Maybe.withDefault Mode.Evolutions mode
     , visible = False
     }
 
@@ -73,20 +72,20 @@ view allPkm model =
                     []
 
                 EvolvesFrom ids _ ->
-                    Maybe.values <| List.map withID ids
+                    Maybe.values <| List.map (withID allPkm) ids
 
         evolvesIntoIDs =
-            List.map .id <| List.filter (Pokemon.Helpers.evolvesFrom pkm) allPkm
+            List.map .id <| List.filter (Pokemon.evolvesFrom pkm) allPkm
 
         otherIDsInTransformGroup =
             List.map .id <| List.filter (\p -> shareTransformGroup pkm p && p.id /= pkm.id) allPkm
 
         -- Maybe.andThen (\i -> Dict.get i allPkm) pkm.evolvesFromID
         evolvesInto =
-            Maybe.values <| List.map withID evolvesIntoIDs
+            Maybe.values <| List.map (withID allPkm) evolvesIntoIDs
 
         transformsInto =
-            Maybe.values <| List.map withID otherIDsInTransformGroup
+            Maybe.values <| List.map (withID allPkm) otherIDsInTransformGroup
 
         mainView =
             figure

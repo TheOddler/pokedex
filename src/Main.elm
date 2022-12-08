@@ -5,8 +5,8 @@ import Css exposing (..)
 import Html.Styled as Html exposing (Html, a, div, text, toUnstyled)
 import Html.Styled.Attributes exposing (css, href)
 import Http
-import LocalStorage exposing (LocalStorage)
 import Pokedex exposing (Pokedex)
+import Pokemon.Mode as Mode
 
 
 type alias Model =
@@ -17,7 +17,13 @@ type alias Msg =
     Pokedex.Msg
 
 
-main : Program LocalStorage Model Msg
+type alias Flags =
+    { mode : Maybe String
+    , amyfy : Bool
+    }
+
+
+main : Program Flags Model Msg
 main =
     Browser.element
         { init = init
@@ -27,9 +33,9 @@ main =
         }
 
 
-init : LocalStorage -> ( Model, Cmd Msg )
-init localStorage =
-    ( Pokedex.init localStorage
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( Pokedex.init (Maybe.map Mode.fromString flags.mode) flags.amyfy
     , Cmd.none
     )
 
