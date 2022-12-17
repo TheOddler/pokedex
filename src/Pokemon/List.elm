@@ -8,7 +8,6 @@ import Html.Styled exposing (Html, div, img, text)
 import Html.Styled.Attributes exposing (attribute, css, src)
 import Html.Styled.Keyed as Keyed
 import Html.Styled.Lazy as Lazy
-import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
 import Pokemon.Details
 import Pokemon.SharedStyles as SharedStyles
@@ -45,41 +44,6 @@ viewListElementWrapper isVisible pkm =
 
             else
                 [ style, invisibleStyle ]
-        ]
-        [ Lazy.lazy viewListElement pkm ]
-
-
-viewListElementWrapperAnimated : Bool -> Pokemon -> Html Pokemon.Details.Msg
-viewListElementWrapperAnimated isVisible pkm =
-    let
-        style =
-            Css.batch
-                [ width (rem 7)
-                , margin (em 0.2)
-                , transition
-                    [ Transitions.width3 200 0 Transitions.easeInOut
-                    , Transitions.visibility3 200 0 Transitions.easeInOut
-                    ]
-                ]
-
-        invisibleStyle =
-            Css.batch
-                [ width (px 0)
-                , padding (em 0)
-                , margin (em 0)
-                , visibility hidden
-                ]
-    in
-    div
-        [ css <|
-            Maybe.values
-                [ Just style
-                , if isVisible then
-                    Nothing
-
-                  else
-                    Just invisibleStyle
-                ]
         ]
         [ Lazy.lazy viewListElement pkm ]
 
