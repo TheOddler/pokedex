@@ -6,6 +6,7 @@ import Css.Transitions as Transitions exposing (cubicBezier, transition)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, div, img, text)
 import Html.Styled.Attributes exposing (attribute, css, src)
+import Html.Styled.Keyed as Keyed
 import Html.Styled.Lazy as Lazy
 import Maybe.Extra as Maybe
 import Pokemon exposing (Pokemon)
@@ -16,7 +17,7 @@ import Type
 
 view : List Pokemon -> (Pokemon -> Bool) -> Html Pokemon.Details.Msg
 view pokemonList filter =
-    div
+    Keyed.node "div"
         [ css
             [ displayFlex
             , flexWrap wrap
@@ -25,7 +26,7 @@ view pokemonList filter =
             ]
         ]
     <|
-        List.map (\p -> viewListElementWrapper (filter p) p) pokemonList
+        List.map (\p -> ( String.fromInt p.id, viewListElementWrapper (filter p) p )) pokemonList
 
 
 viewListElementWrapper : Bool -> Pokemon -> Html Pokemon.Details.Msg
