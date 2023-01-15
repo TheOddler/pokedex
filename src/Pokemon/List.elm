@@ -5,7 +5,7 @@ import Css.Media as Media exposing (canHover, withMedia)
 import Css.Transitions as Transitions exposing (cubicBezier, transition)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, div, img, text)
-import Html.Styled.Attributes exposing (attribute, css, src)
+import Html.Styled.Attributes exposing (alt, attribute, css, src)
 import Html.Styled.Keyed as Keyed
 import Html.Styled.Lazy as Lazy
 import Pokemon exposing (Pokemon)
@@ -72,10 +72,11 @@ viewListElement pkm =
         ]
         [ img
             [ src pkm.imageUrl
+            , alt pkm.fullName
             , attribute "loading" "lazy"
             , css
                 [ width (rem 6)
-                , minHeight (rem 6)
+                , height (rem 6)
                 ]
             ]
             []

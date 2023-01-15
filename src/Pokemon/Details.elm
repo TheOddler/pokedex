@@ -4,7 +4,7 @@ import Css exposing (..)
 import Css.Transitions as Transitions exposing (transition)
 import Helpers exposing (stopPropagationOnClick)
 import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
-import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Attributes exposing (alt, css, src)
 import LocalStorage
 import Maybe.Extra as Maybe
 import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..), shareTransformGroup, withID)
@@ -92,9 +92,10 @@ view allPkm model =
                 []
                 [ img
                     [ src <| pkm.imageUrl
+                    , alt pkm.fullName
                     , css
                         [ width (rem 8)
-                        , height auto
+                        , height (rem 8)
                         ]
                     ]
                     []
@@ -112,9 +113,10 @@ view allPkm model =
                 ]
                 [ img
                     [ src p.imageUrl
+                    , alt p.fullName
                     , css
                         [ width (rem 6)
-                        , height auto
+                        , height (rem 6)
                         ]
                     ]
                     []
