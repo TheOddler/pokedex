@@ -7,49 +7,92 @@ import StringHelpers as String
 import Type exposing (..)
 
 
-nameFromData : String -> String -> String -> String
-nameFromData name alternateFormName override =
-    case override of
-        "" ->
-            alternateFormName ++ " " ++ name
+type Form
+    = Mega
+    | MegaX
+    | MegaY
+    | Alolan
+    | Galarian
+    | Hisuian
+    | Paldean
+    | Unique String String
 
-        _ ->
-            override
+
+nameWithForm : String -> Form -> String
+nameWithForm name form =
+    case form of
+        Mega ->
+            "Mega " ++ name
+
+        MegaX ->
+            "Mega " ++ name ++ " X"
+
+        MegaY ->
+            "Mega " ++ name ++ " Y"
+
+        Alolan ->
+            "Alolan " ++ name
+
+        Galarian ->
+            "Galarian " ++ name
+
+        Hisuian ->
+            "Hisuian " ++ name
+
+        Paldean ->
+            "Paldean " ++ name
+
+        Unique prefix suffix ->
+            prefix ++ " " ++ name ++ " " ++ suffix
 
 
-imageIDCleanup : String -> String
-imageIDCleanup =
-    String.removeAll [ ".", "'", ":", "%" ]
-        << String.replaceAll [ ( " ", "-" ), ( "♀", "f" ), ( "♂", "m" ) ]
+imageNameCleanup : String -> String
+imageNameCleanup =
+    String.removeAll [ ":", "%", "♀", "♂", "'" ]
+        << String.replaceAll [ ( " ", "_" ) ]
         << String.removeAccents
-        << String.toLower
 
 
-imageUrlByName : String -> String
-imageUrlByName name =
-    imageUrlByGenerationAndID "home" <| imageIDCleanup name
+imageUrl : Int -> String -> String
+imageUrl natDexNum name =
+    "images/"
+        ++ String.right 4 ("000" ++ String.fromInt natDexNum)
+        ++ imageNameCleanup name
+        ++ ".webp"
 
 
-imgUrlForAlternateForm : String -> String -> String
-imgUrlForAlternateForm name alternateFormName =
-    let
-        imageGen =
-            case alternateFormName of
-                "Hisuian" ->
-                    "legends-arceus"
+imageUrlWithForm : Int -> String -> Form -> String
+imageUrlWithForm natDexNum name form =
+    "images/"
+        ++ String.right 4 ("000" ++ String.fromInt natDexNum)
+        ++ imageNameCleanup name
+        ++ "-"
+        ++ (case form of
+                Mega ->
+                    "Mega"
 
-                _ ->
-                    "home"
+                MegaX ->
+                    "Mega_X"
 
-        imageID =
-            imageIDCleanup name ++ "-" ++ imageIDCleanup alternateFormName
-    in
-    imageUrlByGenerationAndID imageGen imageID
+                MegaY ->
+                    "Mega_Y"
 
+                Alolan ->
+                    "Alola"
 
-imageUrlByGenerationAndID : String -> String -> String
-imageUrlByGenerationAndID imageGen imageID =
-    "https://img.pokemondb.net/sprites/" ++ imageGen ++ "/normal/" ++ imageID ++ ".png"
+                Galarian ->
+                    "Galar"
+
+                Hisuian ->
+                    "Hisui"
+
+                Paldean ->
+                    "Paldea"
+
+                Unique _ suffix ->
+                    suffix
+           )
+        ++ ".webp"
 
 
 first : Pokemon
@@ -60,7 +103,7 @@ first =
     , fullName = "Bulbasaur"
     , typing = Double Grass Poison
     , ability = Nothing
-    , imageUrl = imageUrlByName "Bulbasaur"
+    , imageUrl = imageUrl 1 "Bulbasaur"
     , evolutionData = DoesNotEvolve
     , transformationData = DoesNotTransform
     }
@@ -75,7 +118,7 @@ all =
       , fullName = "Ivysaur"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ivysaur"
+      , imageUrl = imageUrl 2 "Ivysaur"
       , evolutionData = EvolvesFrom [ 1 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -85,17 +128,17 @@ all =
       , fullName = "Venusaur"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Venusaur"
+      , imageUrl = imageUrl 3 "Venusaur"
       , evolutionData = EvolvesFrom [ 2 ] "Level 32"
       , transformationData = DoesNotTransform
       }
     , { id = 4
       , nationalDexNumber = 3
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Venusaur" "Mega" ""
+      , fullName = nameWithForm "Venusaur" Mega
       , typing = Double Grass Poison
       , ability = Just ThickFat
-      , imageUrl = imgUrlForAlternateForm "Venusaur" "Mega"
+      , imageUrl = imageUrlWithForm 3 "Venusaur" Mega
       , evolutionData = EvolvesFrom [ 3 ] "Holding Venusaurite"
       , transformationData = DoesNotTransform
       }
@@ -105,7 +148,7 @@ all =
       , fullName = "Charmander"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Charmander"
+      , imageUrl = imageUrl 4 "Charmander"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -115,7 +158,7 @@ all =
       , fullName = "Charmeleon"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Charmeleon"
+      , imageUrl = imageUrl 5 "Charmeleon"
       , evolutionData = EvolvesFrom [ 5 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -125,27 +168,27 @@ all =
       , fullName = "Charizard"
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Charizard"
+      , imageUrl = imageUrl 6 "Charizard"
       , evolutionData = EvolvesFrom [ 6 ] "Level 32"
       , transformationData = DoesNotTransform
       }
     , { id = 8
       , nationalDexNumber = 6
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Charizard" "Mega X" "Mega Charizard X"
+      , fullName = nameWithForm "Charizard" MegaX
       , typing = Double Fire Dragon
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Charizard" "Mega X"
+      , imageUrl = imageUrlWithForm 6 "Charizard" MegaX
       , evolutionData = EvolvesFrom [ 7 ] "Holding Charizardite X"
       , transformationData = DoesNotTransform
       }
     , { id = 9
       , nationalDexNumber = 6
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Charizard" "Mega Y" "Mega Charizard Y"
+      , fullName = nameWithForm "Charizard" MegaY
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Charizard" "Mega Y"
+      , imageUrl = imageUrlWithForm 6 "Charizard" MegaY
       , evolutionData = EvolvesFrom [ 7 ] "Holding Charizardite Y"
       , transformationData = DoesNotTransform
       }
@@ -155,7 +198,7 @@ all =
       , fullName = "Squirtle"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Squirtle"
+      , imageUrl = imageUrl 7 "Squirtle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -165,7 +208,7 @@ all =
       , fullName = "Wartortle"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wartortle"
+      , imageUrl = imageUrl 8 "Wartortle"
       , evolutionData = EvolvesFrom [ 10 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -175,17 +218,17 @@ all =
       , fullName = "Blastoise"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Blastoise"
+      , imageUrl = imageUrl 9 "Blastoise"
       , evolutionData = EvolvesFrom [ 11 ] "Level 32"
       , transformationData = DoesNotTransform
       }
     , { id = 13
       , nationalDexNumber = 9
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Blastoise" "Mega" ""
+      , fullName = nameWithForm "Blastoise" Mega
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Blastoise" "Mega"
+      , imageUrl = imageUrlWithForm 9 "Blastoise" Mega
       , evolutionData = EvolvesFrom [ 12 ] "Holding Blastoisinite"
       , transformationData = DoesNotTransform
       }
@@ -195,7 +238,7 @@ all =
       , fullName = "Caterpie"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Caterpie"
+      , imageUrl = imageUrl 10 "Caterpie"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -205,7 +248,7 @@ all =
       , fullName = "Metapod"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Metapod"
+      , imageUrl = imageUrl 11 "Metapod"
       , evolutionData = EvolvesFrom [ 32 ] "Level 7"
       , transformationData = DoesNotTransform
       }
@@ -215,7 +258,7 @@ all =
       , fullName = "Butterfree"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Butterfree"
+      , imageUrl = imageUrl 12 "Butterfree"
       , evolutionData = EvolvesFrom [ 23 ] "Level 10"
       , transformationData = DoesNotTransform
       }
@@ -225,7 +268,7 @@ all =
       , fullName = "Weedle"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Weedle"
+      , imageUrl = imageUrl 13 "Weedle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -235,7 +278,7 @@ all =
       , fullName = "Kakuna"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kakuna"
+      , imageUrl = imageUrl 14 "Kakuna"
       , evolutionData = EvolvesFrom [ 31 ] "Level 7"
       , transformationData = DoesNotTransform
       }
@@ -245,17 +288,17 @@ all =
       , fullName = "Beedrill"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Beedrill"
+      , imageUrl = imageUrl 15 "Beedrill"
       , evolutionData = EvolvesFrom [ 30 ] "Level 10"
       , transformationData = DoesNotTransform
       }
     , { id = 28
       , nationalDexNumber = 15
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Beedrill" "Mega" ""
+      , fullName = nameWithForm "Beedrill" Mega
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Beedrill" "Mega"
+      , imageUrl = imageUrlWithForm 15 "Beedrill" Mega
       , evolutionData = EvolvesFrom [ 27 ] "Holding Beedrillite"
       , transformationData = DoesNotTransform
       }
@@ -265,7 +308,7 @@ all =
       , fullName = "Pidgey"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pidgey"
+      , imageUrl = imageUrl 16 "Pidgey"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -275,7 +318,7 @@ all =
       , fullName = "Pidgeotto"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pidgeotto"
+      , imageUrl = imageUrl 17 "Pidgeotto"
       , evolutionData = EvolvesFrom [ 76 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -285,17 +328,17 @@ all =
       , fullName = "Pidgeot"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pidgeot"
+      , imageUrl = imageUrl 18 "Pidgeot"
       , evolutionData = EvolvesFrom [ 77 ] "Level 36"
       , transformationData = DoesNotTransform
       }
     , { id = 79
       , nationalDexNumber = 18
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Pidgeot" "Mega" ""
+      , fullName = nameWithForm "Pidgeot" Mega
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Pidgeot" "Mega"
+      , imageUrl = imageUrlWithForm 18 "Pidgeot" Mega
       , evolutionData = EvolvesFrom [ 78 ] "Holding Pidgeotite"
       , transformationData = DoesNotTransform
       }
@@ -305,7 +348,7 @@ all =
       , fullName = "Rattata"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rattata"
+      , imageUrl = imageUrl 19 "Rattata"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -315,27 +358,27 @@ all =
       , fullName = "Raticate"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Raticate"
+      , imageUrl = imageUrl 20 "Raticate"
       , evolutionData = EvolvesFrom [ 80 ] "Level 20"
       , transformationData = DoesNotTransform
       }
     , { id = 81
       , nationalDexNumber = 19
       , originalPokemonID = Just 80
-      , fullName = nameFromData "Rattata" "Alolan" ""
+      , fullName = nameWithForm "Rattata" Alolan
       , typing = Double Dark Normal
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Rattata" "Alolan"
+      , imageUrl = imageUrlWithForm 19 "Rattata" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 83
       , nationalDexNumber = 20
       , originalPokemonID = Just 82
-      , fullName = nameFromData "Raticate" "Alolan" ""
+      , fullName = nameWithForm "Raticate" Alolan
       , typing = Double Dark Normal
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Raticate" "Alolan"
+      , imageUrl = imageUrlWithForm 20 "Raticate" Alolan
       , evolutionData = EvolvesFrom [ 81 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -345,7 +388,7 @@ all =
       , fullName = "Spearow"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spearow"
+      , imageUrl = imageUrl 21 "Spearow"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -355,7 +398,7 @@ all =
       , fullName = "Fearow"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Fearow"
+      , imageUrl = imageUrl 22 "Fearow"
       , evolutionData = EvolvesFrom [ 84 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -365,7 +408,7 @@ all =
       , fullName = "Ekans"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ekans"
+      , imageUrl = imageUrl 23 "Ekans"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -375,7 +418,7 @@ all =
       , fullName = "Arbok"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Arbok"
+      , imageUrl = imageUrl 24 "Arbok"
       , evolutionData = EvolvesFrom [ 86 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -385,7 +428,7 @@ all =
       , fullName = "Pichu"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pichu"
+      , imageUrl = imageUrl 172 "Pichu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -395,7 +438,7 @@ all =
       , fullName = "Pikachu"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pikachu"
+      , imageUrl = imageUrl 25 "Pikachu"
       , evolutionData = EvolvesFrom [ 88 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -405,17 +448,17 @@ all =
       , fullName = "Raichu"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Raichu"
+      , imageUrl = imageUrl 26 "Raichu"
       , evolutionData = EvolvesFrom [ 89 ] "Use Thunder Stone"
       , transformationData = DoesNotTransform
       }
     , { id = 91
       , nationalDexNumber = 26
       , originalPokemonID = Just 90
-      , fullName = nameFromData "Raichu" "Alolan" ""
+      , fullName = nameWithForm "Raichu" Alolan
       , typing = Double Electric Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Raichu" "Alolan"
+      , imageUrl = imageUrlWithForm 26 "Raichu" Alolan
       , evolutionData = EvolvesFrom [ 89 ] "Use Thunder Stone in Alola"
       , transformationData = DoesNotTransform
       }
@@ -425,7 +468,7 @@ all =
       , fullName = "Sandshrew"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sandshrew"
+      , imageUrl = imageUrl 27 "Sandshrew"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -435,27 +478,27 @@ all =
       , fullName = "Sandslash"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sandslash"
+      , imageUrl = imageUrl 28 "Sandslash"
       , evolutionData = EvolvesFrom [ 92 ] "Level 22"
       , transformationData = DoesNotTransform
       }
     , { id = 93
       , nationalDexNumber = 27
       , originalPokemonID = Just 92
-      , fullName = nameFromData "Sandshrew" "Alolan" ""
+      , fullName = nameWithForm "Sandshrew" Alolan
       , typing = Double Ice Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Sandshrew" "Alolan"
+      , imageUrl = imageUrlWithForm 27 "Sandshrew" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 95
       , nationalDexNumber = 28
       , originalPokemonID = Just 94
-      , fullName = nameFromData "Sandslash" "Alolan" ""
+      , fullName = nameWithForm "Sandslash" Alolan
       , typing = Double Ice Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Sandslash" "Alolan"
+      , imageUrl = imageUrlWithForm 28 "Sandslash" Alolan
       , evolutionData = EvolvesFrom [ 93 ] "Use Ice Stone"
       , transformationData = DoesNotTransform
       }
@@ -465,7 +508,7 @@ all =
       , fullName = "Nidoran ♀"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nidoran ♀"
+      , imageUrl = imageUrl 29 "Nidoran"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -475,7 +518,7 @@ all =
       , fullName = "Nidorina"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nidorina"
+      , imageUrl = imageUrl 30 "Nidorina"
       , evolutionData = EvolvesFrom [ 33 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -485,7 +528,7 @@ all =
       , fullName = "Nidoqueen"
       , typing = Double Poison Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nidoqueen"
+      , imageUrl = imageUrl 31 "Nidoqueen"
       , evolutionData = EvolvesFrom [ 17 ] "Use Moon Stone"
       , transformationData = DoesNotTransform
       }
@@ -495,7 +538,7 @@ all =
       , fullName = "Nidoran ♂"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nidoran ♂"
+      , imageUrl = imageUrl 32 "Nidoran"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -505,7 +548,7 @@ all =
       , fullName = "Nidorino"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nidorino"
+      , imageUrl = imageUrl 33 "Nidorino"
       , evolutionData = EvolvesFrom [ 48 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -515,7 +558,7 @@ all =
       , fullName = "Nidoking"
       , typing = Double Poison Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nidoking"
+      , imageUrl = imageUrl 34 "Nidoking"
       , evolutionData = EvolvesFrom [ 49 ] "Use Moon Stone"
       , transformationData = DoesNotTransform
       }
@@ -525,7 +568,7 @@ all =
       , fullName = "Cleffa"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cleffa"
+      , imageUrl = imageUrl 173 "Cleffa"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -535,7 +578,7 @@ all =
       , fullName = "Clefairy"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Clefairy"
+      , imageUrl = imageUrl 35 "Clefairy"
       , evolutionData = EvolvesFrom [ 51 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -545,7 +588,7 @@ all =
       , fullName = "Clefable"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Clefable"
+      , imageUrl = imageUrl 36 "Clefable"
       , evolutionData = EvolvesFrom [ 52 ] "Use Moon Stone"
       , transformationData = DoesNotTransform
       }
@@ -555,7 +598,7 @@ all =
       , fullName = "Vulpix"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Vulpix"
+      , imageUrl = imageUrl 37 "Vulpix"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -565,27 +608,27 @@ all =
       , fullName = "Ninetales"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Ninetales"
+      , imageUrl = imageUrl 38 "Ninetales"
       , evolutionData = EvolvesFrom [ 54 ] "Use Fire Stone"
       , transformationData = DoesNotTransform
       }
     , { id = 55
       , nationalDexNumber = 37
       , originalPokemonID = Just 54
-      , fullName = nameFromData "Vulpix" "Alolan" ""
+      , fullName = nameWithForm "Vulpix" Alolan
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Vulpix" "Alolan"
+      , imageUrl = imageUrlWithForm 37 "Vulpix" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 57
       , nationalDexNumber = 38
       , originalPokemonID = Just 56
-      , fullName = nameFromData "Ninetales" "Alolan" ""
+      , fullName = nameWithForm "Ninetales" Alolan
       , typing = Double Ice Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Ninetales" "Alolan"
+      , imageUrl = imageUrlWithForm 38 "Ninetales" Alolan
       , evolutionData = EvolvesFrom [ 55 ] "Use Ice Stone"
       , transformationData = DoesNotTransform
       }
@@ -595,7 +638,7 @@ all =
       , fullName = "Igglybuff"
       , typing = Double Normal Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Igglybuff"
+      , imageUrl = imageUrl 174 "Igglybuff"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -605,7 +648,7 @@ all =
       , fullName = "Jigglypuff"
       , typing = Double Normal Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Jigglypuff"
+      , imageUrl = imageUrl 39 "Jigglypuff"
       , evolutionData = EvolvesFrom [ 58 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -615,7 +658,7 @@ all =
       , fullName = "Wigglytuff"
       , typing = Double Normal Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wigglytuff"
+      , imageUrl = imageUrl 40 "Wigglytuff"
       , evolutionData = EvolvesFrom [ 59 ] "Use Moon Stone"
       , transformationData = DoesNotTransform
       }
@@ -625,7 +668,7 @@ all =
       , fullName = "Zubat"
       , typing = Double Poison Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zubat"
+      , imageUrl = imageUrl 41 "Zubat"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -635,7 +678,7 @@ all =
       , fullName = "Golbat"
       , typing = Double Poison Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Golbat"
+      , imageUrl = imageUrl 42 "Golbat"
       , evolutionData = EvolvesFrom [ 61 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -645,7 +688,7 @@ all =
       , fullName = "Crobat"
       , typing = Double Poison Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Crobat"
+      , imageUrl = imageUrl 169 "Crobat"
       , evolutionData = EvolvesFrom [ 62 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -655,7 +698,7 @@ all =
       , fullName = "Oddish"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Oddish"
+      , imageUrl = imageUrl 43 "Oddish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -665,7 +708,7 @@ all =
       , fullName = "Gloom"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gloom"
+      , imageUrl = imageUrl 44 "Gloom"
       , evolutionData = EvolvesFrom [ 64 ] "Level 21"
       , transformationData = DoesNotTransform
       }
@@ -675,7 +718,7 @@ all =
       , fullName = "Vileplume"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vileplume"
+      , imageUrl = imageUrl 45 "Vileplume"
       , evolutionData = EvolvesFrom [ 65 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
@@ -685,7 +728,7 @@ all =
       , fullName = "Bellossom"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bellossom"
+      , imageUrl = imageUrl 182 "Bellossom"
       , evolutionData = EvolvesFrom [ 65 ] "Use Sun Stone"
       , transformationData = DoesNotTransform
       }
@@ -695,7 +738,7 @@ all =
       , fullName = "Paras"
       , typing = Double Bug Grass
       , ability = Just DrySkin
-      , imageUrl = imageUrlByName "Paras"
+      , imageUrl = imageUrl 46 "Paras"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -705,7 +748,7 @@ all =
       , fullName = "Parasect"
       , typing = Double Bug Grass
       , ability = Just DrySkin
-      , imageUrl = imageUrlByName "Parasect"
+      , imageUrl = imageUrl 47 "Parasect"
       , evolutionData = EvolvesFrom [ 68 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -715,7 +758,7 @@ all =
       , fullName = "Venonat"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Venonat"
+      , imageUrl = imageUrl 48 "Venonat"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -725,7 +768,7 @@ all =
       , fullName = "Venomoth"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Venomoth"
+      , imageUrl = imageUrl 49 "Venomoth"
       , evolutionData = EvolvesFrom [ 70 ] "Level 31"
       , transformationData = DoesNotTransform
       }
@@ -735,7 +778,7 @@ all =
       , fullName = "Diglett"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Diglett"
+      , imageUrl = imageUrl 50 "Diglett"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -745,27 +788,27 @@ all =
       , fullName = "Dugtrio"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dugtrio"
+      , imageUrl = imageUrl 51 "Dugtrio"
       , evolutionData = EvolvesFrom [ 72 ] "Level 26"
       , transformationData = DoesNotTransform
       }
     , { id = 74
       , nationalDexNumber = 50
       , originalPokemonID = Just 72
-      , fullName = nameFromData "Diglett" "Alolan" ""
+      , fullName = nameWithForm "Diglett" Alolan
       , typing = Double Ground Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Diglett" "Alolan"
+      , imageUrl = imageUrlWithForm 50 "Diglett" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 75
       , nationalDexNumber = 51
       , originalPokemonID = Just 73
-      , fullName = nameFromData "Dugtrio" "Alolan" ""
+      , fullName = nameWithForm "Dugtrio" Alolan
       , typing = Double Ground Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Dugtrio" "Alolan"
+      , imageUrl = imageUrlWithForm 51 "Dugtrio" Alolan
       , evolutionData = EvolvesFrom [ 74 ] "Level 26 in Alola"
       , transformationData = DoesNotTransform
       }
@@ -775,7 +818,7 @@ all =
       , fullName = "Meowth"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Meowth"
+      , imageUrl = imageUrl 52 "Meowth"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -785,37 +828,37 @@ all =
       , fullName = "Persian"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Persian"
+      , imageUrl = imageUrl 53 "Persian"
       , evolutionData = EvolvesFrom [ 96 ] "Level 28"
       , transformationData = DoesNotTransform
       }
     , { id = 97
       , nationalDexNumber = 52
       , originalPokemonID = Just 96
-      , fullName = nameFromData "Meowth" "Alolan" ""
+      , fullName = nameWithForm "Meowth" Alolan
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Meowth" "Alolan"
+      , imageUrl = imageUrlWithForm 52 "Meowth" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 101
       , nationalDexNumber = 53
       , originalPokemonID = Just 100
-      , fullName = nameFromData "Persian" "Alolan" ""
+      , fullName = nameWithForm "Persian" Alolan
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Persian" "Alolan"
+      , imageUrl = imageUrlWithForm 53 "Persian" Alolan
       , evolutionData = EvolvesFrom [ 97 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
     , { id = 98
       , nationalDexNumber = 52
       , originalPokemonID = Just 96
-      , fullName = nameFromData "Meowth" "Galarian" ""
+      , fullName = nameWithForm "Meowth" Galarian
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Meowth" "Galarian"
+      , imageUrl = imageUrlWithForm 52 "Meowth" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -825,7 +868,7 @@ all =
       , fullName = "Perrserker"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Perrserker"
+      , imageUrl = imageUrl 863 "Perrserker"
       , evolutionData = EvolvesFrom [ 98 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -835,7 +878,7 @@ all =
       , fullName = "Psyduck"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Psyduck"
+      , imageUrl = imageUrl 54 "Psyduck"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -845,7 +888,7 @@ all =
       , fullName = "Golduck"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Golduck"
+      , imageUrl = imageUrl 55 "Golduck"
       , evolutionData = EvolvesFrom [ 102 ] "Level 33"
       , transformationData = DoesNotTransform
       }
@@ -855,7 +898,7 @@ all =
       , fullName = "Mankey"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mankey"
+      , imageUrl = imageUrl 56 "Mankey"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -865,7 +908,7 @@ all =
       , fullName = "Primeape"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Primeape"
+      , imageUrl = imageUrl 57 "Primeape"
       , evolutionData = EvolvesFrom [ 895 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -875,7 +918,7 @@ all =
       , fullName = "Annihilape"
       , typing = Double Fighting Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "annihilape"
+      , imageUrl = imageUrl 979 "Annihilape"
       , evolutionData = EvolvesFrom [ 924 ] "After using Rage Fist 20 times"
       , transformationData = DoesNotTransform
       }
@@ -885,7 +928,7 @@ all =
       , fullName = "Growlithe"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Growlithe"
+      , imageUrl = imageUrl 58 "Growlithe"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -895,27 +938,27 @@ all =
       , fullName = "Arcanine"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Arcanine"
+      , imageUrl = imageUrl 59 "Arcanine"
       , evolutionData = EvolvesFrom [ 949 ] "Use Fire Stone"
       , transformationData = DoesNotTransform
       }
     , { id = 1619
       , nationalDexNumber = 58
       , originalPokemonID = Just 949
-      , fullName = nameFromData "Growlithe" "Hisuian" ""
+      , fullName = nameWithForm "Growlithe" Hisuian
       , typing = Double Fire Rock
       , ability = Just FlashFire
-      , imageUrl = imgUrlForAlternateForm "Growlithe" "Hisuian"
+      , imageUrl = imageUrlWithForm 58 "Growlithe" Hisuian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1620
       , nationalDexNumber = 59
       , originalPokemonID = Just 960
-      , fullName = nameFromData "Arcanine" "Hisuian" ""
+      , fullName = nameWithForm "Arcanine" Hisuian
       , typing = Double Fire Rock
       , ability = Just FlashFire
-      , imageUrl = imgUrlForAlternateForm "Arcanine" "Hisuian"
+      , imageUrl = imageUrlWithForm 59 "Arcanine" Hisuian
       , evolutionData = EvolvesFrom [ 1619 ] "Use Fire Stone"
       , transformationData = DoesNotTransform
       }
@@ -925,7 +968,7 @@ all =
       , fullName = "Poliwag"
       , typing = Single Water
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Poliwag"
+      , imageUrl = imageUrl 60 "Poliwag"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -935,7 +978,7 @@ all =
       , fullName = "Poliwhirl"
       , typing = Single Water
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Poliwhirl"
+      , imageUrl = imageUrl 61 "Poliwhirl"
       , evolutionData = EvolvesFrom [ 971 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -945,7 +988,7 @@ all =
       , fullName = "Poliwrath"
       , typing = Double Water Fighting
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Poliwrath"
+      , imageUrl = imageUrl 62 "Poliwrath"
       , evolutionData = EvolvesFrom [ 982 ] "Use Water Stone"
       , transformationData = DoesNotTransform
       }
@@ -955,7 +998,7 @@ all =
       , fullName = "Politoed"
       , typing = Single Water
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Politoed"
+      , imageUrl = imageUrl 186 "Politoed"
       , evolutionData = EvolvesFrom [ 982 ] "Trade holding King's Rock"
       , transformationData = DoesNotTransform
       }
@@ -965,7 +1008,7 @@ all =
       , fullName = "Abra"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Abra"
+      , imageUrl = imageUrl 63 "Abra"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -975,7 +1018,7 @@ all =
       , fullName = "Kadabra"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kadabra"
+      , imageUrl = imageUrl 64 "Kadabra"
       , evolutionData = EvolvesFrom [ 1004 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -985,17 +1028,17 @@ all =
       , fullName = "Alakazam"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Alakazam"
+      , imageUrl = imageUrl 65 "Alakazam"
       , evolutionData = EvolvesFrom [ 1015 ] "Trade"
       , transformationData = DoesNotTransform
       }
     , { id = 1360
       , nationalDexNumber = 65
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Alakazam" "Mega" ""
+      , fullName = nameWithForm "Alakazam" Mega
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Alakazam" "Mega"
+      , imageUrl = imageUrlWithForm 65 "Alakazam" Mega
       , evolutionData = EvolvesFrom [ 1026 ] "Holding Alakazite"
       , transformationData = DoesNotTransform
       }
@@ -1005,7 +1048,7 @@ all =
       , fullName = "Machop"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Machop"
+      , imageUrl = imageUrl 66 "Machop"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1015,7 +1058,7 @@ all =
       , fullName = "Machoke"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Machoke"
+      , imageUrl = imageUrl 67 "Machoke"
       , evolutionData = EvolvesFrom [ 1076 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -1025,7 +1068,7 @@ all =
       , fullName = "Machamp"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Machamp"
+      , imageUrl = imageUrl 68 "Machamp"
       , evolutionData = EvolvesFrom [ 1087 ] "Trade"
       , transformationData = DoesNotTransform
       }
@@ -1035,7 +1078,7 @@ all =
       , fullName = "Bellsprout"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bellsprout"
+      , imageUrl = imageUrl 69 "Bellsprout"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1045,7 +1088,7 @@ all =
       , fullName = "Weepinbell"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Weepinbell"
+      , imageUrl = imageUrl 70 "Weepinbell"
       , evolutionData = EvolvesFrom [ 1109 ] "Level 21"
       , transformationData = DoesNotTransform
       }
@@ -1055,7 +1098,7 @@ all =
       , fullName = "Victreebel"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Victreebel"
+      , imageUrl = imageUrl 71 "Victreebel"
       , evolutionData = EvolvesFrom [ 1128 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
@@ -1065,7 +1108,7 @@ all =
       , fullName = "Tentacool"
       , typing = Double Water Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tentacool"
+      , imageUrl = imageUrl 72 "Tentacool"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1075,7 +1118,7 @@ all =
       , fullName = "Tentacruel"
       , typing = Double Water Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tentacruel"
+      , imageUrl = imageUrl 73 "Tentacruel"
       , evolutionData = EvolvesFrom [ 1150 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -1085,7 +1128,7 @@ all =
       , fullName = "Geodude"
       , typing = Double Rock Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Geodude"
+      , imageUrl = imageUrl 74 "Geodude"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1095,7 +1138,7 @@ all =
       , fullName = "Graveler"
       , typing = Double Rock Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Graveler"
+      , imageUrl = imageUrl 75 "Graveler"
       , evolutionData = EvolvesFrom [ 1265 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -1105,37 +1148,37 @@ all =
       , fullName = "Golem"
       , typing = Double Rock Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Golem"
+      , imageUrl = imageUrl 76 "Golem"
       , evolutionData = EvolvesFrom [ 1276 ] "Trade"
       , transformationData = DoesNotTransform
       }
     , { id = 1361
       , nationalDexNumber = 74
       , originalPokemonID = Just 1265
-      , fullName = nameFromData "Geodude" "Alolan" ""
+      , fullName = nameWithForm "Geodude" Alolan
       , typing = Double Rock Electric
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Geodude" "Alolan"
+      , imageUrl = imageUrlWithForm 74 "Geodude" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1362
       , nationalDexNumber = 75
       , originalPokemonID = Just 1276
-      , fullName = nameFromData "Graveler" "Alolan" ""
+      , fullName = nameWithForm "Graveler" Alolan
       , typing = Double Rock Electric
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Graveler" "Alolan"
+      , imageUrl = imageUrlWithForm 75 "Graveler" Alolan
       , evolutionData = EvolvesFrom [ 1361 ] "Level 25"
       , transformationData = DoesNotTransform
       }
     , { id = 1363
       , nationalDexNumber = 76
       , originalPokemonID = Just 1287
-      , fullName = nameFromData "Golem" "Alolan" ""
+      , fullName = nameWithForm "Golem" Alolan
       , typing = Double Rock Electric
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Golem" "Alolan"
+      , imageUrl = imageUrlWithForm 76 "Golem" Alolan
       , evolutionData = EvolvesFrom [ 1362 ] "Trade"
       , transformationData = DoesNotTransform
       }
@@ -1145,7 +1188,7 @@ all =
       , fullName = "Ponyta"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Ponyta"
+      , imageUrl = imageUrl 77 "Ponyta"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1155,27 +1198,27 @@ all =
       , fullName = "Rapidash"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Rapidash"
+      , imageUrl = imageUrl 78 "Rapidash"
       , evolutionData = EvolvesFrom [ 1297 ] "Level 40"
       , transformationData = DoesNotTransform
       }
     , { id = 1364
       , nationalDexNumber = 77
       , originalPokemonID = Just 1297
-      , fullName = nameFromData "Ponyta" "Galarian" ""
+      , fullName = nameWithForm "Ponyta" Galarian
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Ponyta" "Galarian"
+      , imageUrl = imageUrlWithForm 77 "Ponyta" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1365
       , nationalDexNumber = 78
       , originalPokemonID = Just 1308
-      , fullName = nameFromData "Rapidash" "Galarian" ""
+      , fullName = nameWithForm "Rapidash" Galarian
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Rapidash" "Galarian"
+      , imageUrl = imageUrlWithForm 78 "Rapidash" Galarian
       , evolutionData = EvolvesFrom [ 1364 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -1185,7 +1228,7 @@ all =
       , fullName = "Slowpoke"
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slowpoke"
+      , imageUrl = imageUrl 79 "Slowpoke"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1195,17 +1238,17 @@ all =
       , fullName = "Slowbro"
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slowbro"
+      , imageUrl = imageUrl 80 "Slowbro"
       , evolutionData = EvolvesFrom [ 1319 ] "Level 37"
       , transformationData = DoesNotTransform
       }
     , { id = 1367
       , nationalDexNumber = 80
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Slowbro" "Mega" ""
+      , fullName = nameWithForm "Slowbro" Mega
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Slowbro" "Mega"
+      , imageUrl = imageUrlWithForm 80 "Slowbro" Mega
       , evolutionData = EvolvesFrom [ 1330 ] "Holding Slowbronite"
       , transformationData = DoesNotTransform
       }
@@ -1215,37 +1258,37 @@ all =
       , fullName = "Slowking"
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slowking"
+      , imageUrl = imageUrl 199 "Slowking"
       , evolutionData = EvolvesFrom [ 1319 ] "Trade holding King's Rock"
       , transformationData = DoesNotTransform
       }
     , { id = 1366
       , nationalDexNumber = 79
       , originalPokemonID = Just 1319
-      , fullName = nameFromData "Slowpoke" "Galarian" ""
+      , fullName = nameWithForm "Slowpoke" Galarian
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Slowpoke" "Galarian"
+      , imageUrl = imageUrlWithForm 79 "Slowpoke" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1368
       , nationalDexNumber = 80
       , originalPokemonID = Just 1330
-      , fullName = nameFromData "Slowbro" "Galarian" ""
+      , fullName = nameWithForm "Slowbro" Galarian
       , typing = Double Poison Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Slowbro" "Galarian"
+      , imageUrl = imageUrlWithForm 80 "Slowbro" Galarian
       , evolutionData = EvolvesFrom [ 1366 ] "Use Galarica Cuff"
       , transformationData = DoesNotTransform
       }
     , { id = 1388
       , nationalDexNumber = 199
       , originalPokemonID = Just 299
-      , fullName = nameFromData "Slowking" "Galarian" ""
+      , fullName = nameWithForm "Slowking" Galarian
       , typing = Double Poison Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Slowking" "Galarian"
+      , imageUrl = imageUrlWithForm 199 "Slowking" Galarian
       , evolutionData = EvolvesFrom [ 1366 ] "Use Galarica Wreath"
       , transformationData = DoesNotTransform
       }
@@ -1255,7 +1298,7 @@ all =
       , fullName = "Magnemite"
       , typing = Double Electric Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magnemite"
+      , imageUrl = imageUrl 81 "Magnemite"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1265,7 +1308,7 @@ all =
       , fullName = "Magneton"
       , typing = Double Electric Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magneton"
+      , imageUrl = imageUrl 82 "Magneton"
       , evolutionData = EvolvesFrom [ 46 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -1275,7 +1318,7 @@ all =
       , fullName = "Magnezone"
       , typing = Double Electric Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magnezone"
+      , imageUrl = imageUrl 462 "Magnezone"
       , evolutionData = EvolvesFrom [ 1341 ] "Use Thunder Stone"
       , transformationData = DoesNotTransform
       }
@@ -1285,17 +1328,17 @@ all =
       , fullName = "Farfetch'd"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Farfetch'd"
+      , imageUrl = imageUrl 83 "Farfetch'd"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1369
       , nationalDexNumber = 83
       , originalPokemonID = Just 1342
-      , fullName = nameFromData "Farfetch'd" "Galarian" ""
+      , fullName = nameWithForm "Farfetch'd" Galarian
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Farfetch'd" "Galarian"
+      , imageUrl = imageUrlWithForm 83 "Farfetch'd" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1305,7 +1348,7 @@ all =
       , fullName = "Sirfetch'd"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sirfetch'd"
+      , imageUrl = imageUrl 865 "Sirfetch'd"
       , evolutionData = EvolvesFrom [ 1369 ] "Land three Critical Hits in one battle"
       , transformationData = DoesNotTransform
       }
@@ -1315,7 +1358,7 @@ all =
       , fullName = "Doduo"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Doduo"
+      , imageUrl = imageUrl 84 "Doduo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1325,7 +1368,7 @@ all =
       , fullName = "Dodrio"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dodrio"
+      , imageUrl = imageUrl 85 "Dodrio"
       , evolutionData = EvolvesFrom [ 1343 ] "Level 31"
       , transformationData = DoesNotTransform
       }
@@ -1335,7 +1378,7 @@ all =
       , fullName = "Seel"
       , typing = Single Water
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Seel"
+      , imageUrl = imageUrl 86 "Seel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1345,7 +1388,7 @@ all =
       , fullName = "Dewgong"
       , typing = Double Water Ice
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Dewgong"
+      , imageUrl = imageUrl 87 "Dewgong"
       , evolutionData = EvolvesFrom [ 1345 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -1355,7 +1398,7 @@ all =
       , fullName = "Grimer"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grimer"
+      , imageUrl = imageUrl 88 "Grimer"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1365,27 +1408,27 @@ all =
       , fullName = "Muk"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Muk"
+      , imageUrl = imageUrl 89 "Muk"
       , evolutionData = EvolvesFrom [ 1347 ] "Level 38"
       , transformationData = DoesNotTransform
       }
     , { id = 1372
       , nationalDexNumber = 88
       , originalPokemonID = Just 1347
-      , fullName = nameFromData "Grimer" "Alolan" ""
+      , fullName = nameWithForm "Grimer" Alolan
       , typing = Double Poison Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Grimer" "Alolan"
+      , imageUrl = imageUrlWithForm 88 "Grimer" Alolan
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1373
       , nationalDexNumber = 89
       , originalPokemonID = Just 1348
-      , fullName = nameFromData "Muk" "Alolan" ""
+      , fullName = nameWithForm "Muk" Alolan
       , typing = Double Poison Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Muk" "Alolan"
+      , imageUrl = imageUrlWithForm 89 "Muk" Alolan
       , evolutionData = EvolvesFrom [ 1372 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -1395,7 +1438,7 @@ all =
       , fullName = "Shellder"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shellder"
+      , imageUrl = imageUrl 90 "Shellder"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1405,7 +1448,7 @@ all =
       , fullName = "Cloyster"
       , typing = Double Water Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cloyster"
+      , imageUrl = imageUrl 91 "Cloyster"
       , evolutionData = EvolvesFrom [ 1349 ] "Use Water Stone"
       , transformationData = DoesNotTransform
       }
@@ -1415,7 +1458,7 @@ all =
       , fullName = "Gastly"
       , typing = Double Ghost Poison
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Gastly"
+      , imageUrl = imageUrl 92 "Gastly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1425,7 +1468,7 @@ all =
       , fullName = "Haunter"
       , typing = Double Ghost Poison
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Haunter"
+      , imageUrl = imageUrl 93 "Haunter"
       , evolutionData = EvolvesFrom [ 1351 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -1435,17 +1478,17 @@ all =
       , fullName = "Gengar"
       , typing = Double Ghost Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gengar"
+      , imageUrl = imageUrl 94 "Gengar"
       , evolutionData = EvolvesFrom [ 1352 ] "Trade"
       , transformationData = DoesNotTransform
       }
     , { id = 1371
       , nationalDexNumber = 94
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Gengar" "Mega" ""
+      , fullName = nameWithForm "Gengar" Mega
       , typing = Double Ghost Poison
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gengar" "Mega"
+      , imageUrl = imageUrlWithForm 94 "Gengar" Mega
       , evolutionData = EvolvesFrom [ 1353 ] "Holding Gengarite"
       , transformationData = DoesNotTransform
       }
@@ -1455,7 +1498,7 @@ all =
       , fullName = "Onix"
       , typing = Double Rock Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Onix"
+      , imageUrl = imageUrl 95 "Onix"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1465,17 +1508,17 @@ all =
       , fullName = "Steelix"
       , typing = Double Steel Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Steelix"
+      , imageUrl = imageUrl 208 "Steelix"
       , evolutionData = EvolvesFrom [ 1354 ] "Trade holding Metal Coat"
       , transformationData = DoesNotTransform
       }
     , { id = 1383
       , nationalDexNumber = 208
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Steelix" "Mega" ""
+      , fullName = nameWithForm "Steelix" Mega
       , typing = Double Steel Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Steelix" "Mega"
+      , imageUrl = imageUrlWithForm 208 "Steelix" Mega
       , evolutionData = EvolvesFrom [ 332 ] "Holding Steelixite"
       , transformationData = DoesNotTransform
       }
@@ -1485,7 +1528,7 @@ all =
       , fullName = "Drowzee"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drowzee"
+      , imageUrl = imageUrl 96 "Drowzee"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1495,7 +1538,7 @@ all =
       , fullName = "Hypno"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hypno"
+      , imageUrl = imageUrl 97 "Hypno"
       , evolutionData = EvolvesFrom [ 1355 ] "Level 26"
       , transformationData = DoesNotTransform
       }
@@ -1505,7 +1548,7 @@ all =
       , fullName = "Krabby"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Krabby"
+      , imageUrl = imageUrl 98 "Krabby"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1515,7 +1558,7 @@ all =
       , fullName = "Kingler"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kingler"
+      , imageUrl = imageUrl 99 "Kingler"
       , evolutionData = EvolvesFrom [ 1357 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -1525,7 +1568,7 @@ all =
       , fullName = "Voltorb"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Voltorb"
+      , imageUrl = imageUrl 100 "Voltorb"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1535,27 +1578,27 @@ all =
       , fullName = "Electrode"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Electrode"
+      , imageUrl = imageUrl 101 "Electrode"
       , evolutionData = EvolvesFrom [ 47 ] "Level 30"
       , transformationData = DoesNotTransform
       }
     , { id = 1621
       , nationalDexNumber = 100
       , originalPokemonID = Just 47
-      , fullName = nameFromData "Voltorb" "Hisuian" ""
+      , fullName = nameWithForm "Voltorb" Hisuian
       , typing = Double Electric Grass
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Voltorb" "Hisuian"
+      , imageUrl = imageUrlWithForm 100 "Voltorb" Hisuian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1622
       , nationalDexNumber = 101
       , originalPokemonID = Just 105
-      , fullName = nameFromData "Electrode" "Hisuian" ""
+      , fullName = nameWithForm "Electrode" Hisuian
       , typing = Double Electric Grass
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Electrode" "Hisuian"
+      , imageUrl = imageUrlWithForm 101 "Electrode" Hisuian
       , evolutionData = EvolvesFrom [ 1621 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
@@ -1565,7 +1608,7 @@ all =
       , fullName = "Exeggcute"
       , typing = Double Grass Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Exeggcute"
+      , imageUrl = imageUrl 102 "Exeggcute"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1575,17 +1618,17 @@ all =
       , fullName = "Exeggutor"
       , typing = Double Grass Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Exeggutor"
+      , imageUrl = imageUrl 103 "Exeggutor"
       , evolutionData = EvolvesFrom [ 136 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
     , { id = 1359
       , nationalDexNumber = 103
       , originalPokemonID = Just 137
-      , fullName = nameFromData "Exeggutor" "Alolan" ""
+      , fullName = nameWithForm "Exeggutor" Alolan
       , typing = Double Grass Dragon
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Exeggutor" "Alolan"
+      , imageUrl = imageUrlWithForm 103 "Exeggutor" Alolan
       , evolutionData = EvolvesFrom [ 136 ] "Use Leaf Stone in Alola"
       , transformationData = DoesNotTransform
       }
@@ -1595,7 +1638,7 @@ all =
       , fullName = "Cubone"
       , typing = Single Ground
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Cubone"
+      , imageUrl = imageUrl 104 "Cubone"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1605,17 +1648,17 @@ all =
       , fullName = "Marowak"
       , typing = Single Ground
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Marowak"
+      , imageUrl = imageUrl 105 "Marowak"
       , evolutionData = EvolvesFrom [ 138 ] "Level 28"
       , transformationData = DoesNotTransform
       }
     , { id = 1374
       , nationalDexNumber = 105
       , originalPokemonID = Just 139
-      , fullName = nameFromData "Marowak" "Alolan" ""
+      , fullName = nameWithForm "Marowak" Alolan
       , typing = Double Ghost Fire
       , ability = Just LightningRod
-      , imageUrl = imgUrlForAlternateForm "Marowak" "Alolan"
+      , imageUrl = imageUrlWithForm 105 "Marowak" Alolan
       , evolutionData = EvolvesFrom [ 138 ] "Level 28 at night"
       , transformationData = DoesNotTransform
       }
@@ -1625,7 +1668,7 @@ all =
       , fullName = "Tyrogue"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tyrogue"
+      , imageUrl = imageUrl 236 "Tyrogue"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1635,7 +1678,7 @@ all =
       , fullName = "Hitmonlee"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hitmonlee"
+      , imageUrl = imageUrl 106 "Hitmonlee"
       , evolutionData = EvolvesFrom [ 360 ] "Level 20 With Attack > Defense"
       , transformationData = DoesNotTransform
       }
@@ -1645,7 +1688,7 @@ all =
       , fullName = "Hitmonchan"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hitmonchan"
+      , imageUrl = imageUrl 107 "Hitmonchan"
       , evolutionData = EvolvesFrom [ 360 ] "Level 20 With Attack < Defense"
       , transformationData = DoesNotTransform
       }
@@ -1655,7 +1698,7 @@ all =
       , fullName = "Hitmontop"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hitmontop"
+      , imageUrl = imageUrl 237 "Hitmontop"
       , evolutionData = EvolvesFrom [ 360 ] "Level 20 With Attack = Defense"
       , transformationData = DoesNotTransform
       }
@@ -1665,7 +1708,7 @@ all =
       , fullName = "Lickitung"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lickitung"
+      , imageUrl = imageUrl 108 "Lickitung"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1675,7 +1718,7 @@ all =
       , fullName = "Lickilicky"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lickilicky"
+      , imageUrl = imageUrl 463 "Lickilicky"
       , evolutionData = EvolvesFrom [ 142 ] "Level while knowing Rollout"
       , transformationData = DoesNotTransform
       }
@@ -1685,7 +1728,7 @@ all =
       , fullName = "Koffing"
       , typing = Single Poison
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Koffing"
+      , imageUrl = imageUrl 109 "Koffing"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1695,17 +1738,17 @@ all =
       , fullName = "Weezing"
       , typing = Single Poison
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Weezing"
+      , imageUrl = imageUrl 110 "Weezing"
       , evolutionData = EvolvesFrom [ 143 ] "Level 35"
       , transformationData = DoesNotTransform
       }
     , { id = 1375
       , nationalDexNumber = 110
       , originalPokemonID = Just 144
-      , fullName = nameFromData "Weezing" "Galarian" ""
+      , fullName = nameWithForm "Weezing" Galarian
       , typing = Double Poison Fairy
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Weezing" "Galarian"
+      , imageUrl = imageUrlWithForm 110 "Weezing" Galarian
       , evolutionData = EvolvesFrom [ 143 ] "Level 35 In Galar"
       , transformationData = DoesNotTransform
       }
@@ -1715,7 +1758,7 @@ all =
       , fullName = "Rhyhorn"
       , typing = Double Ground Rock
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Rhyhorn"
+      , imageUrl = imageUrl 111 "Rhyhorn"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1725,7 +1768,7 @@ all =
       , fullName = "Rhydon"
       , typing = Double Ground Rock
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Rhydon"
+      , imageUrl = imageUrl 112 "Rhydon"
       , evolutionData = EvolvesFrom [ 145 ] "Level 42"
       , transformationData = DoesNotTransform
       }
@@ -1735,7 +1778,7 @@ all =
       , fullName = "Rhyperior"
       , typing = Double Ground Rock
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Rhyperior"
+      , imageUrl = imageUrl 464 "Rhyperior"
       , evolutionData = EvolvesFrom [ 146 ] "Trade holding Protector"
       , transformationData = DoesNotTransform
       }
@@ -1745,7 +1788,7 @@ all =
       , fullName = "Happiny"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Happiny"
+      , imageUrl = imageUrl 440 "Happiny"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1755,7 +1798,7 @@ all =
       , fullName = "Chansey"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chansey"
+      , imageUrl = imageUrl 113 "Chansey"
       , evolutionData = EvolvesFrom [ 638 ] "Level while holding an Oval Stone during the day"
       , transformationData = DoesNotTransform
       }
@@ -1765,7 +1808,7 @@ all =
       , fullName = "Blissey"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Blissey"
+      , imageUrl = imageUrl 242 "Blissey"
       , evolutionData = EvolvesFrom [ 147 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -1775,7 +1818,7 @@ all =
       , fullName = "Tangela"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tangela"
+      , imageUrl = imageUrl 114 "Tangela"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1785,7 +1828,7 @@ all =
       , fullName = "Tangrowth"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tangrowth"
+      , imageUrl = imageUrl 465 "Tangrowth"
       , evolutionData = EvolvesFrom [ 148 ] "Level while knowing Ancient Power"
       , transformationData = DoesNotTransform
       }
@@ -1795,17 +1838,17 @@ all =
       , fullName = "Kangaskhan"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kangaskhan"
+      , imageUrl = imageUrl 115 "Kangaskhan"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1379
       , nationalDexNumber = 115
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Kangaskhan" "Mega" ""
+      , fullName = nameWithForm "Kangaskhan" Mega
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Kangaskhan" "Mega"
+      , imageUrl = imageUrlWithForm 115 "Kangaskhan" Mega
       , evolutionData = EvolvesFrom [ 211 ] "Holding Kangaskhanite"
       , transformationData = DoesNotTransform
       }
@@ -1815,7 +1858,7 @@ all =
       , fullName = "Horsea"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Horsea"
+      , imageUrl = imageUrl 116 "Horsea"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1825,7 +1868,7 @@ all =
       , fullName = "Seadra"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Seadra"
+      , imageUrl = imageUrl 117 "Seadra"
       , evolutionData = EvolvesFrom [ 212 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -1835,7 +1878,7 @@ all =
       , fullName = "Kingdra"
       , typing = Double Water Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kingdra"
+      , imageUrl = imageUrl 230 "Kingdra"
       , evolutionData = EvolvesFrom [ 213 ] "Trade holding Dragon Scale"
       , transformationData = DoesNotTransform
       }
@@ -1845,7 +1888,7 @@ all =
       , fullName = "Goldeen"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Goldeen"
+      , imageUrl = imageUrl 118 "Goldeen"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1855,7 +1898,7 @@ all =
       , fullName = "Seaking"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Seaking"
+      , imageUrl = imageUrl 119 "Seaking"
       , evolutionData = EvolvesFrom [ 214 ] "Level 33"
       , transformationData = DoesNotTransform
       }
@@ -1865,7 +1908,7 @@ all =
       , fullName = "Staryu"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Staryu"
+      , imageUrl = imageUrl 120 "Staryu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1875,7 +1918,7 @@ all =
       , fullName = "Starmie"
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Starmie"
+      , imageUrl = imageUrl 121 "Starmie"
       , evolutionData = EvolvesFrom [ 216 ] "Use Water Stone"
       , transformationData = DoesNotTransform
       }
@@ -1885,7 +1928,7 @@ all =
       , fullName = "Mime Jr."
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mime Jr."
+      , imageUrl = imageUrl 439 "Mime Jr"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1895,17 +1938,17 @@ all =
       , fullName = "Mr. Mime"
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mr. Mime"
+      , imageUrl = imageUrl 122 "Mr. Mime"
       , evolutionData = EvolvesFrom [ 637 ] "Level while knowing Mimic"
       , transformationData = DoesNotTransform
       }
     , { id = 1377
       , nationalDexNumber = 122
       , originalPokemonID = Just 218
-      , fullName = nameFromData "Mr. Mime" "Galarian" ""
+      , fullName = nameWithForm "Mr. Mime" Galarian
       , typing = Double Ice Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Mr. Mime" "Galarian"
+      , imageUrl = imageUrlWithForm 122 "Mr. Mime" Galarian
       , evolutionData = EvolvesFrom [ 637 ] "Level while knowing Mimic in Galar"
       , transformationData = DoesNotTransform
       }
@@ -1915,7 +1958,7 @@ all =
       , fullName = "Mr. Rime"
       , typing = Double Ice Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mr. Rime"
+      , imageUrl = imageUrl 866 "Mr. Rime"
       , evolutionData = EvolvesFrom [ 1377 ] "Level 42"
       , transformationData = DoesNotTransform
       }
@@ -1925,7 +1968,7 @@ all =
       , fullName = "Scyther"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scyther"
+      , imageUrl = imageUrl 123 "Scyther"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1935,17 +1978,17 @@ all =
       , fullName = "Scizor"
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scizor"
+      , imageUrl = imageUrl 212 "Scizor"
       , evolutionData = EvolvesFrom [ 219 ] "Trade holding Metal Coat"
       , transformationData = DoesNotTransform
       }
     , { id = 1384
       , nationalDexNumber = 212
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Scizor" "Mega" ""
+      , fullName = nameWithForm "Scizor" Mega
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Scizor" "Mega"
+      , imageUrl = imageUrlWithForm 212 "Scizor" Mega
       , evolutionData = EvolvesFrom [ 336 ] "Holding Scizorite"
       , transformationData = DoesNotTransform
       }
@@ -1955,7 +1998,7 @@ all =
       , fullName = "Kleavor"
       , typing = Double Bug Rock
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "kleavor"
+      , imageUrl = imageUrl 900 "Kleavor"
       , evolutionData = EvolvesFrom [ 219 ] "Use Black Augurite"
       , transformationData = DoesNotTransform
       }
@@ -1965,7 +2008,7 @@ all =
       , fullName = "Smoochum"
       , typing = Double Ice Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Smoochum"
+      , imageUrl = imageUrl 238 "Smoochum"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1975,7 +2018,7 @@ all =
       , fullName = "Jynx"
       , typing = Double Ice Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Jynx"
+      , imageUrl = imageUrl 124 "Jynx"
       , evolutionData = EvolvesFrom [ 362 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -1985,7 +2028,7 @@ all =
       , fullName = "Elekid"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Elekid"
+      , imageUrl = imageUrl 239 "Elekid"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -1995,7 +2038,7 @@ all =
       , fullName = "Electabuzz"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Electabuzz"
+      , imageUrl = imageUrl 125 "Electabuzz"
       , evolutionData = EvolvesFrom [ 363 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -2005,7 +2048,7 @@ all =
       , fullName = "Electivire"
       , typing = Single Electric
       , ability = Just MotorDrive
-      , imageUrl = imageUrlByName "Electivire"
+      , imageUrl = imageUrl 466 "Electivire"
       , evolutionData = EvolvesFrom [ 221 ] "Trade holding Electirizer"
       , transformationData = DoesNotTransform
       }
@@ -2015,7 +2058,7 @@ all =
       , fullName = "Magby"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magby"
+      , imageUrl = imageUrl 240 "Magby"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2025,7 +2068,7 @@ all =
       , fullName = "Magmar"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magmar"
+      , imageUrl = imageUrl 126 "Magmar"
       , evolutionData = EvolvesFrom [ 364 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -2035,7 +2078,7 @@ all =
       , fullName = "Magmortar"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magmortar"
+      , imageUrl = imageUrl 467 "Magmortar"
       , evolutionData = EvolvesFrom [ 222 ] "Trade holding Magmarizer"
       , transformationData = DoesNotTransform
       }
@@ -2045,17 +2088,17 @@ all =
       , fullName = "Pinsir"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pinsir"
+      , imageUrl = imageUrl 127 "Pinsir"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1380
       , nationalDexNumber = 127
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Pinsir" "Mega" ""
+      , fullName = nameWithForm "Pinsir" Mega
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Pinsir" "Mega"
+      , imageUrl = imageUrlWithForm 127 "Pinsir" Mega
       , evolutionData = EvolvesFrom [ 223 ] "Holding Pinsirite"
       , transformationData = DoesNotTransform
       }
@@ -2065,37 +2108,37 @@ all =
       , fullName = "Tauros"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tauros"
+      , imageUrl = imageUrl 128 "Tauros"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1678
       , nationalDexNumber = 128
       , originalPokemonID = Just 224
-      , fullName = nameFromData "Tauros" "Paldean" ""
+      , fullName = nameWithForm "Tauros" Paldean
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tauros-paldean"
+      , imageUrl = imageUrlWithForm 128 "Tauros" Paldean
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1679
       , nationalDexNumber = 128
       , originalPokemonID = Just 224
-      , fullName = nameFromData "Tauros" "Paldean Aqua Breed" "Paldean Tauros (Aqua Breed)"
+      , fullName = nameWithForm "Tauros" <| Unique "Paldean" "Aqua Breed"
       , typing = Double Fighting Fire
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tauros-paldean-water"
+      , imageUrl = imageUrlWithForm 128 "Tauros" <| Unique "" "Paldea_Aqua"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1680
       , nationalDexNumber = 128
       , originalPokemonID = Just 224
-      , fullName = nameFromData "Tauros" "Paldean Blaze Breed" "Paldean Tauros (Blaze Breed)"
+      , fullName = nameWithForm "Tauros" <| Unique "Paldean" "Blaze Breed"
       , typing = Double Fighting Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tauros-paldean-fire"
+      , imageUrl = imageUrlWithForm 128 "Tauros" <| Unique "" "Paldea_Blaze"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2105,7 +2148,7 @@ all =
       , fullName = "Magikarp"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magikarp"
+      , imageUrl = imageUrl 129 "Magikarp"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2115,17 +2158,17 @@ all =
       , fullName = "Gyarados"
       , typing = Double Water Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gyarados"
+      , imageUrl = imageUrl 130 "Gyarados"
       , evolutionData = EvolvesFrom [ 225 ] "Level 20"
       , transformationData = DoesNotTransform
       }
     , { id = 1381
       , nationalDexNumber = 130
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Gyarados" "Mega" ""
+      , fullName = nameWithForm "Gyarados" Mega
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gyarados" "Mega"
+      , imageUrl = imageUrlWithForm 130 "Gyarados" Mega
       , evolutionData = EvolvesFrom [ 226 ] "Holding Gyaradosite"
       , transformationData = DoesNotTransform
       }
@@ -2135,7 +2178,7 @@ all =
       , fullName = "Lapras"
       , typing = Double Water Ice
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Lapras"
+      , imageUrl = imageUrl 131 "Lapras"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2145,7 +2188,7 @@ all =
       , fullName = "Ditto"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ditto"
+      , imageUrl = imageUrl 132 "Ditto"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2155,7 +2198,7 @@ all =
       , fullName = "Eevee"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Eevee"
+      , imageUrl = imageUrl 133 "Eevee"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2165,7 +2208,7 @@ all =
       , fullName = "Vaporeon"
       , typing = Single Water
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Vaporeon"
+      , imageUrl = imageUrl 134 "Vaporeon"
       , evolutionData = EvolvesFrom [ 228 ] "Use Water Stone"
       , transformationData = DoesNotTransform
       }
@@ -2175,7 +2218,7 @@ all =
       , fullName = "Jolteon"
       , typing = Single Electric
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Jolteon"
+      , imageUrl = imageUrl 135 "Jolteon"
       , evolutionData = EvolvesFrom [ 228 ] "Use Thunder Stone"
       , transformationData = DoesNotTransform
       }
@@ -2185,7 +2228,7 @@ all =
       , fullName = "Flareon"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Flareon"
+      , imageUrl = imageUrl 136 "Flareon"
       , evolutionData = EvolvesFrom [ 228 ] "Use Fire Stone"
       , transformationData = DoesNotTransform
       }
@@ -2195,7 +2238,7 @@ all =
       , fullName = "Espeon"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Espeon"
+      , imageUrl = imageUrl 196 "Espeon"
       , evolutionData = EvolvesFrom [ 228 ] "Level during the day with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -2205,7 +2248,7 @@ all =
       , fullName = "Umbreon"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Umbreon"
+      , imageUrl = imageUrl 197 "Umbreon"
       , evolutionData = EvolvesFrom [ 228 ] "Level during the night with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -2215,7 +2258,7 @@ all =
       , fullName = "Leafeon"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Leafeon"
+      , imageUrl = imageUrl 470 "Leafeon"
       , evolutionData = EvolvesFrom [ 228 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
@@ -2225,7 +2268,7 @@ all =
       , fullName = "Glaceon"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Glaceon"
+      , imageUrl = imageUrl 471 "Glaceon"
       , evolutionData = EvolvesFrom [ 228 ] "Use Ice Stone"
       , transformationData = DoesNotTransform
       }
@@ -2235,7 +2278,7 @@ all =
       , fullName = "Sylveon"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sylveon"
+      , imageUrl = imageUrl 700 "Sylveon"
       , evolutionData = EvolvesFrom [ 228 ] "Level while knowing a Fairy move with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -2245,7 +2288,7 @@ all =
       , fullName = "Porygon"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Porygon"
+      , imageUrl = imageUrl 137 "Porygon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2255,7 +2298,7 @@ all =
       , fullName = "Porygon2"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Porygon2"
+      , imageUrl = imageUrl 233 "Porygon2"
       , evolutionData = EvolvesFrom [ 232 ] "Trade holding Upgrade"
       , transformationData = DoesNotTransform
       }
@@ -2265,7 +2308,7 @@ all =
       , fullName = "Porygon-Z"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Porygon-Z"
+      , imageUrl = imageUrl 474 "Porygon-Z"
       , evolutionData = EvolvesFrom [ 357 ] "Trade holding Dubious Disc"
       , transformationData = DoesNotTransform
       }
@@ -2275,7 +2318,7 @@ all =
       , fullName = "Omanyte"
       , typing = Double Rock Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Omanyte"
+      , imageUrl = imageUrl 138 "Omanyte"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2285,7 +2328,7 @@ all =
       , fullName = "Omastar"
       , typing = Double Rock Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Omastar"
+      , imageUrl = imageUrl 139 "Omastar"
       , evolutionData = EvolvesFrom [ 233 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -2295,7 +2338,7 @@ all =
       , fullName = "Kabuto"
       , typing = Double Rock Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kabuto"
+      , imageUrl = imageUrl 140 "Kabuto"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2305,7 +2348,7 @@ all =
       , fullName = "Kabutops"
       , typing = Double Rock Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kabutops"
+      , imageUrl = imageUrl 141 "Kabutops"
       , evolutionData = EvolvesFrom [ 235 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -2315,17 +2358,17 @@ all =
       , fullName = "Aerodactyl"
       , typing = Double Rock Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aerodactyl"
+      , imageUrl = imageUrl 142 "Aerodactyl"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1382
       , nationalDexNumber = 142
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Aerodactyl" "Mega" ""
+      , fullName = nameWithForm "Aerodactyl" Mega
       , typing = Double Rock Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Aerodactyl" "Mega"
+      , imageUrl = imageUrlWithForm 142 "Aerodactyl" Mega
       , evolutionData = EvolvesFrom [ 237 ] "Holding Aerodactylite"
       , transformationData = DoesNotTransform
       }
@@ -2335,7 +2378,7 @@ all =
       , fullName = "Munchlax"
       , typing = Single Normal
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Munchlax"
+      , imageUrl = imageUrl 446 "Munchlax"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2345,7 +2388,7 @@ all =
       , fullName = "Snorlax"
       , typing = Single Normal
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Snorlax"
+      , imageUrl = imageUrl 143 "Snorlax"
       , evolutionData = EvolvesFrom [ 644 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -2355,17 +2398,17 @@ all =
       , fullName = "Articuno"
       , typing = Double Ice Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Articuno"
+      , imageUrl = imageUrl 144 "Articuno"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1385
       , nationalDexNumber = 144
       , originalPokemonID = Just 239
-      , fullName = nameFromData "Articuno" "Galarian" ""
+      , fullName = nameWithForm "Articuno" Galarian
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Articuno" "Galarian"
+      , imageUrl = imageUrlWithForm 144 "Articuno" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2375,17 +2418,17 @@ all =
       , fullName = "Zapdos"
       , typing = Double Electric Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zapdos"
+      , imageUrl = imageUrl 145 "Zapdos"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1386
       , nationalDexNumber = 145
       , originalPokemonID = Just 240
-      , fullName = nameFromData "Zapdos" "Galarian" ""
+      , fullName = nameWithForm "Zapdos" Galarian
       , typing = Double Fighting Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zapdos" "Galarian"
+      , imageUrl = imageUrlWithForm 145 "Zapdos" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2395,17 +2438,17 @@ all =
       , fullName = "Moltres"
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Moltres"
+      , imageUrl = imageUrl 146 "Moltres"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1387
       , nationalDexNumber = 146
       , originalPokemonID = Just 241
-      , fullName = nameFromData "Moltres" "Galarian" ""
+      , fullName = nameWithForm "Moltres" Galarian
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Moltres" "Galarian"
+      , imageUrl = imageUrlWithForm 146 "Moltres" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2415,7 +2458,7 @@ all =
       , fullName = "Dratini"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dratini"
+      , imageUrl = imageUrl 147 "Dratini"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2425,7 +2468,7 @@ all =
       , fullName = "Dragonair"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dragonair"
+      , imageUrl = imageUrl 148 "Dragonair"
       , evolutionData = EvolvesFrom [ 242 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -2435,7 +2478,7 @@ all =
       , fullName = "Dragonite"
       , typing = Double Dragon Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dragonite"
+      , imageUrl = imageUrl 149 "Dragonite"
       , evolutionData = EvolvesFrom [ 243 ] "Level 55"
       , transformationData = DoesNotTransform
       }
@@ -2445,27 +2488,27 @@ all =
       , fullName = "Mewtwo"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mewtwo"
+      , imageUrl = imageUrl 150 "Mewtwo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 44
       , nationalDexNumber = 150
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Mewtwo" "Mega X" "Mega Mewtwo X"
+      , fullName = nameWithForm "Mewtwo" MegaX
       , typing = Double Psychic Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Mewtwo" "Mega X"
+      , imageUrl = imageUrlWithForm 150 "Mewtwo" MegaX
       , evolutionData = EvolvesFrom [ 43 ] "Holding Mewtwonite X"
       , transformationData = DoesNotTransform
       }
     , { id = 45
       , nationalDexNumber = 150
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Mewtwo" "Mega Y" "Mega Mewtwo Y"
+      , fullName = nameWithForm "Mewtwo" MegaY
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Mewtwo" "Mega Y"
+      , imageUrl = imageUrlWithForm 150 "Mewtwo" MegaY
       , evolutionData = EvolvesFrom [ 43 ] "Holding Mewtwonite Y"
       , transformationData = DoesNotTransform
       }
@@ -2475,7 +2518,7 @@ all =
       , fullName = "Mew"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mew"
+      , imageUrl = imageUrl 151 "Mew"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2485,7 +2528,7 @@ all =
       , fullName = "Chikorita"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chikorita"
+      , imageUrl = imageUrl 152 "Chikorita"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2495,7 +2538,7 @@ all =
       , fullName = "Bayleef"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bayleef"
+      , imageUrl = imageUrl 153 "Bayleef"
       , evolutionData = EvolvesFrom [ 245 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -2505,7 +2548,7 @@ all =
       , fullName = "Meganium"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Meganium"
+      , imageUrl = imageUrl 154 "Meganium"
       , evolutionData = EvolvesFrom [ 246 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -2515,7 +2558,7 @@ all =
       , fullName = "Cyndaquil"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cyndaquil"
+      , imageUrl = imageUrl 155 "Cyndaquil"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2525,7 +2568,7 @@ all =
       , fullName = "Quilava"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Quilava"
+      , imageUrl = imageUrl 156 "Quilava"
       , evolutionData = EvolvesFrom [ 248 ] "Level 14 (17 in Legends: Arceus)"
       , transformationData = DoesNotTransform
       }
@@ -2535,17 +2578,17 @@ all =
       , fullName = "Typhlosion"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Typhlosion"
+      , imageUrl = imageUrl 157 "Typhlosion"
       , evolutionData = EvolvesFrom [ 249 ] "Level 36"
       , transformationData = DoesNotTransform
       }
     , { id = 1623
       , nationalDexNumber = 157
       , originalPokemonID = Just 250
-      , fullName = nameFromData "Typhlosion" "Hisuian" ""
+      , fullName = nameWithForm "Typhlosion" Hisuian
       , typing = Double Fire Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Typhlosion" "Hisuian"
+      , imageUrl = imageUrlWithForm 157 "Typhlosion" Hisuian
       , evolutionData = EvolvesFrom [ 249 ] "Level 36 in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
@@ -2555,7 +2598,7 @@ all =
       , fullName = "Totodile"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Totodile"
+      , imageUrl = imageUrl 158 "Totodile"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2565,7 +2608,7 @@ all =
       , fullName = "Croconaw"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Croconaw"
+      , imageUrl = imageUrl 159 "Croconaw"
       , evolutionData = EvolvesFrom [ 251 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -2575,7 +2618,7 @@ all =
       , fullName = "Feraligatr"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Feraligatr"
+      , imageUrl = imageUrl 160 "Feraligatr"
       , evolutionData = EvolvesFrom [ 252 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -2585,7 +2628,7 @@ all =
       , fullName = "Sentret"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sentret"
+      , imageUrl = imageUrl 161 "Sentret"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2595,7 +2638,7 @@ all =
       , fullName = "Furret"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Furret"
+      , imageUrl = imageUrl 162 "Furret"
       , evolutionData = EvolvesFrom [ 254 ] "Level 15"
       , transformationData = DoesNotTransform
       }
@@ -2605,7 +2648,7 @@ all =
       , fullName = "Hoothoot"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hoothoot"
+      , imageUrl = imageUrl 163 "Hoothoot"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2615,7 +2658,7 @@ all =
       , fullName = "Noctowl"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Noctowl"
+      , imageUrl = imageUrl 164 "Noctowl"
       , evolutionData = EvolvesFrom [ 256 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -2625,7 +2668,7 @@ all =
       , fullName = "Ledyba"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ledyba"
+      , imageUrl = imageUrl 165 "Ledyba"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2635,7 +2678,7 @@ all =
       , fullName = "Ledian"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ledian"
+      , imageUrl = imageUrl 166 "Ledian"
       , evolutionData = EvolvesFrom [ 258 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -2645,7 +2688,7 @@ all =
       , fullName = "Spinarak"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spinarak"
+      , imageUrl = imageUrl 167 "Spinarak"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2655,7 +2698,7 @@ all =
       , fullName = "Ariados"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ariados"
+      , imageUrl = imageUrl 168 "Ariados"
       , evolutionData = EvolvesFrom [ 260 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -2665,7 +2708,7 @@ all =
       , fullName = "Chinchou"
       , typing = Double Water Electric
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Chinchou"
+      , imageUrl = imageUrl 170 "Chinchou"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2675,7 +2718,7 @@ all =
       , fullName = "Lanturn"
       , typing = Double Water Electric
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Lanturn"
+      , imageUrl = imageUrl 171 "Lanturn"
       , evolutionData = EvolvesFrom [ 262 ] "Level 27"
       , transformationData = DoesNotTransform
       }
@@ -2685,7 +2728,7 @@ all =
       , fullName = "Togepi"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Togepi"
+      , imageUrl = imageUrl 175 "Togepi"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2695,7 +2738,7 @@ all =
       , fullName = "Togetic"
       , typing = Double Fairy Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Togetic"
+      , imageUrl = imageUrl 176 "Togetic"
       , evolutionData = EvolvesFrom [ 264 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -2705,7 +2748,7 @@ all =
       , fullName = "Togekiss"
       , typing = Double Fairy Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Togekiss"
+      , imageUrl = imageUrl 468 "Togekiss"
       , evolutionData = EvolvesFrom [ 265 ] "Use Shiny Stone"
       , transformationData = DoesNotTransform
       }
@@ -2715,7 +2758,7 @@ all =
       , fullName = "Natu"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Natu"
+      , imageUrl = imageUrl 177 "Natu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2725,7 +2768,7 @@ all =
       , fullName = "Xatu"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Xatu"
+      , imageUrl = imageUrl 178 "Xatu"
       , evolutionData = EvolvesFrom [ 266 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -2735,7 +2778,7 @@ all =
       , fullName = "Mareep"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mareep"
+      , imageUrl = imageUrl 179 "Mareep"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2745,7 +2788,7 @@ all =
       , fullName = "Flaaffy"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Flaaffy"
+      , imageUrl = imageUrl 180 "Flaaffy"
       , evolutionData = EvolvesFrom [ 278 ] "Level 15"
       , transformationData = DoesNotTransform
       }
@@ -2755,17 +2798,17 @@ all =
       , fullName = "Ampharos"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ampharos"
+      , imageUrl = imageUrl 181 "Ampharos"
       , evolutionData = EvolvesFrom [ 279 ] "Level 30"
       , transformationData = DoesNotTransform
       }
     , { id = 1394
       , nationalDexNumber = 181
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Ampharos" "Mega" ""
+      , fullName = nameWithForm "Ampharos" Mega
       , typing = Double Electric Dragon
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Ampharos" "Mega"
+      , imageUrl = imageUrlWithForm 181 "Ampharos" Mega
       , evolutionData = EvolvesFrom [ 280 ] "Holding Ampharosite"
       , transformationData = DoesNotTransform
       }
@@ -2775,7 +2818,7 @@ all =
       , fullName = "Azurill"
       , typing = Double Normal Fairy
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Azurill"
+      , imageUrl = imageUrl 298 "Azurill"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2785,7 +2828,7 @@ all =
       , fullName = "Marill"
       , typing = Double Water Fairy
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Marill"
+      , imageUrl = imageUrl 183 "Marill"
       , evolutionData = EvolvesFrom [ 426 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -2795,7 +2838,7 @@ all =
       , fullName = "Azumarill"
       , typing = Double Water Fairy
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Azumarill"
+      , imageUrl = imageUrl 184 "Azumarill"
       , evolutionData = EvolvesFrom [ 283 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -2805,7 +2848,7 @@ all =
       , fullName = "Bonsly"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bonsly"
+      , imageUrl = imageUrl 438 "Bonsly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2815,7 +2858,7 @@ all =
       , fullName = "Sudowoodo"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sudowoodo"
+      , imageUrl = imageUrl 185 "Sudowoodo"
       , evolutionData = EvolvesFrom [ 636 ] "Level while knowing Mimic"
       , transformationData = DoesNotTransform
       }
@@ -2825,7 +2868,7 @@ all =
       , fullName = "Hoppip"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hoppip"
+      , imageUrl = imageUrl 187 "Hoppip"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2835,7 +2878,7 @@ all =
       , fullName = "Skiploom"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skiploom"
+      , imageUrl = imageUrl 188 "Skiploom"
       , evolutionData = EvolvesFrom [ 287 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -2845,7 +2888,7 @@ all =
       , fullName = "Jumpluff"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Jumpluff"
+      , imageUrl = imageUrl 189 "Jumpluff"
       , evolutionData = EvolvesFrom [ 288 ] "Level 27"
       , transformationData = DoesNotTransform
       }
@@ -2855,7 +2898,7 @@ all =
       , fullName = "Aipom"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aipom"
+      , imageUrl = imageUrl 190 "Aipom"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2865,7 +2908,7 @@ all =
       , fullName = "Ambipom"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ambipom"
+      , imageUrl = imageUrl 424 "Ambipom"
       , evolutionData = EvolvesFrom [ 290 ] "Level while knowing Double Hit"
       , transformationData = DoesNotTransform
       }
@@ -2875,7 +2918,7 @@ all =
       , fullName = "Sunkern"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sunkern"
+      , imageUrl = imageUrl 191 "Sunkern"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2885,7 +2928,7 @@ all =
       , fullName = "Sunflora"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sunflora"
+      , imageUrl = imageUrl 192 "Sunflora"
       , evolutionData = EvolvesFrom [ 291 ] "Use Sun Stone"
       , transformationData = DoesNotTransform
       }
@@ -2895,7 +2938,7 @@ all =
       , fullName = "Yanma"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Yanma"
+      , imageUrl = imageUrl 193 "Yanma"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2905,7 +2948,7 @@ all =
       , fullName = "Yanmega"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Yanmega"
+      , imageUrl = imageUrl 469 "Yanmega"
       , evolutionData = EvolvesFrom [ 293 ] "Level while knowing Ancient Power"
       , transformationData = DoesNotTransform
       }
@@ -2915,7 +2958,7 @@ all =
       , fullName = "Wooper"
       , typing = Double Water Ground
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Wooper"
+      , imageUrl = imageUrl 194 "Wooper"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2925,17 +2968,17 @@ all =
       , fullName = "Quagsire"
       , typing = Double Water Ground
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Quagsire"
+      , imageUrl = imageUrl 195 "Quagsire"
       , evolutionData = EvolvesFrom [ 294 ] "Level 20"
       , transformationData = DoesNotTransform
       }
     , { id = 1651
       , nationalDexNumber = 194
       , originalPokemonID = Just 294
-      , fullName = nameFromData "Wooper" "Paldean" ""
+      , fullName = nameWithForm "Wooper" Paldean
       , typing = Double Poison Ground
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "wooper-paldean"
+      , imageUrl = imageUrlWithForm 194 "Wooper" Paldean
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2945,7 +2988,7 @@ all =
       , fullName = "Clodsire"
       , typing = Double Poison Ground
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "clodsire"
+      , imageUrl = imageUrl 980 "Clodsire"
       , evolutionData = EvolvesFrom [ 1651 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -2955,7 +2998,7 @@ all =
       , fullName = "Murkrow"
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Murkrow"
+      , imageUrl = imageUrl 198 "Murkrow"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2965,7 +3008,7 @@ all =
       , fullName = "Honchkrow"
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Honchkrow"
+      , imageUrl = imageUrl 430 "Honchkrow"
       , evolutionData = EvolvesFrom [ 298 ] "Use Dusk Stone"
       , transformationData = DoesNotTransform
       }
@@ -2975,7 +3018,7 @@ all =
       , fullName = "Misdreavus"
       , typing = Single Ghost
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Misdreavus"
+      , imageUrl = imageUrl 200 "Misdreavus"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -2985,7 +3028,7 @@ all =
       , fullName = "Mismagius"
       , typing = Single Ghost
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Mismagius"
+      , imageUrl = imageUrl 429 "Mismagius"
       , evolutionData = EvolvesFrom [ 324 ] "Use Dusk Stone"
       , transformationData = DoesNotTransform
       }
@@ -2995,7 +3038,7 @@ all =
       , fullName = "Unown"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Unown"
+      , imageUrl = imageUrl 201 "Unown"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3005,7 +3048,7 @@ all =
       , fullName = "Wynaut"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wynaut"
+      , imageUrl = imageUrl 360 "Wynaut"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3015,7 +3058,7 @@ all =
       , fullName = "Wobbuffet"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wobbuffet"
+      , imageUrl = imageUrl 202 "Wobbuffet"
       , evolutionData = EvolvesFrom [ 488 ] "Level 15"
       , transformationData = DoesNotTransform
       }
@@ -3025,7 +3068,7 @@ all =
       , fullName = "Girafarig"
       , typing = Double Normal Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Girafarig"
+      , imageUrl = imageUrl 203 "Girafarig"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3035,7 +3078,7 @@ all =
       , fullName = "Farigiraf"
       , typing = Double Normal Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "farigiraf"
+      , imageUrl = imageUrl 981 "Farigiraf"
       , evolutionData = EvolvesFrom [ 327 ] "Level while knowing Twin Beam"
       , transformationData = DoesNotTransform
       }
@@ -3045,7 +3088,7 @@ all =
       , fullName = "Pineco"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pineco"
+      , imageUrl = imageUrl 204 "Pineco"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3055,7 +3098,7 @@ all =
       , fullName = "Forretress"
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Forretress"
+      , imageUrl = imageUrl 205 "Forretress"
       , evolutionData = EvolvesFrom [ 328 ] "Level 31"
       , transformationData = DoesNotTransform
       }
@@ -3065,7 +3108,7 @@ all =
       , fullName = "Dunsparce"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dunsparce"
+      , imageUrl = imageUrl 206 "Dunsparce"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3075,7 +3118,7 @@ all =
       , fullName = "Dudunsparce"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "dudunsparce"
+      , imageUrl = imageUrl 982 "Dudunsparce"
       , evolutionData = EvolvesFrom [ 330 ] "Level while knowing Hyper Drill"
       , transformationData = DoesNotTransform
       }
@@ -3085,7 +3128,7 @@ all =
       , fullName = "Gligar"
       , typing = Double Ground Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gligar"
+      , imageUrl = imageUrl 207 "Gligar"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3095,7 +3138,7 @@ all =
       , fullName = "Gliscor"
       , typing = Double Ground Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gliscor"
+      , imageUrl = imageUrl 472 "Gliscor"
       , evolutionData = EvolvesFrom [ 331 ] "Level while holding Razor Fang at night"
       , transformationData = DoesNotTransform
       }
@@ -3105,7 +3148,7 @@ all =
       , fullName = "Snubbull"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Snubbull"
+      , imageUrl = imageUrl 209 "Snubbull"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3115,7 +3158,7 @@ all =
       , fullName = "Granbull"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Granbull"
+      , imageUrl = imageUrl 210 "Granbull"
       , evolutionData = EvolvesFrom [ 333 ] "Level 23"
       , transformationData = DoesNotTransform
       }
@@ -3125,17 +3168,17 @@ all =
       , fullName = "Qwilfish"
       , typing = Double Water Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Qwilfish"
+      , imageUrl = imageUrl 211 "Qwilfish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1615
       , nationalDexNumber = 211
       , originalPokemonID = Just 335
-      , fullName = nameFromData "Qwilfish" "Hisuian" ""
+      , fullName = nameWithForm "Qwilfish" Hisuian
       , typing = Double Dark Poison
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Qwilfish" "Hisuian"
+      , imageUrl = imageUrlWithForm 211 "Qwilfish" Hisuian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3145,7 +3188,7 @@ all =
       , fullName = "Overqwil"
       , typing = Double Dark Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "overqwil"
+      , imageUrl = imageUrl 904 "Overqwil"
       , evolutionData = EvolvesFrom [ 1615 ] "Use Barb Barrage in Strong Style 20 times"
       , transformationData = DoesNotTransform
       }
@@ -3155,7 +3198,7 @@ all =
       , fullName = "Shuckle"
       , typing = Double Bug Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shuckle"
+      , imageUrl = imageUrl 213 "Shuckle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3165,17 +3208,17 @@ all =
       , fullName = "Heracross"
       , typing = Double Bug Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Heracross"
+      , imageUrl = imageUrl 214 "Heracross"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1395
       , nationalDexNumber = 214
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Heracross" "Mega" ""
+      , fullName = nameWithForm "Heracross" Mega
       , typing = Double Bug Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Heracross" "Mega"
+      , imageUrl = imageUrlWithForm 214 "Heracross" Mega
       , evolutionData = EvolvesFrom [ 338 ] "Holding Heracronite"
       , transformationData = DoesNotTransform
       }
@@ -3185,7 +3228,7 @@ all =
       , fullName = "Sneasel"
       , typing = Double Dark Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sneasel"
+      , imageUrl = imageUrl 215 "Sneasel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3195,17 +3238,17 @@ all =
       , fullName = "Weavile"
       , typing = Double Dark Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Weavile"
+      , imageUrl = imageUrl 461 "Weavile"
       , evolutionData = EvolvesFrom [ 339 ] "Level while holding Razor Claw at night"
       , transformationData = DoesNotTransform
       }
     , { id = 1613
       , nationalDexNumber = 215
       , originalPokemonID = Just 339
-      , fullName = nameFromData "Sneasel" "Hisuian" ""
+      , fullName = nameWithForm "Sneasel" Hisuian
       , typing = Double Fighting Poison
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Sneasel" "Hisuian"
+      , imageUrl = imageUrlWithForm 215 "Sneasel" Hisuian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3215,7 +3258,7 @@ all =
       , fullName = "Sneasler"
       , typing = Double Fighting Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "sneasler"
+      , imageUrl = imageUrl 903 "Sneasler"
       , evolutionData = EvolvesFrom [ 1613 ] "Use Razor Claw during the day"
       , transformationData = DoesNotTransform
       }
@@ -3225,7 +3268,7 @@ all =
       , fullName = "Teddiursa"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Teddiursa"
+      , imageUrl = imageUrl 216 "Teddiursa"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3235,7 +3278,7 @@ all =
       , fullName = "Ursaring"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ursaring"
+      , imageUrl = imageUrl 217 "Ursaring"
       , evolutionData = EvolvesFrom [ 340 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -3245,7 +3288,7 @@ all =
       , fullName = "Ursaluna"
       , typing = Double Normal Ground
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "ursaluna"
+      , imageUrl = imageUrl 901 "Ursaluna"
       , evolutionData = EvolvesFrom [ 341 ] "Use Peat Block under a full moon"
       , transformationData = DoesNotTransform
       }
@@ -3255,7 +3298,7 @@ all =
       , fullName = "Slugma"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slugma"
+      , imageUrl = imageUrl 218 "Slugma"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3265,7 +3308,7 @@ all =
       , fullName = "Magcargo"
       , typing = Double Fire Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magcargo"
+      , imageUrl = imageUrl 219 "Magcargo"
       , evolutionData = EvolvesFrom [ 342 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -3275,7 +3318,7 @@ all =
       , fullName = "Swinub"
       , typing = Double Ice Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swinub"
+      , imageUrl = imageUrl 220 "Swinub"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3285,7 +3328,7 @@ all =
       , fullName = "Piloswine"
       , typing = Double Ice Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Piloswine"
+      , imageUrl = imageUrl 221 "Piloswine"
       , evolutionData = EvolvesFrom [ 344 ] "Level 33"
       , transformationData = DoesNotTransform
       }
@@ -3295,7 +3338,7 @@ all =
       , fullName = "Mamoswine"
       , typing = Double Ice Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mamoswine"
+      , imageUrl = imageUrl 473 "Mamoswine"
       , evolutionData = EvolvesFrom [ 345 ] "Level while knowing Ancient Power"
       , transformationData = DoesNotTransform
       }
@@ -3305,17 +3348,17 @@ all =
       , fullName = "Corsola"
       , typing = Double Water Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Corsola"
+      , imageUrl = imageUrl 222 "Corsola"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1389
       , nationalDexNumber = 222
       , originalPokemonID = Just 346
-      , fullName = nameFromData "Corsola" "Galarian" ""
+      , fullName = nameWithForm "Corsola" Galarian
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Corsola" "Galarian"
+      , imageUrl = imageUrlWithForm 222 "Corsola" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3325,7 +3368,7 @@ all =
       , fullName = "Cursola"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cursola"
+      , imageUrl = imageUrl 864 "Cursola"
       , evolutionData = EvolvesFrom [ 1389 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -3335,7 +3378,7 @@ all =
       , fullName = "Remoraid"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Remoraid"
+      , imageUrl = imageUrl 223 "Remoraid"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3345,7 +3388,7 @@ all =
       , fullName = "Octillery"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Octillery"
+      , imageUrl = imageUrl 224 "Octillery"
       , evolutionData = EvolvesFrom [ 347 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -3355,7 +3398,7 @@ all =
       , fullName = "Delibird"
       , typing = Double Ice Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Delibird"
+      , imageUrl = imageUrl 225 "Delibird"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3365,7 +3408,7 @@ all =
       , fullName = "Mantyke"
       , typing = Double Water Flying
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Mantyke"
+      , imageUrl = imageUrl 458 "Mantyke"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3375,7 +3418,7 @@ all =
       , fullName = "Mantine"
       , typing = Double Water Flying
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Mantine"
+      , imageUrl = imageUrl 226 "Mantine"
       , evolutionData = EvolvesFrom [ 656 ] "Level with Remoraid in party"
       , transformationData = DoesNotTransform
       }
@@ -3385,7 +3428,7 @@ all =
       , fullName = "Skarmory"
       , typing = Double Steel Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skarmory"
+      , imageUrl = imageUrl 227 "Skarmory"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3395,7 +3438,7 @@ all =
       , fullName = "Houndour"
       , typing = Double Dark Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Houndour"
+      , imageUrl = imageUrl 228 "Houndour"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3405,17 +3448,17 @@ all =
       , fullName = "Houndoom"
       , typing = Double Dark Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Houndoom"
+      , imageUrl = imageUrl 229 "Houndoom"
       , evolutionData = EvolvesFrom [ 352 ] "Level 24"
       , transformationData = DoesNotTransform
       }
     , { id = 1396
       , nationalDexNumber = 229
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Houndoom" "Mega" ""
+      , fullName = nameWithForm "Houndoom" Mega
       , typing = Double Dark Fire
       , ability = Just FlashFire
-      , imageUrl = imgUrlForAlternateForm "Houndoom" "Mega"
+      , imageUrl = imageUrlWithForm 229 "Houndoom" Mega
       , evolutionData = EvolvesFrom [ 353 ] "Holding Houndoominite"
       , transformationData = DoesNotTransform
       }
@@ -3425,7 +3468,7 @@ all =
       , fullName = "Phanpy"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Phanpy"
+      , imageUrl = imageUrl 231 "Phanpy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3435,7 +3478,7 @@ all =
       , fullName = "Donphan"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Donphan"
+      , imageUrl = imageUrl 232 "Donphan"
       , evolutionData = EvolvesFrom [ 355 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -3445,7 +3488,7 @@ all =
       , fullName = "Stantler"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stantler"
+      , imageUrl = imageUrl 234 "Stantler"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3455,7 +3498,7 @@ all =
       , fullName = "Wyrdeer"
       , typing = Double Normal Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "wyrdeer"
+      , imageUrl = imageUrl 899 "Wyrdeer"
       , evolutionData = EvolvesFrom [ 358 ] "Use Psyshield Bash 20 times in Agile Style"
       , transformationData = DoesNotTransform
       }
@@ -3465,7 +3508,7 @@ all =
       , fullName = "Smeargle"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Smeargle"
+      , imageUrl = imageUrl 235 "Smeargle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3475,7 +3518,7 @@ all =
       , fullName = "Miltank"
       , typing = Single Normal
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Miltank"
+      , imageUrl = imageUrl 241 "Miltank"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3485,7 +3528,7 @@ all =
       , fullName = "Raikou"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Raikou"
+      , imageUrl = imageUrl 243 "Raikou"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3495,7 +3538,7 @@ all =
       , fullName = "Entei"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Entei"
+      , imageUrl = imageUrl 244 "Entei"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3505,7 +3548,7 @@ all =
       , fullName = "Suicune"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Suicune"
+      , imageUrl = imageUrl 245 "Suicune"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3515,7 +3558,7 @@ all =
       , fullName = "Larvitar"
       , typing = Double Rock Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Larvitar"
+      , imageUrl = imageUrl 246 "Larvitar"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3525,7 +3568,7 @@ all =
       , fullName = "Pupitar"
       , typing = Double Rock Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pupitar"
+      , imageUrl = imageUrl 247 "Pupitar"
       , evolutionData = EvolvesFrom [ 370 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -3535,17 +3578,17 @@ all =
       , fullName = "Tyranitar"
       , typing = Double Rock Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tyranitar"
+      , imageUrl = imageUrl 248 "Tyranitar"
       , evolutionData = EvolvesFrom [ 371 ] "Level 55"
       , transformationData = DoesNotTransform
       }
     , { id = 1397
       , nationalDexNumber = 248
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Tyranitar" "Mega" ""
+      , fullName = nameWithForm "Tyranitar" Mega
       , typing = Double Rock Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Tyranitar" "Mega"
+      , imageUrl = imageUrlWithForm 248 "Tyranitar" Mega
       , evolutionData = EvolvesFrom [ 372 ] "Holding Tyranitarite"
       , transformationData = DoesNotTransform
       }
@@ -3555,7 +3598,7 @@ all =
       , fullName = "Lugia"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lugia"
+      , imageUrl = imageUrl 249 "Lugia"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3565,7 +3608,7 @@ all =
       , fullName = "Ho-Oh"
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ho-Oh"
+      , imageUrl = imageUrl 250 "Ho-Oh"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3575,7 +3618,7 @@ all =
       , fullName = "Celebi"
       , typing = Double Psychic Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Celebi"
+      , imageUrl = imageUrl 251 "Celebi"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3585,7 +3628,7 @@ all =
       , fullName = "Treecko"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Treecko"
+      , imageUrl = imageUrl 252 "Treecko"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3595,7 +3638,7 @@ all =
       , fullName = "Grovyle"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grovyle"
+      , imageUrl = imageUrl 253 "Grovyle"
       , evolutionData = EvolvesFrom [ 380 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -3605,17 +3648,17 @@ all =
       , fullName = "Sceptile"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sceptile"
+      , imageUrl = imageUrl 254 "Sceptile"
       , evolutionData = EvolvesFrom [ 381 ] "Level 36"
       , transformationData = DoesNotTransform
       }
     , { id = 1428
       , nationalDexNumber = 254
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Sceptile" "Mega" ""
+      , fullName = nameWithForm "Sceptile" Mega
       , typing = Double Grass Dragon
       , ability = Just LightningRod
-      , imageUrl = imgUrlForAlternateForm "Sceptile" "Mega"
+      , imageUrl = imageUrlWithForm 254 "Sceptile" Mega
       , evolutionData = EvolvesFrom [ 382 ] "Holding Sceptilite"
       , transformationData = DoesNotTransform
       }
@@ -3625,7 +3668,7 @@ all =
       , fullName = "Torchic"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Torchic"
+      , imageUrl = imageUrl 255 "Torchic"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3635,7 +3678,7 @@ all =
       , fullName = "Combusken"
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Combusken"
+      , imageUrl = imageUrl 256 "Combusken"
       , evolutionData = EvolvesFrom [ 383 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -3645,17 +3688,17 @@ all =
       , fullName = "Blaziken"
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Blaziken"
+      , imageUrl = imageUrl 257 "Blaziken"
       , evolutionData = EvolvesFrom [ 384 ] "Level 36"
       , transformationData = DoesNotTransform
       }
     , { id = 1429
       , nationalDexNumber = 257
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Blaziken" "Mega" ""
+      , fullName = nameWithForm "Blaziken" Mega
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Blaziken" "Mega"
+      , imageUrl = imageUrlWithForm 257 "Blaziken" Mega
       , evolutionData = EvolvesFrom [ 385 ] "Holding Blazikenite"
       , transformationData = DoesNotTransform
       }
@@ -3665,7 +3708,7 @@ all =
       , fullName = "Mudkip"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mudkip"
+      , imageUrl = imageUrl 258 "Mudkip"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3675,7 +3718,7 @@ all =
       , fullName = "Marshtomp"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Marshtomp"
+      , imageUrl = imageUrl 259 "Marshtomp"
       , evolutionData = EvolvesFrom [ 386 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -3685,17 +3728,17 @@ all =
       , fullName = "Swampert"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swampert"
+      , imageUrl = imageUrl 260 "Swampert"
       , evolutionData = EvolvesFrom [ 387 ] "Level 36"
       , transformationData = DoesNotTransform
       }
     , { id = 1430
       , nationalDexNumber = 260
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Swampert" "Mega" ""
+      , fullName = nameWithForm "Swampert" Mega
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Swampert" "Mega"
+      , imageUrl = imageUrlWithForm 260 "Swampert" Mega
       , evolutionData = EvolvesFrom [ 388 ] "Holding Swampertite"
       , transformationData = DoesNotTransform
       }
@@ -3705,7 +3748,7 @@ all =
       , fullName = "Poochyena"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Poochyena"
+      , imageUrl = imageUrl 261 "Poochyena"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3715,7 +3758,7 @@ all =
       , fullName = "Mightyena"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mightyena"
+      , imageUrl = imageUrl 262 "Mightyena"
       , evolutionData = EvolvesFrom [ 389 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -3725,7 +3768,7 @@ all =
       , fullName = "Zigzagoon"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zigzagoon"
+      , imageUrl = imageUrl 263 "Zigzagoon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3735,27 +3778,27 @@ all =
       , fullName = "Linoone"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Linoone"
+      , imageUrl = imageUrl 264 "Linoone"
       , evolutionData = EvolvesFrom [ 391 ] "Level 20"
       , transformationData = DoesNotTransform
       }
     , { id = 1466
       , nationalDexNumber = 263
       , originalPokemonID = Just 391
-      , fullName = nameFromData "Zigzagoon" "Galarian" ""
+      , fullName = nameWithForm "Zigzagoon" Galarian
       , typing = Double Dark Normal
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zigzagoon" "Galarian"
+      , imageUrl = imageUrlWithForm 263 "Zigzagoon" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1467
       , nationalDexNumber = 264
       , originalPokemonID = Just 392
-      , fullName = nameFromData "Linoone" "Galarian" ""
+      , fullName = nameWithForm "Linoone" Galarian
       , typing = Double Dark Normal
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Linoone" "Galarian"
+      , imageUrl = imageUrlWithForm 264 "Linoone" Galarian
       , evolutionData = EvolvesFrom [ 1466 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -3765,7 +3808,7 @@ all =
       , fullName = "Obstagoon"
       , typing = Double Dark Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Obstagoon"
+      , imageUrl = imageUrl 862 "Obstagoon"
       , evolutionData = EvolvesFrom [ 1467 ] "Level 35 at night"
       , transformationData = DoesNotTransform
       }
@@ -3775,7 +3818,7 @@ all =
       , fullName = "Wurmple"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wurmple"
+      , imageUrl = imageUrl 265 "Wurmple"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3785,7 +3828,7 @@ all =
       , fullName = "Silcoon"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Silcoon"
+      , imageUrl = imageUrl 266 "Silcoon"
       , evolutionData = EvolvesFrom [ 393 ] "Level 7 (random)"
       , transformationData = DoesNotTransform
       }
@@ -3795,7 +3838,7 @@ all =
       , fullName = "Beautifly"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Beautifly"
+      , imageUrl = imageUrl 267 "Beautifly"
       , evolutionData = EvolvesFrom [ 394 ] "Level 10"
       , transformationData = DoesNotTransform
       }
@@ -3805,7 +3848,7 @@ all =
       , fullName = "Cascoon"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cascoon"
+      , imageUrl = imageUrl 268 "Cascoon"
       , evolutionData = EvolvesFrom [ 393 ] "Level 7 (random)"
       , transformationData = DoesNotTransform
       }
@@ -3815,7 +3858,7 @@ all =
       , fullName = "Dustox"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dustox"
+      , imageUrl = imageUrl 269 "Dustox"
       , evolutionData = EvolvesFrom [ 396 ] "Level 10"
       , transformationData = DoesNotTransform
       }
@@ -3825,7 +3868,7 @@ all =
       , fullName = "Lotad"
       , typing = Double Water Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lotad"
+      , imageUrl = imageUrl 270 "Lotad"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3835,7 +3878,7 @@ all =
       , fullName = "Lombre"
       , typing = Double Water Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lombre"
+      , imageUrl = imageUrl 271 "Lombre"
       , evolutionData = EvolvesFrom [ 398 ] "Level 14"
       , transformationData = DoesNotTransform
       }
@@ -3845,7 +3888,7 @@ all =
       , fullName = "Ludicolo"
       , typing = Double Water Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ludicolo"
+      , imageUrl = imageUrl 272 "Ludicolo"
       , evolutionData = EvolvesFrom [ 399 ] "Use Water Stone"
       , transformationData = DoesNotTransform
       }
@@ -3855,7 +3898,7 @@ all =
       , fullName = "Seedot"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Seedot"
+      , imageUrl = imageUrl 273 "Seedot"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3865,7 +3908,7 @@ all =
       , fullName = "Nuzleaf"
       , typing = Double Grass Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nuzleaf"
+      , imageUrl = imageUrl 274 "Nuzleaf"
       , evolutionData = EvolvesFrom [ 401 ] "Level 14"
       , transformationData = DoesNotTransform
       }
@@ -3875,7 +3918,7 @@ all =
       , fullName = "Shiftry"
       , typing = Double Grass Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shiftry"
+      , imageUrl = imageUrl 275 "Shiftry"
       , evolutionData = EvolvesFrom [ 402 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
@@ -3885,7 +3928,7 @@ all =
       , fullName = "Taillow"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Taillow"
+      , imageUrl = imageUrl 276 "Taillow"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3895,7 +3938,7 @@ all =
       , fullName = "Swellow"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swellow"
+      , imageUrl = imageUrl 277 "Swellow"
       , evolutionData = EvolvesFrom [ 404 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -3905,7 +3948,7 @@ all =
       , fullName = "Wingull"
       , typing = Double Water Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wingull"
+      , imageUrl = imageUrl 278 "Wingull"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3915,7 +3958,7 @@ all =
       , fullName = "Pelipper"
       , typing = Double Water Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pelipper"
+      , imageUrl = imageUrl 279 "Pelipper"
       , evolutionData = EvolvesFrom [ 406 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -3925,7 +3968,7 @@ all =
       , fullName = "Ralts"
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ralts"
+      , imageUrl = imageUrl 280 "Ralts"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3935,7 +3978,7 @@ all =
       , fullName = "Kirlia"
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kirlia"
+      , imageUrl = imageUrl 281 "Kirlia"
       , evolutionData = EvolvesFrom [ 408 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -3945,17 +3988,17 @@ all =
       , fullName = "Gardevoir"
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gardevoir"
+      , imageUrl = imageUrl 282 "Gardevoir"
       , evolutionData = EvolvesFrom [ 409 ] "Level 30"
       , transformationData = DoesNotTransform
       }
     , { id = 1435
       , nationalDexNumber = 282
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Gardevoir" "Mega" ""
+      , fullName = nameWithForm "Gardevoir" Mega
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gardevoir" "Mega"
+      , imageUrl = imageUrlWithForm 282 "Gardevoir" Mega
       , evolutionData = EvolvesFrom [ 410 ] "Holding Gardevoirite"
       , transformationData = DoesNotTransform
       }
@@ -3965,17 +4008,17 @@ all =
       , fullName = "Gallade"
       , typing = Double Psychic Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gallade"
+      , imageUrl = imageUrl 475 "Gallade"
       , evolutionData = EvolvesFrom [ 409 ] "Use Dawn Stone when male"
       , transformationData = DoesNotTransform
       }
     , { id = 1436
       , nationalDexNumber = 475
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Gallade" "Mega" ""
+      , fullName = nameWithForm "Gallade" Mega
       , typing = Double Psychic Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gallade" "Mega"
+      , imageUrl = imageUrlWithForm 475 "Gallade" Mega
       , evolutionData = EvolvesFrom [ 720 ] "Holding Galladite"
       , transformationData = DoesNotTransform
       }
@@ -3985,7 +4028,7 @@ all =
       , fullName = "Surskit"
       , typing = Double Bug Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Surskit"
+      , imageUrl = imageUrl 283 "Surskit"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -3995,7 +4038,7 @@ all =
       , fullName = "Masquerain"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Masquerain"
+      , imageUrl = imageUrl 284 "Masquerain"
       , evolutionData = EvolvesFrom [ 411 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -4005,7 +4048,7 @@ all =
       , fullName = "Shroomish"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shroomish"
+      , imageUrl = imageUrl 285 "Shroomish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4015,7 +4058,7 @@ all =
       , fullName = "Breloom"
       , typing = Double Grass Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Breloom"
+      , imageUrl = imageUrl 286 "Breloom"
       , evolutionData = EvolvesFrom [ 413 ] "Level 23"
       , transformationData = DoesNotTransform
       }
@@ -4025,7 +4068,7 @@ all =
       , fullName = "Slakoth"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slakoth"
+      , imageUrl = imageUrl 287 "Slakoth"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4035,7 +4078,7 @@ all =
       , fullName = "Vigoroth"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vigoroth"
+      , imageUrl = imageUrl 288 "Vigoroth"
       , evolutionData = EvolvesFrom [ 415 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -4045,7 +4088,7 @@ all =
       , fullName = "Slaking"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slaking"
+      , imageUrl = imageUrl 289 "Slaking"
       , evolutionData = EvolvesFrom [ 416 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -4055,7 +4098,7 @@ all =
       , fullName = "Nincada"
       , typing = Double Bug Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nincada"
+      , imageUrl = imageUrl 290 "Nincada"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4065,7 +4108,7 @@ all =
       , fullName = "Ninjask"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ninjask"
+      , imageUrl = imageUrl 291 "Ninjask"
       , evolutionData = EvolvesFrom [ 418 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -4075,7 +4118,7 @@ all =
       , fullName = "Shedinja"
       , typing = Double Bug Ghost
       , ability = Just WonderGuard
-      , imageUrl = imageUrlByName "Shedinja"
+      , imageUrl = imageUrl 292 "Shedinja"
       , evolutionData = EvolvesFrom [ 418 ] "Evolve while having a Pokeball and an empty space in party"
       , transformationData = DoesNotTransform
       }
@@ -4085,7 +4128,7 @@ all =
       , fullName = "Whismur"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Whismur"
+      , imageUrl = imageUrl 293 "Whismur"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4095,7 +4138,7 @@ all =
       , fullName = "Loudred"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Loudred"
+      , imageUrl = imageUrl 294 "Loudred"
       , evolutionData = EvolvesFrom [ 421 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -4105,7 +4148,7 @@ all =
       , fullName = "Exploud"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Exploud"
+      , imageUrl = imageUrl 295 "Exploud"
       , evolutionData = EvolvesFrom [ 422 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -4115,7 +4158,7 @@ all =
       , fullName = "Makuhita"
       , typing = Single Fighting
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Makuhita"
+      , imageUrl = imageUrl 296 "Makuhita"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4125,7 +4168,7 @@ all =
       , fullName = "Hariyama"
       , typing = Single Fighting
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Hariyama"
+      , imageUrl = imageUrl 297 "Hariyama"
       , evolutionData = EvolvesFrom [ 424 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -4135,7 +4178,7 @@ all =
       , fullName = "Nosepass"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nosepass"
+      , imageUrl = imageUrl 299 "Nosepass"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4145,7 +4188,7 @@ all =
       , fullName = "Probopass"
       , typing = Double Rock Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Probopass"
+      , imageUrl = imageUrl 476 "Probopass"
       , evolutionData = EvolvesFrom [ 427 ] "Level near a Special Magnetic Field"
       , transformationData = DoesNotTransform
       }
@@ -4155,7 +4198,7 @@ all =
       , fullName = "Skitty"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skitty"
+      , imageUrl = imageUrl 300 "Skitty"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4165,7 +4208,7 @@ all =
       , fullName = "Delcatty"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Delcatty"
+      , imageUrl = imageUrl 301 "Delcatty"
       , evolutionData = EvolvesFrom [ 428 ] "Use Moon Stone"
       , transformationData = DoesNotTransform
       }
@@ -4175,17 +4218,17 @@ all =
       , fullName = "Sableye"
       , typing = Double Dark Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sableye"
+      , imageUrl = imageUrl 302 "Sableye"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1558
       , nationalDexNumber = 302
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Sableye" "Mega" ""
+      , fullName = nameWithForm "Sableye" Mega
       , typing = Double Dark Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Sableye" "Mega"
+      , imageUrl = imageUrlWithForm 302 "Sableye" Mega
       , evolutionData = EvolvesFrom [ 430 ] "Holding Sablenite"
       , transformationData = DoesNotTransform
       }
@@ -4195,17 +4238,17 @@ all =
       , fullName = "Mawile"
       , typing = Double Steel Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mawile"
+      , imageUrl = imageUrl 303 "Mawile"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1559
       , nationalDexNumber = 303
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Mawile" "Mega" ""
+      , fullName = nameWithForm "Mawile" Mega
       , typing = Double Steel Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Mawile" "Mega"
+      , imageUrl = imageUrlWithForm 303 "Mawile" Mega
       , evolutionData = EvolvesFrom [ 431 ] "Holding Mawilite"
       , transformationData = DoesNotTransform
       }
@@ -4215,7 +4258,7 @@ all =
       , fullName = "Aron"
       , typing = Double Steel Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aron"
+      , imageUrl = imageUrl 304 "Aron"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4225,7 +4268,7 @@ all =
       , fullName = "Lairon"
       , typing = Double Steel Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lairon"
+      , imageUrl = imageUrl 305 "Lairon"
       , evolutionData = EvolvesFrom [ 432 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -4235,17 +4278,17 @@ all =
       , fullName = "Aggron"
       , typing = Double Steel Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aggron"
+      , imageUrl = imageUrl 306 "Aggron"
       , evolutionData = EvolvesFrom [ 433 ] "Level 42"
       , transformationData = DoesNotTransform
       }
     , { id = 1434
       , nationalDexNumber = 306
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Aggron" "Mega" ""
+      , fullName = nameWithForm "Aggron" Mega
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Aggron" "Mega"
+      , imageUrl = imageUrlWithForm 306 "Aggron" Mega
       , evolutionData = EvolvesFrom [ 434 ] "Holding Aggronite"
       , transformationData = DoesNotTransform
       }
@@ -4255,7 +4298,7 @@ all =
       , fullName = "Meditite"
       , typing = Double Fighting Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Meditite"
+      , imageUrl = imageUrl 307 "Meditite"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4265,17 +4308,17 @@ all =
       , fullName = "Medicham"
       , typing = Double Fighting Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Medicham"
+      , imageUrl = imageUrl 308 "Medicham"
       , evolutionData = EvolvesFrom [ 435 ] "Level 37"
       , transformationData = DoesNotTransform
       }
     , { id = 1590
       , nationalDexNumber = 308
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Medicham" "Mega" ""
+      , fullName = nameWithForm "Medicham" Mega
       , typing = Double Fighting Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Medicham" "Mega"
+      , imageUrl = imageUrlWithForm 308 "Medicham" Mega
       , evolutionData = EvolvesFrom [ 436 ] "Holding Medichamite"
       , transformationData = DoesNotTransform
       }
@@ -4285,7 +4328,7 @@ all =
       , fullName = "Electrike"
       , typing = Single Electric
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Electrike"
+      , imageUrl = imageUrl 309 "Electrike"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4295,17 +4338,17 @@ all =
       , fullName = "Manectric"
       , typing = Single Electric
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Manectric"
+      , imageUrl = imageUrl 310 "Manectric"
       , evolutionData = EvolvesFrom [ 437 ] "Level 26"
       , transformationData = DoesNotTransform
       }
     , { id = 1437
       , nationalDexNumber = 310
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Manectric" "Mega" ""
+      , fullName = nameWithForm "Manectric" Mega
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Manectric" "Mega"
+      , imageUrl = imageUrlWithForm 310 "Manectric" Mega
       , evolutionData = EvolvesFrom [ 438 ] "Holding Manectite"
       , transformationData = DoesNotTransform
       }
@@ -4315,7 +4358,7 @@ all =
       , fullName = "Plusle"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Plusle"
+      , imageUrl = imageUrl 311 "Plusle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4325,7 +4368,7 @@ all =
       , fullName = "Minun"
       , typing = Single Electric
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Minun"
+      , imageUrl = imageUrl 312 "Minun"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4335,7 +4378,7 @@ all =
       , fullName = "Volbeat"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Volbeat"
+      , imageUrl = imageUrl 313 "Volbeat"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4345,7 +4388,7 @@ all =
       , fullName = "Illumise"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Illumise"
+      , imageUrl = imageUrl 314 "Illumise"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4355,7 +4398,7 @@ all =
       , fullName = "Budew"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Budew"
+      , imageUrl = imageUrl 406 "Budew"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4365,7 +4408,7 @@ all =
       , fullName = "Roselia"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Roselia"
+      , imageUrl = imageUrl 315 "Roselia"
       , evolutionData = EvolvesFrom [ 604 ] "Level during the day with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -4375,7 +4418,7 @@ all =
       , fullName = "Roserade"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Roserade"
+      , imageUrl = imageUrl 407 "Roserade"
       , evolutionData = EvolvesFrom [ 443 ] "Use Shiny Stone"
       , transformationData = DoesNotTransform
       }
@@ -4385,7 +4428,7 @@ all =
       , fullName = "Gulpin"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gulpin"
+      , imageUrl = imageUrl 316 "Gulpin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4395,7 +4438,7 @@ all =
       , fullName = "Swalot"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swalot"
+      , imageUrl = imageUrl 317 "Swalot"
       , evolutionData = EvolvesFrom [ 444 ] "Level 26"
       , transformationData = DoesNotTransform
       }
@@ -4405,7 +4448,7 @@ all =
       , fullName = "Carvanha"
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Carvanha"
+      , imageUrl = imageUrl 318 "Carvanha"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4415,17 +4458,17 @@ all =
       , fullName = "Sharpedo"
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sharpedo"
+      , imageUrl = imageUrl 319 "Sharpedo"
       , evolutionData = EvolvesFrom [ 446 ] "Level 30"
       , transformationData = DoesNotTransform
       }
     , { id = 1587
       , nationalDexNumber = 319
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Sharpedo" "Mega" ""
+      , fullName = nameWithForm "Sharpedo" Mega
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Sharpedo" "Mega"
+      , imageUrl = imageUrlWithForm 319 "Sharpedo" Mega
       , evolutionData = EvolvesFrom [ 447 ] "Holding Sharpedonite"
       , transformationData = DoesNotTransform
       }
@@ -4435,7 +4478,7 @@ all =
       , fullName = "Wailmer"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wailmer"
+      , imageUrl = imageUrl 320 "Wailmer"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4445,7 +4488,7 @@ all =
       , fullName = "Wailord"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wailord"
+      , imageUrl = imageUrl 321 "Wailord"
       , evolutionData = EvolvesFrom [ 448 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -4455,7 +4498,7 @@ all =
       , fullName = "Numel"
       , typing = Double Fire Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Numel"
+      , imageUrl = imageUrl 322 "Numel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4465,17 +4508,17 @@ all =
       , fullName = "Camerupt"
       , typing = Double Fire Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Camerupt"
+      , imageUrl = imageUrl 323 "Camerupt"
       , evolutionData = EvolvesFrom [ 450 ] "Level 33"
       , transformationData = DoesNotTransform
       }
     , { id = 1588
       , nationalDexNumber = 323
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Camerupt" "Mega" ""
+      , fullName = nameWithForm "Camerupt" Mega
       , typing = Double Fire Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Camerupt" "Mega"
+      , imageUrl = imageUrlWithForm 323 "Camerupt" Mega
       , evolutionData = EvolvesFrom [ 451 ] "Holding Cameruptite"
       , transformationData = DoesNotTransform
       }
@@ -4485,7 +4528,7 @@ all =
       , fullName = "Torkoal"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Torkoal"
+      , imageUrl = imageUrl 324 "Torkoal"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4495,7 +4538,7 @@ all =
       , fullName = "Spoink"
       , typing = Single Psychic
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Spoink"
+      , imageUrl = imageUrl 325 "Spoink"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4505,7 +4548,7 @@ all =
       , fullName = "Grumpig"
       , typing = Single Psychic
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Grumpig"
+      , imageUrl = imageUrl 326 "Grumpig"
       , evolutionData = EvolvesFrom [ 453 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -4515,7 +4558,7 @@ all =
       , fullName = "Spinda"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spinda"
+      , imageUrl = imageUrl 327 "Spinda"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4525,7 +4568,7 @@ all =
       , fullName = "Trapinch"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Trapinch"
+      , imageUrl = imageUrl 328 "Trapinch"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4535,7 +4578,7 @@ all =
       , fullName = "Vibrava"
       , typing = Double Ground Dragon
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Vibrava"
+      , imageUrl = imageUrl 329 "Vibrava"
       , evolutionData = EvolvesFrom [ 456 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -4545,7 +4588,7 @@ all =
       , fullName = "Flygon"
       , typing = Double Ground Dragon
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Flygon"
+      , imageUrl = imageUrl 330 "Flygon"
       , evolutionData = EvolvesFrom [ 457 ] "Level 45"
       , transformationData = DoesNotTransform
       }
@@ -4555,7 +4598,7 @@ all =
       , fullName = "Cacnea"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cacnea"
+      , imageUrl = imageUrl 331 "Cacnea"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4565,7 +4608,7 @@ all =
       , fullName = "Cacturne"
       , typing = Double Grass Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cacturne"
+      , imageUrl = imageUrl 332 "Cacturne"
       , evolutionData = EvolvesFrom [ 459 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -4575,7 +4618,7 @@ all =
       , fullName = "Swablu"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swablu"
+      , imageUrl = imageUrl 333 "Swablu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4585,17 +4628,17 @@ all =
       , fullName = "Altaria"
       , typing = Double Dragon Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Altaria"
+      , imageUrl = imageUrl 334 "Altaria"
       , evolutionData = EvolvesFrom [ 461 ] "Level 35"
       , transformationData = DoesNotTransform
       }
     , { id = 1589
       , nationalDexNumber = 334
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Altaria" "Mega" ""
+      , fullName = nameWithForm "Altaria" Mega
       , typing = Double Dragon Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Altaria" "Mega"
+      , imageUrl = imageUrlWithForm 334 "Altaria" Mega
       , evolutionData = EvolvesFrom [ 462 ] "Holding Altarianite"
       , transformationData = DoesNotTransform
       }
@@ -4605,7 +4648,7 @@ all =
       , fullName = "Zangoose"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zangoose"
+      , imageUrl = imageUrl 335 "Zangoose"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4615,7 +4658,7 @@ all =
       , fullName = "Seviper"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Seviper"
+      , imageUrl = imageUrl 336 "Seviper"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4625,7 +4668,7 @@ all =
       , fullName = "Lunatone"
       , typing = Double Rock Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Lunatone"
+      , imageUrl = imageUrl 337 "Lunatone"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4635,7 +4678,7 @@ all =
       , fullName = "Solrock"
       , typing = Double Rock Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Solrock"
+      , imageUrl = imageUrl 338 "Solrock"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4645,7 +4688,7 @@ all =
       , fullName = "Barboach"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Barboach"
+      , imageUrl = imageUrl 339 "Barboach"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4655,7 +4698,7 @@ all =
       , fullName = "Whiscash"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Whiscash"
+      , imageUrl = imageUrl 340 "Whiscash"
       , evolutionData = EvolvesFrom [ 467 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -4665,7 +4708,7 @@ all =
       , fullName = "Corphish"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Corphish"
+      , imageUrl = imageUrl 341 "Corphish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4675,7 +4718,7 @@ all =
       , fullName = "Crawdaunt"
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Crawdaunt"
+      , imageUrl = imageUrl 342 "Crawdaunt"
       , evolutionData = EvolvesFrom [ 469 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -4685,7 +4728,7 @@ all =
       , fullName = "Baltoy"
       , typing = Double Ground Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Baltoy"
+      , imageUrl = imageUrl 343 "Baltoy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4695,7 +4738,7 @@ all =
       , fullName = "Claydol"
       , typing = Double Ground Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Claydol"
+      , imageUrl = imageUrl 344 "Claydol"
       , evolutionData = EvolvesFrom [ 471 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -4705,7 +4748,7 @@ all =
       , fullName = "Lileep"
       , typing = Double Rock Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lileep"
+      , imageUrl = imageUrl 345 "Lileep"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4715,7 +4758,7 @@ all =
       , fullName = "Cradily"
       , typing = Double Rock Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cradily"
+      , imageUrl = imageUrl 346 "Cradily"
       , evolutionData = EvolvesFrom [ 473 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -4725,7 +4768,7 @@ all =
       , fullName = "Anorith"
       , typing = Double Rock Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Anorith"
+      , imageUrl = imageUrl 347 "Anorith"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4735,7 +4778,7 @@ all =
       , fullName = "Armaldo"
       , typing = Double Rock Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Armaldo"
+      , imageUrl = imageUrl 348 "Armaldo"
       , evolutionData = EvolvesFrom [ 475 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -4745,7 +4788,7 @@ all =
       , fullName = "Feebas"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Feebas"
+      , imageUrl = imageUrl 349 "Feebas"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4755,7 +4798,7 @@ all =
       , fullName = "Milotic"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Milotic"
+      , imageUrl = imageUrl 350 "Milotic"
       , evolutionData = EvolvesFrom [ 477 ] "Trade holding Prism Scale"
       , transformationData = DoesNotTransform
       }
@@ -4765,37 +4808,37 @@ all =
       , fullName = "Castform"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Castform"
+      , imageUrl = imageUrl 351 "Castform"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 1 "During normal weather, fog, sandstorm, or shadowy aura"
       }
     , { id = 1565
       , nationalDexNumber = 351
       , originalPokemonID = Just 479
-      , fullName = nameFromData "Castform" "Sunny" ""
+      , fullName = nameWithForm "Castform" <| Unique "" "Sunny"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Castform" "Sunny"
+      , imageUrl = imageUrlWithForm 351 "Castform" <| Unique "" "Sunny"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 1 "During harsh sunlight"
       }
     , { id = 1566
       , nationalDexNumber = 351
       , originalPokemonID = Just 479
-      , fullName = nameFromData "Castform" "Rainy" ""
+      , fullName = nameWithForm "Castform" <| Unique "" "Rainy"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Castform" "Rainy"
+      , imageUrl = imageUrlWithForm 351 "Castform" <| Unique "" "Rainy"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 1 "During rain"
       }
     , { id = 1567
       , nationalDexNumber = 351
       , originalPokemonID = Just 479
-      , fullName = nameFromData "Castform" "Snowy" ""
+      , fullName = nameWithForm "Castform" <| Unique "" "Snowy"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Castform" "Snowy"
+      , imageUrl = imageUrlWithForm 351 "Castform" <| Unique "" "Snowy"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 1 "During hail"
       }
@@ -4805,7 +4848,7 @@ all =
       , fullName = "Kecleon"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kecleon"
+      , imageUrl = imageUrl 352 "Kecleon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4815,7 +4858,7 @@ all =
       , fullName = "Shuppet"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shuppet"
+      , imageUrl = imageUrl 353 "Shuppet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4825,17 +4868,17 @@ all =
       , fullName = "Banette"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Banette"
+      , imageUrl = imageUrl 354 "Banette"
       , evolutionData = EvolvesFrom [ 481 ] "Level 37"
       , transformationData = DoesNotTransform
       }
     , { id = 1592
       , nationalDexNumber = 354
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Banette" "Mega" ""
+      , fullName = nameWithForm "Banette" Mega
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Banette" "Mega"
+      , imageUrl = imageUrlWithForm 354 "Banette" Mega
       , evolutionData = EvolvesFrom [ 482 ] "Holding Banettite"
       , transformationData = DoesNotTransform
       }
@@ -4845,7 +4888,7 @@ all =
       , fullName = "Duskull"
       , typing = Single Ghost
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Duskull"
+      , imageUrl = imageUrl 355 "Duskull"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4855,7 +4898,7 @@ all =
       , fullName = "Dusclops"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dusclops"
+      , imageUrl = imageUrl 356 "Dusclops"
       , evolutionData = EvolvesFrom [ 483 ] "Level 37"
       , transformationData = DoesNotTransform
       }
@@ -4865,7 +4908,7 @@ all =
       , fullName = "Dusknoir"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dusknoir"
+      , imageUrl = imageUrl 477 "Dusknoir"
       , evolutionData = EvolvesFrom [ 484 ] "Trade holding Reaper Cloth"
       , transformationData = DoesNotTransform
       }
@@ -4875,7 +4918,7 @@ all =
       , fullName = "Tropius"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tropius"
+      , imageUrl = imageUrl 357 "Tropius"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4885,7 +4928,7 @@ all =
       , fullName = "Chingling"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Chingling"
+      , imageUrl = imageUrl 433 "Chingling"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4895,7 +4938,7 @@ all =
       , fullName = "Chimecho"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Chimecho"
+      , imageUrl = imageUrl 358 "Chimecho"
       , evolutionData = EvolvesFrom [ 631 ] "Level during the night with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -4905,17 +4948,17 @@ all =
       , fullName = "Absol"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Absol"
+      , imageUrl = imageUrl 359 "Absol"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1591
       , nationalDexNumber = 359
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Absol" "Mega" ""
+      , fullName = nameWithForm "Absol" Mega
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Absol" "Mega"
+      , imageUrl = imageUrlWithForm 359 "Absol" Mega
       , evolutionData = EvolvesFrom [ 487 ] "Holding Absolite"
       , transformationData = DoesNotTransform
       }
@@ -4925,7 +4968,7 @@ all =
       , fullName = "Snorunt"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Snorunt"
+      , imageUrl = imageUrl 361 "Snorunt"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4935,17 +4978,17 @@ all =
       , fullName = "Glalie"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Glalie"
+      , imageUrl = imageUrl 362 "Glalie"
       , evolutionData = EvolvesFrom [ 489 ] "Level 42"
       , transformationData = DoesNotTransform
       }
     , { id = 1560
       , nationalDexNumber = 362
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Glalie" "Mega" ""
+      , fullName = nameWithForm "Glalie" Mega
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Glalie" "Mega"
+      , imageUrl = imageUrlWithForm 362 "Glalie" Mega
       , evolutionData = EvolvesFrom [ 490 ] "Holding Glalitite"
       , transformationData = DoesNotTransform
       }
@@ -4955,7 +4998,7 @@ all =
       , fullName = "Froslass"
       , typing = Double Ice Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Froslass"
+      , imageUrl = imageUrl 478 "Froslass"
       , evolutionData = EvolvesFrom [ 489 ] "Use Dawn Stone when female"
       , transformationData = DoesNotTransform
       }
@@ -4965,7 +5008,7 @@ all =
       , fullName = "Spheal"
       , typing = Double Ice Water
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Spheal"
+      , imageUrl = imageUrl 363 "Spheal"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -4975,7 +5018,7 @@ all =
       , fullName = "Sealeo"
       , typing = Double Ice Water
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Sealeo"
+      , imageUrl = imageUrl 364 "Sealeo"
       , evolutionData = EvolvesFrom [ 491 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -4985,7 +5028,7 @@ all =
       , fullName = "Walrein"
       , typing = Double Ice Water
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Walrein"
+      , imageUrl = imageUrl 365 "Walrein"
       , evolutionData = EvolvesFrom [ 492 ] "Level 44"
       , transformationData = DoesNotTransform
       }
@@ -4995,7 +5038,7 @@ all =
       , fullName = "Clamperl"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Clamperl"
+      , imageUrl = imageUrl 366 "Clamperl"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5005,7 +5048,7 @@ all =
       , fullName = "Huntail"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Huntail"
+      , imageUrl = imageUrl 367 "Huntail"
       , evolutionData = EvolvesFrom [ 494 ] "Trade holding Deep Sea Tooth"
       , transformationData = DoesNotTransform
       }
@@ -5015,7 +5058,7 @@ all =
       , fullName = "Gorebyss"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gorebyss"
+      , imageUrl = imageUrl 368 "Gorebyss"
       , evolutionData = EvolvesFrom [ 494 ] "Trade holding Deep Sea Scale"
       , transformationData = DoesNotTransform
       }
@@ -5025,7 +5068,7 @@ all =
       , fullName = "Relicanth"
       , typing = Double Water Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Relicanth"
+      , imageUrl = imageUrl 369 "Relicanth"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5035,7 +5078,7 @@ all =
       , fullName = "Luvdisc"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Luvdisc"
+      , imageUrl = imageUrl 370 "Luvdisc"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5045,7 +5088,7 @@ all =
       , fullName = "Bagon"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bagon"
+      , imageUrl = imageUrl 371 "Bagon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5055,7 +5098,7 @@ all =
       , fullName = "Shelgon"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shelgon"
+      , imageUrl = imageUrl 372 "Shelgon"
       , evolutionData = EvolvesFrom [ 499 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -5065,17 +5108,17 @@ all =
       , fullName = "Salamence"
       , typing = Double Dragon Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Salamence"
+      , imageUrl = imageUrl 373 "Salamence"
       , evolutionData = EvolvesFrom [ 500 ] "Level 50"
       , transformationData = DoesNotTransform
       }
     , { id = 1586
       , nationalDexNumber = 373
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Salamence" "Mega" ""
+      , fullName = nameWithForm "Salamence" Mega
       , typing = Double Dragon Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Salamence" "Mega"
+      , imageUrl = imageUrlWithForm 373 "Salamence" Mega
       , evolutionData = EvolvesFrom [ 501 ] "Holding Salamencite"
       , transformationData = DoesNotTransform
       }
@@ -5085,7 +5128,7 @@ all =
       , fullName = "Beldum"
       , typing = Double Steel Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Beldum"
+      , imageUrl = imageUrl 374 "Beldum"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5095,7 +5138,7 @@ all =
       , fullName = "Metang"
       , typing = Double Steel Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Metang"
+      , imageUrl = imageUrl 375 "Metang"
       , evolutionData = EvolvesFrom [ 502 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -5105,17 +5148,17 @@ all =
       , fullName = "Metagross"
       , typing = Double Steel Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Metagross"
+      , imageUrl = imageUrl 376 "Metagross"
       , evolutionData = EvolvesFrom [ 503 ] "Level 45"
       , transformationData = DoesNotTransform
       }
     , { id = 1585
       , nationalDexNumber = 376
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Metagross" "Mega" ""
+      , fullName = nameWithForm "Metagross" Mega
       , typing = Double Steel Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Metagross" "Mega"
+      , imageUrl = imageUrlWithForm 376 "Metagross" Mega
       , evolutionData = EvolvesFrom [ 504 ] "Holding Metagrossite"
       , transformationData = DoesNotTransform
       }
@@ -5125,7 +5168,7 @@ all =
       , fullName = "Regirock"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Regirock"
+      , imageUrl = imageUrl 377 "Regirock"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5135,7 +5178,7 @@ all =
       , fullName = "Regice"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Regice"
+      , imageUrl = imageUrl 378 "Regice"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5145,7 +5188,7 @@ all =
       , fullName = "Registeel"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Registeel"
+      , imageUrl = imageUrl 379 "Registeel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5155,17 +5198,17 @@ all =
       , fullName = "Latias"
       , typing = Double Dragon Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Latias"
+      , imageUrl = imageUrl 380 "Latias"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1400
       , nationalDexNumber = 380
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Latias" "Mega" ""
+      , fullName = nameWithForm "Latias" Mega
       , typing = Double Dragon Psychic
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Latias" "Mega"
+      , imageUrl = imageUrlWithForm 380 "Latias" Mega
       , evolutionData = EvolvesFrom [ 508 ] "Holding Latiasite"
       , transformationData = DoesNotTransform
       }
@@ -5175,17 +5218,17 @@ all =
       , fullName = "Latios"
       , typing = Double Dragon Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Latios"
+      , imageUrl = imageUrl 381 "Latios"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1399
       , nationalDexNumber = 381
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Latios" "Mega" ""
+      , fullName = nameWithForm "Latios" Mega
       , typing = Double Dragon Psychic
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Latios" "Mega"
+      , imageUrl = imageUrlWithForm 381 "Latios" Mega
       , evolutionData = EvolvesFrom [ 509 ] "Holding Latiosite"
       , transformationData = DoesNotTransform
       }
@@ -5195,17 +5238,17 @@ all =
       , fullName = "Kyogre"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kyogre"
+      , imageUrl = imageUrl 382 "Kyogre"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 2 "If not holding Blue Orb"
       }
     , { id = 1432
       , nationalDexNumber = 382
       , originalPokemonID = Just 510
-      , fullName = nameFromData "Kyogre" "Primal" ""
+      , fullName = nameWithForm "Kyogre" <| Unique "Primal" ""
       , typing = Single Water
       , ability = Just PrimordialSea
-      , imageUrl = imgUrlForAlternateForm "Kyogre" "Primal"
+      , imageUrl = imageUrlWithForm 382 "Kyogre" <| Unique "" "Primal"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 2 "While holding Blue Orb"
       }
@@ -5215,17 +5258,17 @@ all =
       , fullName = "Groudon"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Groudon"
+      , imageUrl = imageUrl 383 "Groudon"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 3 "If not holding Red Orb"
       }
     , { id = 1433
       , nationalDexNumber = 383
       , originalPokemonID = Just 511
-      , fullName = nameFromData "Groudon" "Primal" ""
+      , fullName = nameWithForm "Groudon" <| Unique "Primal" ""
       , typing = Double Ground Fire
       , ability = Just DesolateLand
-      , imageUrl = imgUrlForAlternateForm "Groudon" "Primal"
+      , imageUrl = imageUrlWithForm 383 "Groudon" <| Unique "" "Primal"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 3 "While holding Red Orb"
       }
@@ -5235,17 +5278,17 @@ all =
       , fullName = "Rayquaza"
       , typing = Double Dragon Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rayquaza"
+      , imageUrl = imageUrl 384 "Rayquaza"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1431
       , nationalDexNumber = 384
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Rayquaza" "Mega" ""
+      , fullName = nameWithForm "Rayquaza" Mega
       , typing = Double Dragon Flying
       , ability = Just DeltaStream
-      , imageUrl = imgUrlForAlternateForm "Rayquaza" "Mega"
+      , imageUrl = imageUrlWithForm 384 "Rayquaza" Mega
       , evolutionData = EvolvesFrom [ 512 ] "Knowing Dragon Ascent and not holding a Z-Crystal"
       , transformationData = DoesNotTransform
       }
@@ -5255,7 +5298,7 @@ all =
       , fullName = "Jirachi"
       , typing = Double Steel Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Jirachi"
+      , imageUrl = imageUrl 385 "Jirachi"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5265,37 +5308,37 @@ all =
       , fullName = "Deoxys"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Deoxys"
+      , imageUrl = imageUrl 386 "Deoxys"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 4 "In Pokémon Ruby and Sapphire"
       }
     , { id = 1391
       , nationalDexNumber = 386
       , originalPokemonID = Just 514
-      , fullName = nameFromData "Deoxys" "Attack" "Deoxys (Attack)"
+      , fullName = nameWithForm "Deoxys" <| Unique "" "Attack"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Deoxys" "Attack"
+      , imageUrl = imageUrlWithForm 386 "Deoxys" <| Unique "" "Attack"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 4 "In Pokémon FireRed"
       }
     , { id = 1392
       , nationalDexNumber = 386
       , originalPokemonID = Just 514
-      , fullName = nameFromData "Deoxys" "Defense" "Deoxys (Defense)"
+      , fullName = nameWithForm "Deoxys" <| Unique "" "Defense"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Deoxys" "Defense"
+      , imageUrl = imageUrlWithForm 386 "Deoxys" <| Unique "" "Defense"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 4 "In Pokémon LeafGreen"
       }
     , { id = 1393
       , nationalDexNumber = 386
       , originalPokemonID = Just 514
-      , fullName = nameFromData "Deoxys" "Speed" "Deoxys (Speed)"
+      , fullName = nameWithForm "Deoxys" <| Unique "" "Speed"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Deoxys" "Speed"
+      , imageUrl = imageUrlWithForm 386 "Deoxys" <| Unique "" "Speed"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 4 "In Pokémon Emerald"
       }
@@ -5305,7 +5348,7 @@ all =
       , fullName = "Turtwig"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Turtwig"
+      , imageUrl = imageUrl 387 "Turtwig"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5315,7 +5358,7 @@ all =
       , fullName = "Grotle"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grotle"
+      , imageUrl = imageUrl 388 "Grotle"
       , evolutionData = EvolvesFrom [ 591 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -5325,7 +5368,7 @@ all =
       , fullName = "Torterra"
       , typing = Double Grass Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Torterra"
+      , imageUrl = imageUrl 389 "Torterra"
       , evolutionData = EvolvesFrom [ 592 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -5335,7 +5378,7 @@ all =
       , fullName = "Chimchar"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chimchar"
+      , imageUrl = imageUrl 390 "Chimchar"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5345,7 +5388,7 @@ all =
       , fullName = "Monferno"
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Monferno"
+      , imageUrl = imageUrl 391 "Monferno"
       , evolutionData = EvolvesFrom [ 34 ] "Level 14"
       , transformationData = DoesNotTransform
       }
@@ -5355,7 +5398,7 @@ all =
       , fullName = "Infernape"
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Infernape"
+      , imageUrl = imageUrl 392 "Infernape"
       , evolutionData = EvolvesFrom [ 35 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -5365,7 +5408,7 @@ all =
       , fullName = "Piplup"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Piplup"
+      , imageUrl = imageUrl 393 "Piplup"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5375,7 +5418,7 @@ all =
       , fullName = "Prinplup"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Prinplup"
+      , imageUrl = imageUrl 394 "Prinplup"
       , evolutionData = EvolvesFrom [ 594 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -5385,7 +5428,7 @@ all =
       , fullName = "Empoleon"
       , typing = Double Water Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Empoleon"
+      , imageUrl = imageUrl 395 "Empoleon"
       , evolutionData = EvolvesFrom [ 595 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -5395,7 +5438,7 @@ all =
       , fullName = "Starly"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Starly"
+      , imageUrl = imageUrl 396 "Starly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5405,7 +5448,7 @@ all =
       , fullName = "Staravia"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Staravia"
+      , imageUrl = imageUrl 397 "Staravia"
       , evolutionData = EvolvesFrom [ 597 ] "Level 14"
       , transformationData = DoesNotTransform
       }
@@ -5415,7 +5458,7 @@ all =
       , fullName = "Staraptor"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Staraptor"
+      , imageUrl = imageUrl 398 "Staraptor"
       , evolutionData = EvolvesFrom [ 598 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -5425,7 +5468,7 @@ all =
       , fullName = "Bidoof"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bidoof"
+      , imageUrl = imageUrl 399 "Bidoof"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5435,7 +5478,7 @@ all =
       , fullName = "Bibarel"
       , typing = Double Normal Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bibarel"
+      , imageUrl = imageUrl 400 "Bibarel"
       , evolutionData = EvolvesFrom [ 600 ] "Level 15"
       , transformationData = DoesNotTransform
       }
@@ -5445,7 +5488,7 @@ all =
       , fullName = "Kricketot"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kricketot"
+      , imageUrl = imageUrl 401 "Kricketot"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5455,7 +5498,7 @@ all =
       , fullName = "Kricketune"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kricketune"
+      , imageUrl = imageUrl 402 "Kricketune"
       , evolutionData = EvolvesFrom [ 602 ] "Level 10"
       , transformationData = DoesNotTransform
       }
@@ -5465,7 +5508,7 @@ all =
       , fullName = "Shinx"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shinx"
+      , imageUrl = imageUrl 403 "Shinx"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5475,7 +5518,7 @@ all =
       , fullName = "Luxio"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Luxio"
+      , imageUrl = imageUrl 404 "Luxio"
       , evolutionData = EvolvesFrom [ 20 ] "Level 15"
       , transformationData = DoesNotTransform
       }
@@ -5485,7 +5528,7 @@ all =
       , fullName = "Luxray"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Luxray"
+      , imageUrl = imageUrl 405 "Luxray"
       , evolutionData = EvolvesFrom [ 21 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -5495,7 +5538,7 @@ all =
       , fullName = "Cranidos"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cranidos"
+      , imageUrl = imageUrl 408 "Cranidos"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5505,7 +5548,7 @@ all =
       , fullName = "Rampardos"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rampardos"
+      , imageUrl = imageUrl 409 "Rampardos"
       , evolutionData = EvolvesFrom [ 606 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -5515,7 +5558,7 @@ all =
       , fullName = "Shieldon"
       , typing = Double Rock Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shieldon"
+      , imageUrl = imageUrl 410 "Shieldon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5525,67 +5568,67 @@ all =
       , fullName = "Bastiodon"
       , typing = Double Rock Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bastiodon"
+      , imageUrl = imageUrl 411 "Bastiodon"
       , evolutionData = EvolvesFrom [ 608 ] "Level 30"
       , transformationData = DoesNotTransform
       }
     , { id = 610
       , nationalDexNumber = 412
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Burmy" "Plant" ""
+      , fullName = nameWithForm "Burmy" <| Unique "" "Plant"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Burmy" "Plant"
+      , imageUrl = imageUrlWithForm 412 "Burmy" <| Unique "" "Plant"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 5 "If it last battled in grass"
       }
     , { id = 611
       , nationalDexNumber = 413
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Wormadam" "Plant" ""
+      , fullName = nameWithForm "Wormadam" <| Unique "" "Plant"
       , typing = Double Bug Grass
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Wormadam" "Plant"
+      , imageUrl = imageUrlWithForm 413 "Wormadam" <| Unique "" "Plant"
       , evolutionData = EvolvesFrom [ 610 ] "Level 20 when female"
       , transformationData = DoesNotTransform
       }
     , { id = 1606
       , nationalDexNumber = 412
       , originalPokemonID = Just 610
-      , fullName = nameFromData "Burmy" "Sandy" ""
+      , fullName = nameWithForm "Burmy" <| Unique "" "Sandy"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Burmy" "Sandy"
+      , imageUrl = imageUrlWithForm 412 "Burmy" <| Unique "" "Sandy"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 5 "If it last battled in a cave"
       }
     , { id = 1568
       , nationalDexNumber = 413
       , originalPokemonID = Just 611
-      , fullName = nameFromData "Wormadam" "Sandy" ""
+      , fullName = nameWithForm "Wormadam" <| Unique "" "Sandy"
       , typing = Double Bug Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Wormadam" "Sandy"
+      , imageUrl = imageUrlWithForm 413 "Wormadam" <| Unique "" "Sandy"
       , evolutionData = EvolvesFrom [ 1606 ] "Level 20 when female"
       , transformationData = DoesNotTransform
       }
     , { id = 1607
       , nationalDexNumber = 412
       , originalPokemonID = Just 610
-      , fullName = nameFromData "Burmy" "Trash" ""
+      , fullName = nameWithForm "Burmy" <| Unique "" "Trash"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Burmy" "Trash"
+      , imageUrl = imageUrlWithForm 412 "Burmy" <| Unique "" "Trash"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 5 "If it last battled in a building"
       }
     , { id = 1569
       , nationalDexNumber = 413
       , originalPokemonID = Just 611
-      , fullName = nameFromData "Wormadam" "Trash" ""
+      , fullName = nameWithForm "Wormadam" <| Unique "" "Trash"
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Wormadam" "Trash"
+      , imageUrl = imageUrlWithForm 413 "Wormadam" <| Unique "" "Trash"
       , evolutionData = EvolvesFrom [ 1607 ] "Level 20 when female"
       , transformationData = DoesNotTransform
       }
@@ -5595,7 +5638,7 @@ all =
       , fullName = "Mothim"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mothim"
+      , imageUrl = imageUrl 414 "Mothim"
       , evolutionData = EvolvesFrom [ 610, 1606, 1607 ] "Level 20 when male"
       , transformationData = DoesNotTransform
       }
@@ -5605,7 +5648,7 @@ all =
       , fullName = "Combee"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Combee"
+      , imageUrl = imageUrl 415 "Combee"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5615,7 +5658,7 @@ all =
       , fullName = "Vespiquen"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vespiquen"
+      , imageUrl = imageUrl 416 "Vespiquen"
       , evolutionData = EvolvesFrom [ 613 ] "Level 21 When Female"
       , transformationData = DoesNotTransform
       }
@@ -5625,7 +5668,7 @@ all =
       , fullName = "Pachirisu"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pachirisu"
+      , imageUrl = imageUrl 417 "Pachirisu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5635,7 +5678,7 @@ all =
       , fullName = "Buizel"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Buizel"
+      , imageUrl = imageUrl 418 "Buizel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5645,7 +5688,7 @@ all =
       , fullName = "Floatzel"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Floatzel"
+      , imageUrl = imageUrl 419 "Floatzel"
       , evolutionData = EvolvesFrom [ 616 ] "Level 26"
       , transformationData = DoesNotTransform
       }
@@ -5655,7 +5698,7 @@ all =
       , fullName = "Cherubi"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cherubi"
+      , imageUrl = imageUrl 420 "Cherubi"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5665,7 +5708,7 @@ all =
       , fullName = "Cherrim"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cherrim"
+      , imageUrl = imageUrl 421 "Cherrim"
       , evolutionData = EvolvesFrom [ 618 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -5675,7 +5718,7 @@ all =
       , fullName = "Shellos"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shellos"
+      , imageUrl = imageUrlWithForm 422 "Shellos" <| Unique "" "West"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5685,7 +5728,7 @@ all =
       , fullName = "Gastrodon"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gastrodon"
+      , imageUrl = imageUrlWithForm 423 "Gastrodon" <| Unique "" "West"
       , evolutionData = EvolvesFrom [ 620 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -5695,7 +5738,7 @@ all =
       , fullName = "Drifloon"
       , typing = Double Ghost Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drifloon"
+      , imageUrl = imageUrl 425 "Drifloon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5705,7 +5748,7 @@ all =
       , fullName = "Drifblim"
       , typing = Double Ghost Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drifblim"
+      , imageUrl = imageUrl 426 "Drifblim"
       , evolutionData = EvolvesFrom [ 623 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -5715,7 +5758,7 @@ all =
       , fullName = "Buneary"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Buneary"
+      , imageUrl = imageUrl 427 "Buneary"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5725,17 +5768,17 @@ all =
       , fullName = "Lopunny"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lopunny"
+      , imageUrl = imageUrl 428 "Lopunny"
       , evolutionData = EvolvesFrom [ 625 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
     , { id = 1593
       , nationalDexNumber = 428
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Lopunny" "Mega" ""
+      , fullName = nameWithForm "Lopunny" Mega
       , typing = Double Normal Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Lopunny" "Mega"
+      , imageUrl = imageUrlWithForm 428 "Lopunny" Mega
       , evolutionData = EvolvesFrom [ 626 ] "Holding Lopunnite"
       , transformationData = DoesNotTransform
       }
@@ -5745,7 +5788,7 @@ all =
       , fullName = "Glameow"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Glameow"
+      , imageUrl = imageUrl 431 "Glameow"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5755,7 +5798,7 @@ all =
       , fullName = "Purugly"
       , typing = Single Normal
       , ability = Just ThickFat
-      , imageUrl = imageUrlByName "Purugly"
+      , imageUrl = imageUrl 432 "Purugly"
       , evolutionData = EvolvesFrom [ 629 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -5765,7 +5808,7 @@ all =
       , fullName = "Stunky"
       , typing = Double Poison Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stunky"
+      , imageUrl = imageUrl 434 "Stunky"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5775,7 +5818,7 @@ all =
       , fullName = "Skuntank"
       , typing = Double Poison Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skuntank"
+      , imageUrl = imageUrl 435 "Skuntank"
       , evolutionData = EvolvesFrom [ 632 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -5785,7 +5828,7 @@ all =
       , fullName = "Bronzor"
       , typing = Double Steel Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Bronzor"
+      , imageUrl = imageUrl 436 "Bronzor"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5795,7 +5838,7 @@ all =
       , fullName = "Bronzong"
       , typing = Double Steel Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Bronzong"
+      , imageUrl = imageUrl 437 "Bronzong"
       , evolutionData = EvolvesFrom [ 634 ] "Level 33"
       , transformationData = DoesNotTransform
       }
@@ -5805,7 +5848,7 @@ all =
       , fullName = "Chatot"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chatot"
+      , imageUrl = imageUrl 441 "Chatot"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5815,7 +5858,7 @@ all =
       , fullName = "Spiritomb"
       , typing = Double Ghost Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spiritomb"
+      , imageUrl = imageUrl 442 "Spiritomb"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5825,7 +5868,7 @@ all =
       , fullName = "Gible"
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gible"
+      , imageUrl = imageUrl 443 "Gible"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5835,7 +5878,7 @@ all =
       , fullName = "Gabite"
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gabite"
+      , imageUrl = imageUrl 444 "Gabite"
       , evolutionData = EvolvesFrom [ 641 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -5845,17 +5888,17 @@ all =
       , fullName = "Garchomp"
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Garchomp"
+      , imageUrl = imageUrl 445 "Garchomp"
       , evolutionData = EvolvesFrom [ 642 ] "Level 48"
       , transformationData = DoesNotTransform
       }
     , { id = 1438
       , nationalDexNumber = 445
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Garchomp" "Mega" ""
+      , fullName = nameWithForm "Garchomp" Mega
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Garchomp" "Mega"
+      , imageUrl = imageUrlWithForm 445 "Garchomp" Mega
       , evolutionData = EvolvesFrom [ 643 ] "Holding Garchompite"
       , transformationData = DoesNotTransform
       }
@@ -5865,7 +5908,7 @@ all =
       , fullName = "Riolu"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Riolu"
+      , imageUrl = imageUrl 447 "Riolu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5875,17 +5918,17 @@ all =
       , fullName = "Lucario"
       , typing = Double Fighting Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lucario"
+      , imageUrl = imageUrl 448 "Lucario"
       , evolutionData = EvolvesFrom [ 645 ] "Level during the day with high friendship"
       , transformationData = DoesNotTransform
       }
     , { id = 1561
       , nationalDexNumber = 448
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Lucario" "Mega" ""
+      , fullName = nameWithForm "Lucario" Mega
       , typing = Double Fighting Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Lucario" "Mega"
+      , imageUrl = imageUrlWithForm 448 "Lucario" Mega
       , evolutionData = EvolvesFrom [ 646 ] "Holding Lucarionite"
       , transformationData = DoesNotTransform
       }
@@ -5895,7 +5938,7 @@ all =
       , fullName = "Hippopotas"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hippopotas"
+      , imageUrl = imageUrl 449 "Hippopotas"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5905,7 +5948,7 @@ all =
       , fullName = "Hippowdon"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hippowdon"
+      , imageUrl = imageUrl 450 "Hippowdon"
       , evolutionData = EvolvesFrom [ 647 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -5915,7 +5958,7 @@ all =
       , fullName = "Skorupi"
       , typing = Double Poison Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skorupi"
+      , imageUrl = imageUrl 451 "Skorupi"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5925,7 +5968,7 @@ all =
       , fullName = "Drapion"
       , typing = Double Poison Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drapion"
+      , imageUrl = imageUrl 452 "Drapion"
       , evolutionData = EvolvesFrom [ 649 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -5935,7 +5978,7 @@ all =
       , fullName = "Croagunk"
       , typing = Double Poison Fighting
       , ability = Just DrySkin
-      , imageUrl = imageUrlByName "Croagunk"
+      , imageUrl = imageUrl 453 "Croagunk"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5945,7 +5988,7 @@ all =
       , fullName = "Toxicroak"
       , typing = Double Poison Fighting
       , ability = Just DrySkin
-      , imageUrl = imageUrlByName "Toxicroak"
+      , imageUrl = imageUrl 454 "Toxicroak"
       , evolutionData = EvolvesFrom [ 651 ] "Level 37"
       , transformationData = DoesNotTransform
       }
@@ -5955,7 +5998,7 @@ all =
       , fullName = "Carnivine"
       , typing = Single Grass
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Carnivine"
+      , imageUrl = imageUrl 455 "Carnivine"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5965,7 +6008,7 @@ all =
       , fullName = "Finneon"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Finneon"
+      , imageUrl = imageUrl 456 "Finneon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5975,7 +6018,7 @@ all =
       , fullName = "Lumineon"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lumineon"
+      , imageUrl = imageUrl 457 "Lumineon"
       , evolutionData = EvolvesFrom [ 654 ] "Level 31"
       , transformationData = DoesNotTransform
       }
@@ -5985,7 +6028,7 @@ all =
       , fullName = "Snover"
       , typing = Double Grass Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Snover"
+      , imageUrl = imageUrl 459 "Snover"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -5995,17 +6038,17 @@ all =
       , fullName = "Abomasnow"
       , typing = Double Grass Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Abomasnow"
+      , imageUrl = imageUrl 460 "Abomasnow"
       , evolutionData = EvolvesFrom [ 657 ] "Level 40"
       , transformationData = DoesNotTransform
       }
     , { id = 1562
       , nationalDexNumber = 460
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Abomasnow" "Mega" ""
+      , fullName = nameWithForm "Abomasnow" Mega
       , typing = Double Grass Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Abomasnow" "Mega"
+      , imageUrl = imageUrlWithForm 460 "Abomasnow" Mega
       , evolutionData = EvolvesFrom [ 658 ] "Holding Abomasite"
       , transformationData = DoesNotTransform
       }
@@ -6015,57 +6058,57 @@ all =
       , fullName = "Rotom"
       , typing = Double Electric Ghost
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Rotom"
+      , imageUrl = imageUrl 479 "Rotom"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 6 "When not possessing an appliance"
       }
     , { id = 1408
       , nationalDexNumber = 479
       , originalPokemonID = Just 729
-      , fullName = nameFromData "Rotom" "Heat" ""
+      , fullName = nameWithForm "Rotom" <| Unique "" "Heat"
       , typing = Double Electric Fire
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Rotom" "Heat"
+      , imageUrl = imageUrlWithForm 479 "Rotom" <| Unique "" "Heat"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 6 "When it possesses a microwave oven"
       }
     , { id = 1409
       , nationalDexNumber = 479
       , originalPokemonID = Just 729
-      , fullName = nameFromData "Rotom" "Wash" ""
+      , fullName = nameWithForm "Rotom" <| Unique "" "Wash"
       , typing = Double Electric Water
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Rotom" "Wash"
+      , imageUrl = imageUrlWithForm 479 "Rotom" <| Unique "" "Wash"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 6 "When it possesses a washing machine"
       }
     , { id = 1410
       , nationalDexNumber = 479
       , originalPokemonID = Just 729
-      , fullName = nameFromData "Rotom" "Frost" ""
+      , fullName = nameWithForm "Rotom" <| Unique "" "Frost"
       , typing = Double Electric Ice
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Rotom" "Frost"
+      , imageUrl = imageUrlWithForm 479 "Rotom" <| Unique "" "Frost"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 6 "When it possesses a refrigerator"
       }
     , { id = 1411
       , nationalDexNumber = 479
       , originalPokemonID = Just 729
-      , fullName = nameFromData "Rotom" "Fan" ""
+      , fullName = nameWithForm "Rotom" <| Unique "" "Fan"
       , typing = Double Electric Flying
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Rotom" "Fan"
+      , imageUrl = imageUrlWithForm 479 "Rotom" <| Unique "" "Fan"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 6 "When it possesses an electric fan"
       }
     , { id = 1413
       , nationalDexNumber = 479
       , originalPokemonID = Just 729
-      , fullName = nameFromData "Rotom" "Mow" ""
+      , fullName = nameWithForm "Rotom" <| Unique "" "Mow"
       , typing = Double Electric Grass
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Rotom" "Mow"
+      , imageUrl = imageUrlWithForm 479 "Rotom" <| Unique "" "Mow"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 6 "When it possesses a lawn mower"
       }
@@ -6075,7 +6118,7 @@ all =
       , fullName = "Uxie"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Uxie"
+      , imageUrl = imageUrl 480 "Uxie"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6085,7 +6128,7 @@ all =
       , fullName = "Mesprit"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Mesprit"
+      , imageUrl = imageUrl 481 "Mesprit"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6095,7 +6138,7 @@ all =
       , fullName = "Azelf"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Azelf"
+      , imageUrl = imageUrl 482 "Azelf"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6105,7 +6148,7 @@ all =
       , fullName = "Dialga"
       , typing = Double Steel Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dialga"
+      , imageUrl = imageUrl 483 "Dialga"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6115,7 +6158,7 @@ all =
       , fullName = "Palkia"
       , typing = Double Water Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Palkia"
+      , imageUrl = imageUrl 484 "Palkia"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6125,7 +6168,7 @@ all =
       , fullName = "Heatran"
       , typing = Double Fire Steel
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Heatran"
+      , imageUrl = imageUrl 485 "Heatran"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6135,7 +6178,7 @@ all =
       , fullName = "Regigigas"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Regigigas"
+      , imageUrl = imageUrl 486 "Regigigas"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6145,17 +6188,17 @@ all =
       , fullName = "Giratina"
       , typing = Double Ghost Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Giratina"
+      , imageUrl = imageUrl 487 "Giratina"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 7 "If not holding a Griseous Orb"
       }
     , { id = 1401
       , nationalDexNumber = 487
       , originalPokemonID = Just 737
-      , fullName = nameFromData "Giratina" "Origin" ""
+      , fullName = nameWithForm "Giratina" <| Unique "" "Origin"
       , typing = Double Ghost Dragon
       , ability = Just Levitate
-      , imageUrl = imgUrlForAlternateForm "Giratina" "Origin"
+      , imageUrl = imageUrlWithForm 487 "Giratina" <| Unique "" "Origin"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 7 "While holding a Griseous Orb"
       }
@@ -6165,7 +6208,7 @@ all =
       , fullName = "Cresselia"
       , typing = Single Psychic
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Cresselia"
+      , imageUrl = imageUrl 488 "Cresselia"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6175,7 +6218,7 @@ all =
       , fullName = "Phione"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Phione"
+      , imageUrl = imageUrl 489 "Phione"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6185,7 +6228,7 @@ all =
       , fullName = "Manaphy"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Manaphy"
+      , imageUrl = imageUrl 490 "Manaphy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6195,7 +6238,7 @@ all =
       , fullName = "Darkrai"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Darkrai"
+      , imageUrl = imageUrl 491 "Darkrai"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6205,17 +6248,17 @@ all =
       , fullName = "Shaymin"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shaymin"
+      , imageUrl = imageUrl 492 "Shaymin"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 8 "During the night or when frozen"
       }
     , { id = 1407
       , nationalDexNumber = 492
       , originalPokemonID = Just 740
-      , fullName = nameFromData "Shaymin" "Sky" ""
+      , fullName = nameWithForm "Shaymin" <| Unique "" "Sky"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Shaymin" "Sky"
+      , imageUrl = imageUrlWithForm 492 "Shaymin" <| Unique "" "Sky"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 8 "Use a Gracidea Flower in the daytime"
       }
@@ -6225,7 +6268,7 @@ all =
       , fullName = "Arceus"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Arceus"
+      , imageUrl = imageUrl 493 "Arceus"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6235,7 +6278,7 @@ all =
       , fullName = "Victini"
       , typing = Double Psychic Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Victini"
+      , imageUrl = imageUrl 494 "Victini"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6245,7 +6288,7 @@ all =
       , fullName = "Snivy"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Snivy"
+      , imageUrl = imageUrl 495 "Snivy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6255,7 +6298,7 @@ all =
       , fullName = "Servine"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Servine"
+      , imageUrl = imageUrl 496 "Servine"
       , evolutionData = EvolvesFrom [ 829 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -6265,7 +6308,7 @@ all =
       , fullName = "Serperior"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Serperior"
+      , imageUrl = imageUrl 497 "Serperior"
       , evolutionData = EvolvesFrom [ 830 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -6275,7 +6318,7 @@ all =
       , fullName = "Tepig"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tepig"
+      , imageUrl = imageUrl 498 "Tepig"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6285,7 +6328,7 @@ all =
       , fullName = "Pignite"
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pignite"
+      , imageUrl = imageUrl 499 "Pignite"
       , evolutionData = EvolvesFrom [ 832 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -6295,7 +6338,7 @@ all =
       , fullName = "Emboar"
       , typing = Double Fire Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Emboar"
+      , imageUrl = imageUrl 500 "Emboar"
       , evolutionData = EvolvesFrom [ 833 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -6305,7 +6348,7 @@ all =
       , fullName = "Oshawott"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Oshawott"
+      , imageUrl = imageUrl 501 "Oshawott"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6315,7 +6358,7 @@ all =
       , fullName = "Dewott"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dewott"
+      , imageUrl = imageUrl 502 "Dewott"
       , evolutionData = EvolvesFrom [ 835 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -6325,17 +6368,17 @@ all =
       , fullName = "Samurott"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Samurott"
+      , imageUrl = imageUrl 503 "Samurott"
       , evolutionData = EvolvesFrom [ 836 ] "Level 36"
       , transformationData = DoesNotTransform
       }
     , { id = 1624
       , nationalDexNumber = 503
       , originalPokemonID = Just 837
-      , fullName = nameFromData "Samurott" "Hisuian" ""
+      , fullName = nameWithForm "Samurott" Hisuian
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Samurott" "Hisuian"
+      , imageUrl = imageUrlWithForm 503 "Samurott" Hisuian
       , evolutionData = EvolvesFrom [ 836 ] "Level 36 in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
@@ -6345,7 +6388,7 @@ all =
       , fullName = "Patrat"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Patrat"
+      , imageUrl = imageUrl 504 "Patrat"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6355,7 +6398,7 @@ all =
       , fullName = "Watchog"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Watchog"
+      , imageUrl = imageUrl 505 "Watchog"
       , evolutionData = EvolvesFrom [ 838 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -6365,7 +6408,7 @@ all =
       , fullName = "Lillipup"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lillipup"
+      , imageUrl = imageUrl 506 "Lillipup"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6375,7 +6418,7 @@ all =
       , fullName = "Herdier"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Herdier"
+      , imageUrl = imageUrl 507 "Herdier"
       , evolutionData = EvolvesFrom [ 840 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -6385,7 +6428,7 @@ all =
       , fullName = "Stoutland"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stoutland"
+      , imageUrl = imageUrl 508 "Stoutland"
       , evolutionData = EvolvesFrom [ 841 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -6395,7 +6438,7 @@ all =
       , fullName = "Purrloin"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Purrloin"
+      , imageUrl = imageUrl 509 "Purrloin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6405,7 +6448,7 @@ all =
       , fullName = "Liepard"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Liepard"
+      , imageUrl = imageUrl 510 "Liepard"
       , evolutionData = EvolvesFrom [ 843 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -6415,7 +6458,7 @@ all =
       , fullName = "Pansage"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pansage"
+      , imageUrl = imageUrl 511 "Pansage"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6425,7 +6468,7 @@ all =
       , fullName = "Simisage"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Simisage"
+      , imageUrl = imageUrl 512 "Simisage"
       , evolutionData = EvolvesFrom [ 845 ] "Use Leaf Stone"
       , transformationData = DoesNotTransform
       }
@@ -6435,7 +6478,7 @@ all =
       , fullName = "Pansear"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pansear"
+      , imageUrl = imageUrl 513 "Pansear"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6445,7 +6488,7 @@ all =
       , fullName = "Simisear"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Simisear"
+      , imageUrl = imageUrl 514 "Simisear"
       , evolutionData = EvolvesFrom [ 847 ] "Use Fire Stone"
       , transformationData = DoesNotTransform
       }
@@ -6455,7 +6498,7 @@ all =
       , fullName = "Panpour"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Panpour"
+      , imageUrl = imageUrl 515 "Panpour"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6465,7 +6508,7 @@ all =
       , fullName = "Simipour"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Simipour"
+      , imageUrl = imageUrl 516 "Simipour"
       , evolutionData = EvolvesFrom [ 849 ] "Use Water Stone"
       , transformationData = DoesNotTransform
       }
@@ -6475,7 +6518,7 @@ all =
       , fullName = "Munna"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Munna"
+      , imageUrl = imageUrl 517 "Munna"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6485,7 +6528,7 @@ all =
       , fullName = "Musharna"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Musharna"
+      , imageUrl = imageUrl 518 "Musharna"
       , evolutionData = EvolvesFrom [ 851 ] "Use Moon Stone"
       , transformationData = DoesNotTransform
       }
@@ -6495,7 +6538,7 @@ all =
       , fullName = "Pidove"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pidove"
+      , imageUrl = imageUrl 519 "Pidove"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6505,7 +6548,7 @@ all =
       , fullName = "Tranquill"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tranquill"
+      , imageUrl = imageUrl 520 "Tranquill"
       , evolutionData = EvolvesFrom [ 853 ] "Level 21"
       , transformationData = DoesNotTransform
       }
@@ -6515,7 +6558,7 @@ all =
       , fullName = "Unfezant"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Unfezant"
+      , imageUrl = imageUrl 521 "Unfezant"
       , evolutionData = EvolvesFrom [ 854 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -6525,7 +6568,7 @@ all =
       , fullName = "Blitzle"
       , typing = Single Electric
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Blitzle"
+      , imageUrl = imageUrl 522 "Blitzle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6535,7 +6578,7 @@ all =
       , fullName = "Zebstrika"
       , typing = Single Electric
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Zebstrika"
+      , imageUrl = imageUrl 523 "Zebstrika"
       , evolutionData = EvolvesFrom [ 856 ] "Level 27"
       , transformationData = DoesNotTransform
       }
@@ -6545,7 +6588,7 @@ all =
       , fullName = "Roggenrola"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Roggenrola"
+      , imageUrl = imageUrl 524 "Roggenrola"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6555,7 +6598,7 @@ all =
       , fullName = "Boldore"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Boldore"
+      , imageUrl = imageUrl 525 "Boldore"
       , evolutionData = EvolvesFrom [ 858 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -6565,7 +6608,7 @@ all =
       , fullName = "Gigalith"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gigalith"
+      , imageUrl = imageUrl 526 "Gigalith"
       , evolutionData = EvolvesFrom [ 859 ] "Trade"
       , transformationData = DoesNotTransform
       }
@@ -6575,7 +6618,7 @@ all =
       , fullName = "Woobat"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Woobat"
+      , imageUrl = imageUrl 527 "Woobat"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6585,7 +6628,7 @@ all =
       , fullName = "Swoobat"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swoobat"
+      , imageUrl = imageUrl 528 "Swoobat"
       , evolutionData = EvolvesFrom [ 861 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -6595,7 +6638,7 @@ all =
       , fullName = "Drilbur"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drilbur"
+      , imageUrl = imageUrl 529 "Drilbur"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6605,7 +6648,7 @@ all =
       , fullName = "Excadrill"
       , typing = Double Ground Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Excadrill"
+      , imageUrl = imageUrl 530 "Excadrill"
       , evolutionData = EvolvesFrom [ 863 ] "Level 31"
       , transformationData = DoesNotTransform
       }
@@ -6615,17 +6658,17 @@ all =
       , fullName = "Audino"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Audino"
+      , imageUrl = imageUrl 531 "Audino"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1563
       , nationalDexNumber = 531
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Audino" "Mega" ""
+      , fullName = nameWithForm "Audino" Mega
       , typing = Double Normal Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Audino" "Mega"
+      , imageUrl = imageUrlWithForm 531 "Audino" Mega
       , evolutionData = EvolvesFrom [ 865 ] "Holding Audinite"
       , transformationData = DoesNotTransform
       }
@@ -6635,7 +6678,7 @@ all =
       , fullName = "Timburr"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Timburr"
+      , imageUrl = imageUrl 532 "Timburr"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6645,7 +6688,7 @@ all =
       , fullName = "Gurdurr"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gurdurr"
+      , imageUrl = imageUrl 533 "Gurdurr"
       , evolutionData = EvolvesFrom [ 866 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -6655,7 +6698,7 @@ all =
       , fullName = "Conkeldurr"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Conkeldurr"
+      , imageUrl = imageUrl 534 "Conkeldurr"
       , evolutionData = EvolvesFrom [ 867 ] "Trade"
       , transformationData = DoesNotTransform
       }
@@ -6665,7 +6708,7 @@ all =
       , fullName = "Tympole"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tympole"
+      , imageUrl = imageUrl 535 "Tympole"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6675,7 +6718,7 @@ all =
       , fullName = "Palpitoad"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Palpitoad"
+      , imageUrl = imageUrl 536 "Palpitoad"
       , evolutionData = EvolvesFrom [ 869 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -6685,7 +6728,7 @@ all =
       , fullName = "Seismitoad"
       , typing = Double Water Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Seismitoad"
+      , imageUrl = imageUrl 537 "Seismitoad"
       , evolutionData = EvolvesFrom [ 870 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -6695,7 +6738,7 @@ all =
       , fullName = "Throh"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Throh"
+      , imageUrl = imageUrl 538 "Throh"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6705,7 +6748,7 @@ all =
       , fullName = "Sawk"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sawk"
+      , imageUrl = imageUrl 539 "Sawk"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6715,7 +6758,7 @@ all =
       , fullName = "Sewaddle"
       , typing = Double Bug Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sewaddle"
+      , imageUrl = imageUrl 540 "Sewaddle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6725,7 +6768,7 @@ all =
       , fullName = "Swadloon"
       , typing = Double Bug Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swadloon"
+      , imageUrl = imageUrl 541 "Swadloon"
       , evolutionData = EvolvesFrom [ 874 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -6735,7 +6778,7 @@ all =
       , fullName = "Leavanny"
       , typing = Double Bug Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Leavanny"
+      , imageUrl = imageUrl 542 "Leavanny"
       , evolutionData = EvolvesFrom [ 875 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -6745,7 +6788,7 @@ all =
       , fullName = "Venipede"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Venipede"
+      , imageUrl = imageUrl 543 "Venipede"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6755,7 +6798,7 @@ all =
       , fullName = "Whirlipede"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Whirlipede"
+      , imageUrl = imageUrl 544 "Whirlipede"
       , evolutionData = EvolvesFrom [ 877 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -6765,7 +6808,7 @@ all =
       , fullName = "Scolipede"
       , typing = Double Bug Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scolipede"
+      , imageUrl = imageUrl 545 "Scolipede"
       , evolutionData = EvolvesFrom [ 878 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -6775,7 +6818,7 @@ all =
       , fullName = "Cottonee"
       , typing = Double Grass Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cottonee"
+      , imageUrl = imageUrl 546 "Cottonee"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6785,7 +6828,7 @@ all =
       , fullName = "Whimsicott"
       , typing = Double Grass Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Whimsicott"
+      , imageUrl = imageUrl 547 "Whimsicott"
       , evolutionData = EvolvesFrom [ 880 ] "Use Sun Stone"
       , transformationData = DoesNotTransform
       }
@@ -6795,7 +6838,7 @@ all =
       , fullName = "Petilil"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Petilil"
+      , imageUrl = imageUrl 548 "Petilil"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6805,17 +6848,17 @@ all =
       , fullName = "Lilligant"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lilligant"
+      , imageUrl = imageUrl 549 "Lilligant"
       , evolutionData = EvolvesFrom [ 882 ] "Use Sun Stone"
       , transformationData = DoesNotTransform
       }
     , { id = 1625
       , nationalDexNumber = 549
       , originalPokemonID = Just 883
-      , fullName = nameFromData "Lilligant" "Hisuian" ""
+      , fullName = nameWithForm "Lilligant" Hisuian
       , typing = Double Grass Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Lilligant" "Hisuian"
+      , imageUrl = imageUrlWithForm 549 "Lilligant" Hisuian
       , evolutionData = EvolvesFrom [ 882 ] "Use Sun Stone in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
@@ -6825,27 +6868,27 @@ all =
       , fullName = "Basculin"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Basculin"
+      , imageUrl = imageUrlWithForm 550 "Basculin" <| Unique "" "Red"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1414
       , nationalDexNumber = 550
       , originalPokemonID = Just 885
-      , fullName = nameFromData "Basculin" "Blue-Striped" ""
+      , fullName = nameWithForm "Basculin" <| Unique "Blue-Striped" ""
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Basculin" "Blue-Striped"
+      , imageUrl = imageUrlWithForm 550 "Basculin" <| Unique "" "Blue"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1608
       , nationalDexNumber = 550
       , originalPokemonID = Just 885
-      , fullName = nameFromData "Basculin" "White-Striped" ""
+      , fullName = nameWithForm "Basculin" <| Unique "White-Striped" ""
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "basculin-white-striped"
+      , imageUrl = imageUrlWithForm 550 "Basculin" <| Unique "" "White"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6855,7 +6898,7 @@ all =
       , fullName = "Basculegion"
       , typing = Double Water Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "basculegion"
+      , imageUrl = imageUrlWithForm 902 "Basculegion" <| Unique "" "Female"
       , evolutionData = EvolvesFrom [ 1608 ] "After losing at least 294 HP from recoil damage"
       , transformationData = DoesNotTransform
       }
@@ -6865,7 +6908,7 @@ all =
       , fullName = "Sandile"
       , typing = Double Ground Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sandile"
+      , imageUrl = imageUrl 551 "Sandile"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6875,7 +6918,7 @@ all =
       , fullName = "Krokorok"
       , typing = Double Ground Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Krokorok"
+      , imageUrl = imageUrl 552 "Krokorok"
       , evolutionData = EvolvesFrom [ 886 ] "Level 29"
       , transformationData = DoesNotTransform
       }
@@ -6885,7 +6928,7 @@ all =
       , fullName = "Krookodile"
       , typing = Double Ground Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Krookodile"
+      , imageUrl = imageUrl 553 "Krookodile"
       , evolutionData = EvolvesFrom [ 887 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -6895,7 +6938,7 @@ all =
       , fullName = "Darumaka"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Darumaka"
+      , imageUrl = imageUrl 554 "Darumaka"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6905,47 +6948,47 @@ all =
       , fullName = "Darmanitan"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Darmanitan"
+      , imageUrl = imageUrl 555 "Darmanitan"
       , evolutionData = EvolvesFrom [ 889 ] "Level 35"
       , transformationData = Transforms 9 "With HP above half"
       }
     , { id = 1554
       , nationalDexNumber = 555
       , originalPokemonID = Just 890
-      , fullName = nameFromData "Darmanitan" "Zen" ""
+      , fullName = nameWithForm "Darmanitan" <| Unique "Zen" ""
       , typing = Double Fire Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Darmanitan" "Zen"
+      , imageUrl = imageUrlWithForm 555 "Darmanitan" <| Unique "" "Zen"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 9 "With HP below half"
       }
     , { id = 1557
       , nationalDexNumber = 554
       , originalPokemonID = Just 889
-      , fullName = nameFromData "Darumaka" "Galarian" ""
+      , fullName = nameWithForm "Darumaka" Galarian
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Darumaka" "Galarian"
+      , imageUrl = imageUrlWithForm 554 "Darumaka" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1555
       , nationalDexNumber = 555
       , originalPokemonID = Just 890
-      , fullName = nameFromData "Darmanitan" "Galarian" ""
+      , fullName = nameWithForm "Darmanitan" Galarian
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "home" "darmanitan-galarian-standard"
+      , imageUrl = imageUrlWithForm 555 "Darmanitan" Galarian
       , evolutionData = EvolvesFrom [ 1557 ] "Use Ice Stone"
       , transformationData = Transforms 10 "With HP above half"
       }
     , { id = 1556
       , nationalDexNumber = 555
       , originalPokemonID = Just 890
-      , fullName = nameFromData "Darmanitan" "Galarian Zen" ""
+      , fullName = nameWithForm "Darmanitan" <| Unique "Galarian Zen" ""
       , typing = Double Ice Fire
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "home" "darmanitan-galarian-zen"
+      , imageUrl = imageUrlWithForm 555 "Darmanitan" <| Unique "" "Galar-Zen"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 10 "With HP below half"
       }
@@ -6955,7 +6998,7 @@ all =
       , fullName = "Maractus"
       , typing = Single Grass
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Maractus"
+      , imageUrl = imageUrl 556 "Maractus"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6965,7 +7008,7 @@ all =
       , fullName = "Dwebble"
       , typing = Double Bug Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dwebble"
+      , imageUrl = imageUrl 557 "Dwebble"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6975,7 +7018,7 @@ all =
       , fullName = "Crustle"
       , typing = Double Bug Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Crustle"
+      , imageUrl = imageUrl 558 "Crustle"
       , evolutionData = EvolvesFrom [ 892 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -6985,7 +7028,7 @@ all =
       , fullName = "Scraggy"
       , typing = Double Dark Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scraggy"
+      , imageUrl = imageUrl 559 "Scraggy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -6995,7 +7038,7 @@ all =
       , fullName = "Scrafty"
       , typing = Double Dark Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scrafty"
+      , imageUrl = imageUrl 560 "Scrafty"
       , evolutionData = EvolvesFrom [ 894 ] "Level 39"
       , transformationData = DoesNotTransform
       }
@@ -7005,7 +7048,7 @@ all =
       , fullName = "Sigilyph"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sigilyph"
+      , imageUrl = imageUrl 561 "Sigilyph"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7015,7 +7058,7 @@ all =
       , fullName = "Yamask"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Yamask"
+      , imageUrl = imageUrl 562 "Yamask"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7025,17 +7068,17 @@ all =
       , fullName = "Cofagrigus"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cofagrigus"
+      , imageUrl = imageUrl 563 "Cofagrigus"
       , evolutionData = EvolvesFrom [ 916 ] "Level 34"
       , transformationData = DoesNotTransform
       }
     , { id = 1464
       , nationalDexNumber = 562
       , originalPokemonID = Just 916
-      , fullName = nameFromData "Yamask" "Galarian" ""
+      , fullName = nameWithForm "Yamask" Galarian
       , typing = Double Ground Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Yamask" "Galarian"
+      , imageUrl = imageUrlWithForm 562 "Yamask" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7045,7 +7088,7 @@ all =
       , fullName = "Runerigus"
       , typing = Double Ground Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Runerigus"
+      , imageUrl = imageUrl 867 "Runerigus"
       , evolutionData = EvolvesFrom [ 1464 ] "Take 49+ damage and travel under the Stone Bridge in Dusty Bowl in Galar"
       , transformationData = DoesNotTransform
       }
@@ -7055,7 +7098,7 @@ all =
       , fullName = "Tirtouga"
       , typing = Double Water Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tirtouga"
+      , imageUrl = imageUrl 564 "Tirtouga"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7065,7 +7108,7 @@ all =
       , fullName = "Carracosta"
       , typing = Double Water Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Carracosta"
+      , imageUrl = imageUrl 565 "Carracosta"
       , evolutionData = EvolvesFrom [ 918 ] "Level 37"
       , transformationData = DoesNotTransform
       }
@@ -7075,7 +7118,7 @@ all =
       , fullName = "Archen"
       , typing = Double Rock Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Archen"
+      , imageUrl = imageUrl 566 "Archen"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7085,7 +7128,7 @@ all =
       , fullName = "Archeops"
       , typing = Double Rock Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Archeops"
+      , imageUrl = imageUrl 567 "Archeops"
       , evolutionData = EvolvesFrom [ 920 ] "Level 37"
       , transformationData = DoesNotTransform
       }
@@ -7095,7 +7138,7 @@ all =
       , fullName = "Trubbish"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Trubbish"
+      , imageUrl = imageUrl 568 "Trubbish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7105,7 +7148,7 @@ all =
       , fullName = "Garbodor"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Garbodor"
+      , imageUrl = imageUrl 569 "Garbodor"
       , evolutionData = EvolvesFrom [ 922 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -7115,7 +7158,7 @@ all =
       , fullName = "Zorua"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zorua"
+      , imageUrl = imageUrl 570 "Zorua"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7125,27 +7168,27 @@ all =
       , fullName = "Zoroark"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zoroark"
+      , imageUrl = imageUrl 571 "Zoroark"
       , evolutionData = EvolvesFrom [ 939 ] "Level 30"
       , transformationData = DoesNotTransform
       }
     , { id = 1626
       , nationalDexNumber = 570
       , originalPokemonID = Just 939
-      , fullName = nameFromData "Zorua" "Hisuian" ""
+      , fullName = nameWithForm "Zorua" Hisuian
       , typing = Double Normal Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zorua" "Hisuian"
+      , imageUrl = imageUrlWithForm 570 "Zorua" Hisuian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1627
       , nationalDexNumber = 571
       , originalPokemonID = Just 940
-      , fullName = nameFromData "Zoroark" "Hisuian" ""
+      , fullName = nameWithForm "Zoroark" Hisuian
       , typing = Double Normal Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zoroark" "Hisuian"
+      , imageUrl = imageUrlWithForm 571 "Zoroark" Hisuian
       , evolutionData = EvolvesFrom [ 1626 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -7155,7 +7198,7 @@ all =
       , fullName = "Minccino"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Minccino"
+      , imageUrl = imageUrl 572 "Minccino"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7165,7 +7208,7 @@ all =
       , fullName = "Cinccino"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cinccino"
+      , imageUrl = imageUrl 573 "Cinccino"
       , evolutionData = EvolvesFrom [ 941 ] "Use Shiny Stone"
       , transformationData = DoesNotTransform
       }
@@ -7175,7 +7218,7 @@ all =
       , fullName = "Gothita"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gothita"
+      , imageUrl = imageUrl 574 "Gothita"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7185,7 +7228,7 @@ all =
       , fullName = "Gothorita"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gothorita"
+      , imageUrl = imageUrl 575 "Gothorita"
       , evolutionData = EvolvesFrom [ 943 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -7195,7 +7238,7 @@ all =
       , fullName = "Gothitelle"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gothitelle"
+      , imageUrl = imageUrl 576 "Gothitelle"
       , evolutionData = EvolvesFrom [ 944 ] "Level 41"
       , transformationData = DoesNotTransform
       }
@@ -7205,7 +7248,7 @@ all =
       , fullName = "Solosis"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Solosis"
+      , imageUrl = imageUrl 577 "Solosis"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7215,7 +7258,7 @@ all =
       , fullName = "Duosion"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Duosion"
+      , imageUrl = imageUrl 578 "Duosion"
       , evolutionData = EvolvesFrom [ 946 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -7225,7 +7268,7 @@ all =
       , fullName = "Reuniclus"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Reuniclus"
+      , imageUrl = imageUrl 579 "Reuniclus"
       , evolutionData = EvolvesFrom [ 947 ] "Level 41"
       , transformationData = DoesNotTransform
       }
@@ -7235,7 +7278,7 @@ all =
       , fullName = "Ducklett"
       , typing = Double Water Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ducklett"
+      , imageUrl = imageUrl 580 "Ducklett"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7245,7 +7288,7 @@ all =
       , fullName = "Swanna"
       , typing = Double Water Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swanna"
+      , imageUrl = imageUrl 581 "Swanna"
       , evolutionData = EvolvesFrom [ 950 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -7255,7 +7298,7 @@ all =
       , fullName = "Vanillite"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vanillite"
+      , imageUrl = imageUrl 582 "Vanillite"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7265,7 +7308,7 @@ all =
       , fullName = "Vanillish"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vanillish"
+      , imageUrl = imageUrl 583 "Vanillish"
       , evolutionData = EvolvesFrom [ 952 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -7275,7 +7318,7 @@ all =
       , fullName = "Vanilluxe"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vanilluxe"
+      , imageUrl = imageUrl 584 "Vanilluxe"
       , evolutionData = EvolvesFrom [ 953 ] "Level 47"
       , transformationData = DoesNotTransform
       }
@@ -7285,7 +7328,7 @@ all =
       , fullName = "Deerling"
       , typing = Double Normal Grass
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Deerling"
+      , imageUrl = imageUrl 585 "Deerling"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7295,7 +7338,7 @@ all =
       , fullName = "Sawsbuck"
       , typing = Double Normal Grass
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Sawsbuck"
+      , imageUrl = imageUrl 586 "Sawsbuck"
       , evolutionData = EvolvesFrom [ 955 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -7305,7 +7348,7 @@ all =
       , fullName = "Emolga"
       , typing = Double Electric Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Emolga"
+      , imageUrl = imageUrl 587 "Emolga"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7315,7 +7358,7 @@ all =
       , fullName = "Karrablast"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Karrablast"
+      , imageUrl = imageUrl 588 "Karrablast"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7325,7 +7368,7 @@ all =
       , fullName = "Escavalier"
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Escavalier"
+      , imageUrl = imageUrl 589 "Escavalier"
       , evolutionData = EvolvesFrom [ 958 ] "Trade for a Shelmet"
       , transformationData = DoesNotTransform
       }
@@ -7335,7 +7378,7 @@ all =
       , fullName = "Foongus"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Foongus"
+      , imageUrl = imageUrl 590 "Foongus"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7345,7 +7388,7 @@ all =
       , fullName = "Amoonguss"
       , typing = Double Grass Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Amoonguss"
+      , imageUrl = imageUrl 591 "Amoonguss"
       , evolutionData = EvolvesFrom [ 961 ] "Level 39"
       , transformationData = DoesNotTransform
       }
@@ -7355,7 +7398,7 @@ all =
       , fullName = "Frillish"
       , typing = Double Water Ghost
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Frillish"
+      , imageUrl = imageUrl 592 "Frillish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7365,7 +7408,7 @@ all =
       , fullName = "Jellicent"
       , typing = Double Water Ghost
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Jellicent"
+      , imageUrl = imageUrl 593 "Jellicent"
       , evolutionData = EvolvesFrom [ 963 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -7375,7 +7418,7 @@ all =
       , fullName = "Alomomola"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Alomomola"
+      , imageUrl = imageUrl 594 "Alomomola"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7385,7 +7428,7 @@ all =
       , fullName = "Joltik"
       , typing = Double Bug Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Joltik"
+      , imageUrl = imageUrl 595 "Joltik"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7395,7 +7438,7 @@ all =
       , fullName = "Galvantula"
       , typing = Double Bug Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Galvantula"
+      , imageUrl = imageUrl 596 "Galvantula"
       , evolutionData = EvolvesFrom [ 966 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -7405,7 +7448,7 @@ all =
       , fullName = "Ferroseed"
       , typing = Double Grass Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ferroseed"
+      , imageUrl = imageUrl 597 "Ferroseed"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7415,7 +7458,7 @@ all =
       , fullName = "Ferrothorn"
       , typing = Double Grass Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ferrothorn"
+      , imageUrl = imageUrl 598 "Ferrothorn"
       , evolutionData = EvolvesFrom [ 968 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -7425,7 +7468,7 @@ all =
       , fullName = "Klink"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Klink"
+      , imageUrl = imageUrl 599 "Klink"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7435,7 +7478,7 @@ all =
       , fullName = "Klang"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Klang"
+      , imageUrl = imageUrl 600 "Klang"
       , evolutionData = EvolvesFrom [ 970 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -7445,7 +7488,7 @@ all =
       , fullName = "Klinklang"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Klinklang"
+      , imageUrl = imageUrl 601 "Klinklang"
       , evolutionData = EvolvesFrom [ 972 ] "Level 49"
       , transformationData = DoesNotTransform
       }
@@ -7455,7 +7498,7 @@ all =
       , fullName = "Tynamo"
       , typing = Single Electric
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Tynamo"
+      , imageUrl = imageUrl 602 "Tynamo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7465,7 +7508,7 @@ all =
       , fullName = "Eelektrik"
       , typing = Single Electric
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Eelektrik"
+      , imageUrl = imageUrl 603 "Eelektrik"
       , evolutionData = EvolvesFrom [ 974 ] "Level 39"
       , transformationData = DoesNotTransform
       }
@@ -7475,7 +7518,7 @@ all =
       , fullName = "Eelektross"
       , typing = Single Electric
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Eelektross"
+      , imageUrl = imageUrl 604 "Eelektross"
       , evolutionData = EvolvesFrom [ 975 ] "Use Thunder Stone"
       , transformationData = DoesNotTransform
       }
@@ -7485,7 +7528,7 @@ all =
       , fullName = "Elgyem"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Elgyem"
+      , imageUrl = imageUrl 605 "Elgyem"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7495,7 +7538,7 @@ all =
       , fullName = "Beheeyem"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Beheeyem"
+      , imageUrl = imageUrl 606 "Beheeyem"
       , evolutionData = EvolvesFrom [ 977 ] "Level 42"
       , transformationData = DoesNotTransform
       }
@@ -7505,7 +7548,7 @@ all =
       , fullName = "Litwick"
       , typing = Double Ghost Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Litwick"
+      , imageUrl = imageUrl 607 "Litwick"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7515,7 +7558,7 @@ all =
       , fullName = "Lampent"
       , typing = Double Ghost Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Lampent"
+      , imageUrl = imageUrl 608 "Lampent"
       , evolutionData = EvolvesFrom [ 979 ] "Level 41"
       , transformationData = DoesNotTransform
       }
@@ -7525,7 +7568,7 @@ all =
       , fullName = "Chandelure"
       , typing = Double Ghost Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Chandelure"
+      , imageUrl = imageUrl 609 "Chandelure"
       , evolutionData = EvolvesFrom [ 980 ] "Use Dusk Stone"
       , transformationData = DoesNotTransform
       }
@@ -7535,7 +7578,7 @@ all =
       , fullName = "Axew"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Axew"
+      , imageUrl = imageUrl 610 "Axew"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7545,7 +7588,7 @@ all =
       , fullName = "Fraxure"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Fraxure"
+      , imageUrl = imageUrl 611 "Fraxure"
       , evolutionData = EvolvesFrom [ 983 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -7555,7 +7598,7 @@ all =
       , fullName = "Haxorus"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Haxorus"
+      , imageUrl = imageUrl 612 "Haxorus"
       , evolutionData = EvolvesFrom [ 984 ] "Level 48"
       , transformationData = DoesNotTransform
       }
@@ -7565,7 +7608,7 @@ all =
       , fullName = "Cubchoo"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cubchoo"
+      , imageUrl = imageUrl 613 "Cubchoo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7575,7 +7618,7 @@ all =
       , fullName = "Beartic"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Beartic"
+      , imageUrl = imageUrl 614 "Beartic"
       , evolutionData = EvolvesFrom [ 986 ] "Level 37"
       , transformationData = DoesNotTransform
       }
@@ -7585,7 +7628,7 @@ all =
       , fullName = "Cryogonal"
       , typing = Single Ice
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Cryogonal"
+      , imageUrl = imageUrl 615 "Cryogonal"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7595,7 +7638,7 @@ all =
       , fullName = "Shelmet"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shelmet"
+      , imageUrl = imageUrl 616 "Shelmet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7605,7 +7648,7 @@ all =
       , fullName = "Accelgor"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Accelgor"
+      , imageUrl = imageUrl 617 "Accelgor"
       , evolutionData = EvolvesFrom [ 989 ] "Trade for Karrablast"
       , transformationData = DoesNotTransform
       }
@@ -7615,17 +7658,17 @@ all =
       , fullName = "Stunfisk"
       , typing = Double Ground Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stunfisk"
+      , imageUrl = imageUrl 618 "Stunfisk"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1553
       , nationalDexNumber = 618
       , originalPokemonID = Just 991
-      , fullName = nameFromData "Stunfisk" "Galarian" ""
+      , fullName = nameWithForm "Stunfisk" Galarian
       , typing = Double Ground Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Stunfisk" "Galarian"
+      , imageUrl = imageUrlWithForm 618 "Stunfisk" Galarian
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7635,7 +7678,7 @@ all =
       , fullName = "Mienfoo"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mienfoo"
+      , imageUrl = imageUrl 619 "Mienfoo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7645,7 +7688,7 @@ all =
       , fullName = "Mienshao"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mienshao"
+      , imageUrl = imageUrl 620 "Mienshao"
       , evolutionData = EvolvesFrom [ 992 ] "Level 50"
       , transformationData = DoesNotTransform
       }
@@ -7655,7 +7698,7 @@ all =
       , fullName = "Druddigon"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Druddigon"
+      , imageUrl = imageUrl 621 "Druddigon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7665,7 +7708,7 @@ all =
       , fullName = "Golett"
       , typing = Double Ground Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Golett"
+      , imageUrl = imageUrl 622 "Golett"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7675,7 +7718,7 @@ all =
       , fullName = "Golurk"
       , typing = Double Ground Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Golurk"
+      , imageUrl = imageUrl 623 "Golurk"
       , evolutionData = EvolvesFrom [ 996 ] "Level 43"
       , transformationData = DoesNotTransform
       }
@@ -7685,7 +7728,7 @@ all =
       , fullName = "Pawniard"
       , typing = Double Dark Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pawniard"
+      , imageUrl = imageUrl 624 "Pawniard"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7695,7 +7738,7 @@ all =
       , fullName = "Bisharp"
       , typing = Double Dark Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bisharp"
+      , imageUrl = imageUrl 625 "Bisharp"
       , evolutionData = EvolvesFrom [ 998 ] "Level 52"
       , transformationData = DoesNotTransform
       }
@@ -7705,7 +7748,7 @@ all =
       , fullName = "Kingambit"
       , typing = Double Dark Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "kingambit"
+      , imageUrl = imageUrl 983 "Kingambit"
       , evolutionData = EvolvesFrom [ 999 ] "Level after defeating three Bisharp that lead a pack of Pawniard"
       , transformationData = DoesNotTransform
       }
@@ -7715,7 +7758,7 @@ all =
       , fullName = "Bouffalant"
       , typing = Single Normal
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Bouffalant"
+      , imageUrl = imageUrl 626 "Bouffalant"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7725,7 +7768,7 @@ all =
       , fullName = "Rufflet"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rufflet"
+      , imageUrl = imageUrl 627 "Rufflet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7735,17 +7778,17 @@ all =
       , fullName = "Braviary"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Braviary"
+      , imageUrl = imageUrl 628 "Braviary"
       , evolutionData = EvolvesFrom [ 1001 ] "Level 54"
       , transformationData = DoesNotTransform
       }
     , { id = 1628
       , nationalDexNumber = 628
       , originalPokemonID = Just 1002
-      , fullName = nameFromData "Braviary" "Hisuian" ""
+      , fullName = nameWithForm "Braviary" Hisuian
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Braviary" "Hisuian"
+      , imageUrl = imageUrlWithForm 628 "Braviary" Hisuian
       , evolutionData = EvolvesFrom [ 1001 ] "Level 54 in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
@@ -7755,7 +7798,7 @@ all =
       , fullName = "Vullaby"
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vullaby"
+      , imageUrl = imageUrl 629 "Vullaby"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7765,7 +7808,7 @@ all =
       , fullName = "Mandibuzz"
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mandibuzz"
+      , imageUrl = imageUrl 630 "Mandibuzz"
       , evolutionData = EvolvesFrom [ 1003 ] "Level 54"
       , transformationData = DoesNotTransform
       }
@@ -7775,7 +7818,7 @@ all =
       , fullName = "Heatmor"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Heatmor"
+      , imageUrl = imageUrl 631 "Heatmor"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7785,7 +7828,7 @@ all =
       , fullName = "Durant"
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Durant"
+      , imageUrl = imageUrl 632 "Durant"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7795,7 +7838,7 @@ all =
       , fullName = "Deino"
       , typing = Double Dark Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Deino"
+      , imageUrl = imageUrl 633 "Deino"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7805,7 +7848,7 @@ all =
       , fullName = "Zweilous"
       , typing = Double Dark Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zweilous"
+      , imageUrl = imageUrl 634 "Zweilous"
       , evolutionData = EvolvesFrom [ 1008 ] "Level 50"
       , transformationData = DoesNotTransform
       }
@@ -7815,7 +7858,7 @@ all =
       , fullName = "Hydreigon"
       , typing = Double Dark Dragon
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Hydreigon"
+      , imageUrl = imageUrl 635 "Hydreigon"
       , evolutionData = EvolvesFrom [ 1009 ] "Level 64"
       , transformationData = DoesNotTransform
       }
@@ -7825,7 +7868,7 @@ all =
       , fullName = "Larvesta"
       , typing = Double Bug Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Larvesta"
+      , imageUrl = imageUrl 636 "Larvesta"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7835,7 +7878,7 @@ all =
       , fullName = "Volcarona"
       , typing = Double Bug Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Volcarona"
+      , imageUrl = imageUrl 637 "Volcarona"
       , evolutionData = EvolvesFrom [ 1011 ] "Level 59"
       , transformationData = DoesNotTransform
       }
@@ -7845,7 +7888,7 @@ all =
       , fullName = "Cobalion"
       , typing = Double Steel Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cobalion"
+      , imageUrl = imageUrl 638 "Cobalion"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7855,7 +7898,7 @@ all =
       , fullName = "Terrakion"
       , typing = Double Rock Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Terrakion"
+      , imageUrl = imageUrl 639 "Terrakion"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7865,7 +7908,7 @@ all =
       , fullName = "Virizion"
       , typing = Double Grass Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Virizion"
+      , imageUrl = imageUrl 640 "Virizion"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7875,17 +7918,17 @@ all =
       , fullName = "Tornadus"
       , typing = Single Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tornadus"
+      , imageUrl = imageUrl 641 "Tornadus"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 11 "Use the Reveal Glass"
       }
     , { id = 1415
       , nationalDexNumber = 641
       , originalPokemonID = Just 1017
-      , fullName = nameFromData "Tornadus" "Therian" ""
+      , fullName = nameWithForm "Tornadus" <| Unique "Therian" ""
       , typing = Single Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Tornadus" "Therian"
+      , imageUrl = imageUrlWithForm 641 "Tornadus" <| Unique "" "Therian"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 11 "Use the Reveal Glass"
       }
@@ -7895,17 +7938,17 @@ all =
       , fullName = "Thundurus"
       , typing = Double Electric Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Thundurus"
+      , imageUrl = imageUrl 642 "Thundurus"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 12 "Use the Reveal Glass"
       }
     , { id = 1416
       , nationalDexNumber = 642
       , originalPokemonID = Just 1018
-      , fullName = nameFromData "Thundurus" "Therian" ""
+      , fullName = nameWithForm "Thundurus" <| Unique "Therian" ""
       , typing = Double Electric Flying
       , ability = Just VoltAbsorb
-      , imageUrl = imgUrlForAlternateForm "Thundurus" "Therian"
+      , imageUrl = imageUrlWithForm 642 "Thundurus" <| Unique "" "Therian"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 12 "Use the Reveal Glass"
       }
@@ -7915,7 +7958,7 @@ all =
       , fullName = "Reshiram"
       , typing = Double Dragon Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Reshiram"
+      , imageUrl = imageUrl 643 "Reshiram"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7925,7 +7968,7 @@ all =
       , fullName = "Zekrom"
       , typing = Double Dragon Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zekrom"
+      , imageUrl = imageUrl 644 "Zekrom"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7935,17 +7978,17 @@ all =
       , fullName = "Landorus"
       , typing = Double Ground Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Landorus"
+      , imageUrl = imageUrl 645 "Landorus"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 13 "Use the Reveal Glass"
       }
     , { id = 1417
       , nationalDexNumber = 645
       , originalPokemonID = Just 1021
-      , fullName = nameFromData "Landorus" "Therian" ""
+      , fullName = nameWithForm "Landorus" <| Unique "Therian" ""
       , typing = Double Ground Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Landorus" "Therian"
+      , imageUrl = imageUrlWithForm 645 "Landorus" <| Unique "" "Therian"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 13 "Use the Reveal Glass"
       }
@@ -7955,27 +7998,27 @@ all =
       , fullName = "Kyurem"
       , typing = Double Dragon Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kyurem"
+      , imageUrl = imageUrl 646 "Kyurem"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 14 "Undo DNA Splicing"
       }
     , { id = 1421
       , nationalDexNumber = 646
       , originalPokemonID = Just 1022
-      , fullName = nameFromData "Kyurem" "White" ""
+      , fullName = nameWithForm "Kyurem" <| Unique "White" ""
       , typing = Double Dragon Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Kyurem" "White"
+      , imageUrl = imageUrlWithForm 646 "Kyurem" <| Unique "" "White"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 14 "DNA Splice with Reshiram"
       }
     , { id = 1423
       , nationalDexNumber = 646
       , originalPokemonID = Just 1022
-      , fullName = nameFromData "Kyurem" "Black" ""
+      , fullName = nameWithForm "Kyurem" <| Unique "Black" ""
       , typing = Double Dragon Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Kyurem" "Black"
+      , imageUrl = imageUrlWithForm 646 "Kyurem" <| Unique "" "Black"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 14 "DNA Splice with Zekrom"
       }
@@ -7985,7 +8028,7 @@ all =
       , fullName = "Keldeo"
       , typing = Double Water Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Keldeo"
+      , imageUrl = imageUrl 647 "Keldeo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -7995,17 +8038,17 @@ all =
       , fullName = "Meloetta"
       , typing = Double Normal Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Meloetta"
+      , imageUrl = imageUrl 648 "Meloetta"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 15 "Use the move Relic Song"
       }
     , { id = 1570
       , nationalDexNumber = 648
       , originalPokemonID = Just 1024
-      , fullName = nameFromData "Meloetta" "Pirouette" ""
+      , fullName = nameWithForm "Meloetta" <| Unique "Pirouette" ""
       , typing = Double Normal Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Meloetta" "Pirouette"
+      , imageUrl = imageUrlWithForm 648 "Meloetta" <| Unique "" "Pirouette"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 15 "Use the move Relic Song"
       }
@@ -8015,7 +8058,7 @@ all =
       , fullName = "Genesect"
       , typing = Double Bug Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Genesect"
+      , imageUrl = imageUrl 649 "Genesect"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8025,7 +8068,7 @@ all =
       , fullName = "Chespin"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chespin"
+      , imageUrl = imageUrl 650 "Chespin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8035,7 +8078,7 @@ all =
       , fullName = "Quilladin"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Quilladin"
+      , imageUrl = imageUrl 651 "Quilladin"
       , evolutionData = EvolvesFrom [ 1066 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -8045,7 +8088,7 @@ all =
       , fullName = "Chesnaught"
       , typing = Double Grass Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chesnaught"
+      , imageUrl = imageUrl 652 "Chesnaught"
       , evolutionData = EvolvesFrom [ 1067 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -8055,7 +8098,7 @@ all =
       , fullName = "Fennekin"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Fennekin"
+      , imageUrl = imageUrl 653 "Fennekin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8065,7 +8108,7 @@ all =
       , fullName = "Braixen"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Braixen"
+      , imageUrl = imageUrl 654 "Braixen"
       , evolutionData = EvolvesFrom [ 1069 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -8075,7 +8118,7 @@ all =
       , fullName = "Delphox"
       , typing = Double Fire Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Delphox"
+      , imageUrl = imageUrl 655 "Delphox"
       , evolutionData = EvolvesFrom [ 1070 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -8085,7 +8128,7 @@ all =
       , fullName = "Froakie"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Froakie"
+      , imageUrl = imageUrl 656 "Froakie"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8095,7 +8138,7 @@ all =
       , fullName = "Frogadier"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Frogadier"
+      , imageUrl = imageUrl 657 "Frogadier"
       , evolutionData = EvolvesFrom [ 1072 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -8105,7 +8148,7 @@ all =
       , fullName = "Greninja"
       , typing = Double Water Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Greninja"
+      , imageUrl = imageUrl 658 "Greninja"
       , evolutionData = EvolvesFrom [ 1073 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -8115,7 +8158,7 @@ all =
       , fullName = "Bunnelby"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bunnelby"
+      , imageUrl = imageUrl 659 "Bunnelby"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8125,7 +8168,7 @@ all =
       , fullName = "Diggersby"
       , typing = Double Normal Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Diggersby"
+      , imageUrl = imageUrl 660 "Diggersby"
       , evolutionData = EvolvesFrom [ 1075 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -8135,7 +8178,7 @@ all =
       , fullName = "Fletchling"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Fletchling"
+      , imageUrl = imageUrl 661 "Fletchling"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8145,7 +8188,7 @@ all =
       , fullName = "Fletchinder"
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Fletchinder"
+      , imageUrl = imageUrl 662 "Fletchinder"
       , evolutionData = EvolvesFrom [ 1078 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -8155,7 +8198,7 @@ all =
       , fullName = "Talonflame"
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Talonflame"
+      , imageUrl = imageUrl 663 "Talonflame"
       , evolutionData = EvolvesFrom [ 1079 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -8165,7 +8208,7 @@ all =
       , fullName = "Scatterbug"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scatterbug"
+      , imageUrl = imageUrl 664 "Scatterbug"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8175,7 +8218,7 @@ all =
       , fullName = "Spewpa"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spewpa"
+      , imageUrl = imageUrl 665 "Spewpa"
       , evolutionData = EvolvesFrom [ 1081 ] "Level 9"
       , transformationData = DoesNotTransform
       }
@@ -8185,7 +8228,7 @@ all =
       , fullName = "Vivillon"
       , typing = Double Bug Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Vivillon"
+      , imageUrl = imageUrl 666 "Vivillon"
       , evolutionData = EvolvesFrom [ 1082 ] "Level 12"
       , transformationData = DoesNotTransform
       }
@@ -8195,7 +8238,7 @@ all =
       , fullName = "Litleo"
       , typing = Double Fire Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Litleo"
+      , imageUrl = imageUrl 667 "Litleo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8205,7 +8248,7 @@ all =
       , fullName = "Pyroar"
       , typing = Double Fire Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pyroar"
+      , imageUrl = imageUrl 668 "Pyroar"
       , evolutionData = EvolvesFrom [ 1084 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -8215,7 +8258,7 @@ all =
       , fullName = "Flabébé"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Flabébé"
+      , imageUrl = imageUrl 669 "Flabebe"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8225,7 +8268,7 @@ all =
       , fullName = "Floette"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Floette"
+      , imageUrl = imageUrl 670 "Floette"
       , evolutionData = EvolvesFrom [ 1086 ] "Level 19"
       , transformationData = DoesNotTransform
       }
@@ -8235,7 +8278,7 @@ all =
       , fullName = "Florges"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Florges"
+      , imageUrl = imageUrl 671 "Florges"
       , evolutionData = EvolvesFrom [ 1088 ] "Use Shiny Stone"
       , transformationData = DoesNotTransform
       }
@@ -8245,7 +8288,7 @@ all =
       , fullName = "Skiddo"
       , typing = Single Grass
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Skiddo"
+      , imageUrl = imageUrl 672 "Skiddo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8255,7 +8298,7 @@ all =
       , fullName = "Gogoat"
       , typing = Single Grass
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Gogoat"
+      , imageUrl = imageUrl 673 "Gogoat"
       , evolutionData = EvolvesFrom [ 1090 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -8265,7 +8308,7 @@ all =
       , fullName = "Pancham"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pancham"
+      , imageUrl = imageUrl 674 "Pancham"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8275,7 +8318,7 @@ all =
       , fullName = "Pangoro"
       , typing = Double Fighting Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pangoro"
+      , imageUrl = imageUrl 675 "Pangoro"
       , evolutionData = EvolvesFrom [ 1092 ] "Level 32 With Dark-Type Pokemon In Party"
       , transformationData = DoesNotTransform
       }
@@ -8285,7 +8328,7 @@ all =
       , fullName = "Furfrou"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Furfrou"
+      , imageUrl = imageUrl 676 "Furfrou"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8295,27 +8338,27 @@ all =
       , fullName = "Espurr"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Espurr"
+      , imageUrl = imageUrl 677 "Espurr"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1096
       , nationalDexNumber = 678
       , originalPokemonID = Nothing
-      , fullName = "Meowstic"
+      , fullName = nameWithForm "Meowstic" <| Unique "Male" ""
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Meowstic"
+      , imageUrl = imageUrlWithForm 678 "Meowstic" <| Unique "" "Male"
       , evolutionData = EvolvesFrom [ 1095 ] "Level 25"
       , transformationData = DoesNotTransform
       }
     , { id = 1580
       , nationalDexNumber = 678
       , originalPokemonID = Just 1096
-      , fullName = nameFromData "Meowstic" "Female" ""
+      , fullName = nameWithForm "Meowstic" <| Unique "Female" ""
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Meowstic" "Female"
+      , imageUrl = imageUrlWithForm 678 "Meowstic" <| Unique "" "Female"
       , evolutionData = EvolvesFrom [ 1095 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -8325,7 +8368,7 @@ all =
       , fullName = "Honedge"
       , typing = Double Steel Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Honedge"
+      , imageUrl = imageUrl 679 "Honedge"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8335,7 +8378,7 @@ all =
       , fullName = "Doublade"
       , typing = Double Steel Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Doublade"
+      , imageUrl = imageUrl 680 "Doublade"
       , evolutionData = EvolvesFrom [ 25 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -8345,17 +8388,17 @@ all =
       , fullName = "Aegislash"
       , typing = Double Steel Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aegislash"
+      , imageUrl = imageUrlWithForm 681 "Aegislash" <| Unique "" "Shield"
       , evolutionData = EvolvesFrom [ 26 ] "Use Dusk Stone"
       , transformationData = Transforms 16 "Use the move King's Shield"
       }
     , { id = 1370
       , nationalDexNumber = 681
       , originalPokemonID = Just 1098
-      , fullName = nameFromData "Aegislash" "Blade" ""
+      , fullName = nameWithForm "Aegislash" <| Unique "" "Blade"
       , typing = Double Steel Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Aegislash" "Blade"
+      , imageUrl = imageUrlWithForm 681 "Aegislash" <| Unique "" "Blade"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 16 "Use a damaging move"
       }
@@ -8365,7 +8408,7 @@ all =
       , fullName = "Spritzee"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spritzee"
+      , imageUrl = imageUrl 682 "Spritzee"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8375,7 +8418,7 @@ all =
       , fullName = "Aromatisse"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aromatisse"
+      , imageUrl = imageUrl 683 "Aromatisse"
       , evolutionData = EvolvesFrom [ 1101 ] "Trade holding Sachet"
       , transformationData = DoesNotTransform
       }
@@ -8385,7 +8428,7 @@ all =
       , fullName = "Swirlix"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Swirlix"
+      , imageUrl = imageUrl 684 "Swirlix"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8395,7 +8438,7 @@ all =
       , fullName = "Slurpuff"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Slurpuff"
+      , imageUrl = imageUrl 685 "Slurpuff"
       , evolutionData = EvolvesFrom [ 1103 ] "Trade holding Whipped Dream"
       , transformationData = DoesNotTransform
       }
@@ -8405,7 +8448,7 @@ all =
       , fullName = "Inkay"
       , typing = Double Dark Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Inkay"
+      , imageUrl = imageUrl 686 "Inkay"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8415,7 +8458,7 @@ all =
       , fullName = "Malamar"
       , typing = Double Dark Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Malamar"
+      , imageUrl = imageUrl 687 "Malamar"
       , evolutionData = EvolvesFrom [ 1105 ] "Level 30 With System Or Controller Upside-Down"
       , transformationData = DoesNotTransform
       }
@@ -8425,7 +8468,7 @@ all =
       , fullName = "Binacle"
       , typing = Double Rock Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Binacle"
+      , imageUrl = imageUrl 688 "Binacle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8435,7 +8478,7 @@ all =
       , fullName = "Barbaracle"
       , typing = Double Rock Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Barbaracle"
+      , imageUrl = imageUrl 689 "Barbaracle"
       , evolutionData = EvolvesFrom [ 1107 ] "Level 39"
       , transformationData = DoesNotTransform
       }
@@ -8445,7 +8488,7 @@ all =
       , fullName = "Skrelp"
       , typing = Double Poison Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skrelp"
+      , imageUrl = imageUrl 690 "Skrelp"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8455,7 +8498,7 @@ all =
       , fullName = "Dragalge"
       , typing = Double Poison Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dragalge"
+      , imageUrl = imageUrl 691 "Dragalge"
       , evolutionData = EvolvesFrom [ 1110 ] "Level 48"
       , transformationData = DoesNotTransform
       }
@@ -8465,7 +8508,7 @@ all =
       , fullName = "Clauncher"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Clauncher"
+      , imageUrl = imageUrl 692 "Clauncher"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8475,7 +8518,7 @@ all =
       , fullName = "Clawitzer"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Clawitzer"
+      , imageUrl = imageUrl 693 "Clawitzer"
       , evolutionData = EvolvesFrom [ 1112 ] "Level 37"
       , transformationData = DoesNotTransform
       }
@@ -8485,7 +8528,7 @@ all =
       , fullName = "Helioptile"
       , typing = Double Electric Normal
       , ability = Just DrySkin
-      , imageUrl = imageUrlByName "Helioptile"
+      , imageUrl = imageUrl 694 "Helioptile"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8495,7 +8538,7 @@ all =
       , fullName = "Heliolisk"
       , typing = Double Electric Normal
       , ability = Just DrySkin
-      , imageUrl = imageUrlByName "Heliolisk"
+      , imageUrl = imageUrl 695 "Heliolisk"
       , evolutionData = EvolvesFrom [ 1122 ] "Use Sun Stone"
       , transformationData = DoesNotTransform
       }
@@ -8505,7 +8548,7 @@ all =
       , fullName = "Tyrunt"
       , typing = Double Rock Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tyrunt"
+      , imageUrl = imageUrl 696 "Tyrunt"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8515,7 +8558,7 @@ all =
       , fullName = "Tyrantrum"
       , typing = Double Rock Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tyrantrum"
+      , imageUrl = imageUrl 697 "Tyrantrum"
       , evolutionData = EvolvesFrom [ 1124 ] "Level 39 during the day"
       , transformationData = DoesNotTransform
       }
@@ -8525,7 +8568,7 @@ all =
       , fullName = "Amaura"
       , typing = Double Rock Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Amaura"
+      , imageUrl = imageUrl 698 "Amaura"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8535,7 +8578,7 @@ all =
       , fullName = "Aurorus"
       , typing = Double Rock Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Aurorus"
+      , imageUrl = imageUrl 699 "Aurorus"
       , evolutionData = EvolvesFrom [ 1126 ] "Level 39 at night"
       , transformationData = DoesNotTransform
       }
@@ -8545,7 +8588,7 @@ all =
       , fullName = "Hawlucha"
       , typing = Double Fighting Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hawlucha"
+      , imageUrl = imageUrl 701 "Hawlucha"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8555,7 +8598,7 @@ all =
       , fullName = "Dedenne"
       , typing = Double Electric Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dedenne"
+      , imageUrl = imageUrl 702 "Dedenne"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8565,7 +8608,7 @@ all =
       , fullName = "Carbink"
       , typing = Double Rock Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Carbink"
+      , imageUrl = imageUrl 703 "Carbink"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8575,7 +8618,7 @@ all =
       , fullName = "Goomy"
       , typing = Single Dragon
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Goomy"
+      , imageUrl = imageUrl 704 "Goomy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8585,7 +8628,7 @@ all =
       , fullName = "Sliggoo"
       , typing = Single Dragon
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Sliggoo"
+      , imageUrl = imageUrl 705 "Sliggoo"
       , evolutionData = EvolvesFrom [ 1133 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -8595,27 +8638,27 @@ all =
       , fullName = "Goodra"
       , typing = Single Dragon
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Goodra"
+      , imageUrl = imageUrl 706 "Goodra"
       , evolutionData = EvolvesFrom [ 1134 ] "Level 50 When Raining or Foggy outside battle"
       , transformationData = DoesNotTransform
       }
     , { id = 1629
       , nationalDexNumber = 705
       , originalPokemonID = Just 1134
-      , fullName = nameFromData "Sliggoo" "Hisuian" ""
+      , fullName = nameWithForm "Sliggoo" Hisuian
       , typing = Double Dragon Steel
       , ability = Just SapSipper
-      , imageUrl = imgUrlForAlternateForm "Sliggoo" "Hisuian"
+      , imageUrl = imageUrlWithForm 705 "Sliggoo" Hisuian
       , evolutionData = EvolvesFrom [ 1133 ] "Level 40 in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
     , { id = 1630
       , nationalDexNumber = 706
       , originalPokemonID = Just 1135
-      , fullName = nameFromData "Goodra" "Hisuian" ""
+      , fullName = nameWithForm "Goodra" Hisuian
       , typing = Double Dragon Steel
       , ability = Just SapSipper
-      , imageUrl = imgUrlForAlternateForm "Goodra" "Hisuian"
+      , imageUrl = imageUrlWithForm 706 "Goodra" Hisuian
       , evolutionData = EvolvesFrom [ 1629 ] "Level 50 When Raining or Foggy outside battle"
       , transformationData = DoesNotTransform
       }
@@ -8625,7 +8668,7 @@ all =
       , fullName = "Klefki"
       , typing = Double Steel Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Klefki"
+      , imageUrl = imageUrl 707 "Klefki"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8635,7 +8678,7 @@ all =
       , fullName = "Phantump"
       , typing = Double Ghost Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Phantump"
+      , imageUrl = imageUrl 708 "Phantump"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8645,7 +8688,7 @@ all =
       , fullName = "Trevenant"
       , typing = Double Ghost Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Trevenant"
+      , imageUrl = imageUrl 709 "Trevenant"
       , evolutionData = EvolvesFrom [ 1137 ] "Trade"
       , transformationData = DoesNotTransform
       }
@@ -8655,7 +8698,7 @@ all =
       , fullName = "Pumpkaboo"
       , typing = Double Ghost Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pumpkaboo"
+      , imageUrl = imageUrl 710 "Pumpkaboo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8665,68 +8708,18 @@ all =
       , fullName = "Gourgeist"
       , typing = Double Ghost Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gourgeist"
+      , imageUrl = imageUrl 711 "Gourgeist"
       , evolutionData = EvolvesFrom [ 1140 ] "Trade"
       , transformationData = DoesNotTransform
       }
     , { id = 1571
       , nationalDexNumber = 710
       , originalPokemonID = Just 1140
-      , fullName = nameFromData "Pumpkaboo" "Small" ""
+      , fullName = "Pumpkaboo"
       , typing = Double Ghost Grass
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Pumpkaboo" "Small"
+      , imageUrl = imageUrl 710 "Pumpkaboo"
       , evolutionData = DoesNotEvolve
-      , transformationData = DoesNotTransform
-      }
-    , { id = 1574
-      , nationalDexNumber = 711
-      , originalPokemonID = Just 1141
-      , fullName = nameFromData "Gourgeist" "Small" ""
-      , typing = Double Ghost Grass
-      , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gourgeist" "Small"
-      , evolutionData = EvolvesFrom [ 1571 ] "Trade"
-      , transformationData = DoesNotTransform
-      }
-    , { id = 1572
-      , nationalDexNumber = 710
-      , originalPokemonID = Just 1140
-      , fullName = nameFromData "Pumpkaboo" "Large" ""
-      , typing = Double Ghost Grass
-      , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Pumpkaboo" "Large"
-      , evolutionData = DoesNotEvolve
-      , transformationData = DoesNotTransform
-      }
-    , { id = 1575
-      , nationalDexNumber = 711
-      , originalPokemonID = Just 1141
-      , fullName = nameFromData "Gourgeist" "Large" ""
-      , typing = Double Ghost Grass
-      , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gourgeist" "Large"
-      , evolutionData = EvolvesFrom [ 1572 ] "Trade"
-      , transformationData = DoesNotTransform
-      }
-    , { id = 1573
-      , nationalDexNumber = 710
-      , originalPokemonID = Just 1140
-      , fullName = nameFromData "Pumpkaboo" "Super" ""
-      , typing = Double Ghost Grass
-      , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Pumpkaboo" "Super"
-      , evolutionData = DoesNotEvolve
-      , transformationData = DoesNotTransform
-      }
-    , { id = 1576
-      , nationalDexNumber = 711
-      , originalPokemonID = Just 1141
-      , fullName = nameFromData "Gourgeist" "Super" ""
-      , typing = Double Ghost Grass
-      , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Gourgeist" "Super"
-      , evolutionData = EvolvesFrom [ 1573 ] "Trade"
       , transformationData = DoesNotTransform
       }
     , { id = 1142
@@ -8735,7 +8728,7 @@ all =
       , fullName = "Bergmite"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bergmite"
+      , imageUrl = imageUrl 712 "Bergmite"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8745,17 +8738,17 @@ all =
       , fullName = "Avalugg"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Avalugg"
+      , imageUrl = imageUrl 713 "Avalugg"
       , evolutionData = EvolvesFrom [ 1142 ] "Level 37"
       , transformationData = DoesNotTransform
       }
     , { id = 1631
       , nationalDexNumber = 713
       , originalPokemonID = Just 1143
-      , fullName = nameFromData "Avalugg" "Hisuian" ""
+      , fullName = nameWithForm "Avalugg" Hisuian
       , typing = Double Ice Rock
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Avalugg" "Hisuian"
+      , imageUrl = imageUrlWithForm 713 "Avalugg" Hisuian
       , evolutionData = EvolvesFrom [ 1142 ] "Level 37 in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
@@ -8765,7 +8758,7 @@ all =
       , fullName = "Noibat"
       , typing = Double Flying Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Noibat"
+      , imageUrl = imageUrl 714 "Noibat"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8775,7 +8768,7 @@ all =
       , fullName = "Noivern"
       , typing = Double Flying Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Noivern"
+      , imageUrl = imageUrl 715 "Noivern"
       , evolutionData = EvolvesFrom [ 1144 ] "Level 48"
       , transformationData = DoesNotTransform
       }
@@ -8785,7 +8778,7 @@ all =
       , fullName = "Xerneas"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Xerneas"
+      , imageUrl = imageUrl 716 "Xerneas"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8795,17 +8788,17 @@ all =
       , fullName = "Yveltal"
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Yveltal"
+      , imageUrl = imageUrl 717 "Yveltal"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1577
       , nationalDexNumber = 718
       , originalPokemonID = Just 1148
-      , fullName = nameFromData "Zygarde" "10%" ""
+      , fullName = nameWithForm "Zygarde" <| Unique "" "10%"
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zygarde" "10%"
+      , imageUrl = imageUrlWithForm 718 "Zygarde" <| Unique "" "10Percent"
       , evolutionData = EvolvesFrom [] "Collect 10% of Zygarde Cells"
       , transformationData = DoesNotTransform
       }
@@ -8815,17 +8808,17 @@ all =
       , fullName = "Zygarde"
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zygarde"
+      , imageUrl = imageUrl 718 "Zygarde"
       , evolutionData = EvolvesFrom [ 1577 ] "Collect 50% of Zygarde Cells"
       , transformationData = Transforms 17 "At the end of battle"
       }
     , { id = 1578
       , nationalDexNumber = 718
       , originalPokemonID = Just 1148
-      , fullName = nameFromData "Zygarde" "Complete" ""
+      , fullName = nameWithForm "Zygarde" <| Unique "" "Complete"
       , typing = Double Dragon Ground
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zygarde" "Complete"
+      , imageUrl = imageUrlWithForm 718 "Zygarde" <| Unique "" "Complete"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 17 "If HP is below half"
       }
@@ -8835,17 +8828,17 @@ all =
       , fullName = "Diancie"
       , typing = Double Rock Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Diancie"
+      , imageUrl = imageUrl 719 "Diancie"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1594
       , nationalDexNumber = 719
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Diancie" "Mega" ""
+      , fullName = nameWithForm "Diancie" Mega
       , typing = Double Rock Fairy
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Diancie" "Mega"
+      , imageUrl = imageUrlWithForm 719 "Diancie" Mega
       , evolutionData = EvolvesFrom [ 1149 ] "Holding Diancite"
       , transformationData = DoesNotTransform
       }
@@ -8855,17 +8848,17 @@ all =
       , fullName = "Hoopa"
       , typing = Double Psychic Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hoopa"
+      , imageUrl = imageUrl 720 "Hoopa"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 18 "After 3 days"
       }
     , { id = 1579
       , nationalDexNumber = 720
       , originalPokemonID = Just 1151
-      , fullName = nameFromData "Hoopa" "Unbound" ""
+      , fullName = nameWithForm "Hoopa" <| Unique "" "Unbound"
       , typing = Double Psychic Dark
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Hoopa" "Unbound"
+      , imageUrl = imageUrlWithForm 720 "Hoopa" <| Unique "" "Unbound"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 18 "Use Prison Bottle"
       }
@@ -8875,7 +8868,7 @@ all =
       , fullName = "Volcanion"
       , typing = Double Fire Water
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Volcanion"
+      , imageUrl = imageUrl 721 "Volcanion"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8885,7 +8878,7 @@ all =
       , fullName = "Rowlet"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rowlet"
+      , imageUrl = imageUrl 722 "Rowlet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8895,7 +8888,7 @@ all =
       , fullName = "Dartrix"
       , typing = Double Grass Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dartrix"
+      , imageUrl = imageUrl 723 "Dartrix"
       , evolutionData = EvolvesFrom [ 1246 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -8905,17 +8898,17 @@ all =
       , fullName = "Decidueye"
       , typing = Double Grass Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Decidueye"
+      , imageUrl = imageUrl 724 "Decidueye"
       , evolutionData = EvolvesFrom [ 1247 ] "Level 34"
       , transformationData = DoesNotTransform
       }
     , { id = 1632
       , nationalDexNumber = 724
       , originalPokemonID = Just 1248
-      , fullName = nameFromData "Decidueye" "Hisuian" ""
+      , fullName = nameWithForm "Decidueye" Hisuian
       , typing = Double Grass Fighting
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Decidueye" "Hisuian"
+      , imageUrl = imageUrlWithForm 724 "Decidueye" Hisuian
       , evolutionData = EvolvesFrom [ 1247 ] "Level 36 in Legends: Arceus"
       , transformationData = DoesNotTransform
       }
@@ -8925,7 +8918,7 @@ all =
       , fullName = "Litten"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Litten"
+      , imageUrl = imageUrl 725 "Litten"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8935,7 +8928,7 @@ all =
       , fullName = "Torracat"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Torracat"
+      , imageUrl = imageUrl 726 "Torracat"
       , evolutionData = EvolvesFrom [ 1249 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -8945,7 +8938,7 @@ all =
       , fullName = "Incineroar"
       , typing = Double Fire Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Incineroar"
+      , imageUrl = imageUrl 727 "Incineroar"
       , evolutionData = EvolvesFrom [ 1250 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -8955,7 +8948,7 @@ all =
       , fullName = "Popplio"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Popplio"
+      , imageUrl = imageUrl 728 "Popplio"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8965,7 +8958,7 @@ all =
       , fullName = "Brionne"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Brionne"
+      , imageUrl = imageUrl 729 "Brionne"
       , evolutionData = EvolvesFrom [ 1252 ] "Level 17"
       , transformationData = DoesNotTransform
       }
@@ -8975,7 +8968,7 @@ all =
       , fullName = "Primarina"
       , typing = Double Water Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Primarina"
+      , imageUrl = imageUrl 730 "Primarina"
       , evolutionData = EvolvesFrom [ 1253 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -8985,7 +8978,7 @@ all =
       , fullName = "Pikipek"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pikipek"
+      , imageUrl = imageUrl 731 "Pikipek"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -8995,7 +8988,7 @@ all =
       , fullName = "Trumbeak"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Trumbeak"
+      , imageUrl = imageUrl 732 "Trumbeak"
       , evolutionData = EvolvesFrom [ 1256 ] "Level 14"
       , transformationData = DoesNotTransform
       }
@@ -9005,7 +8998,7 @@ all =
       , fullName = "Toucannon"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Toucannon"
+      , imageUrl = imageUrl 733 "Toucannon"
       , evolutionData = EvolvesFrom [ 1257 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -9015,7 +9008,7 @@ all =
       , fullName = "Yungoos"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Yungoos"
+      , imageUrl = imageUrl 734 "Yungoos"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9025,7 +9018,7 @@ all =
       , fullName = "Gumshoos"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gumshoos"
+      , imageUrl = imageUrl 735 "Gumshoos"
       , evolutionData = EvolvesFrom [ 1259 ] "Level 20 During The Day"
       , transformationData = DoesNotTransform
       }
@@ -9035,7 +9028,7 @@ all =
       , fullName = "Grubbin"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grubbin"
+      , imageUrl = imageUrl 736 "Grubbin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9045,7 +9038,7 @@ all =
       , fullName = "Charjabug"
       , typing = Double Bug Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Charjabug"
+      , imageUrl = imageUrl 737 "Charjabug"
       , evolutionData = EvolvesFrom [ 1261 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -9055,7 +9048,7 @@ all =
       , fullName = "Vikavolt"
       , typing = Double Bug Electric
       , ability = Just Levitate
-      , imageUrl = imageUrlByName "Vikavolt"
+      , imageUrl = imageUrl 738 "Vikavolt"
       , evolutionData = EvolvesFrom [ 1262 ] "Use Thunder Stone"
       , transformationData = DoesNotTransform
       }
@@ -9065,7 +9058,7 @@ all =
       , fullName = "Crabrawler"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Crabrawler"
+      , imageUrl = imageUrl 739 "Crabrawler"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9075,47 +9068,47 @@ all =
       , fullName = "Crabominable"
       , typing = Double Fighting Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Crabominable"
+      , imageUrl = imageUrl 740 "Crabominable"
       , evolutionData = EvolvesFrom [ 1264 ] "Level at Mount Lanakila in Alola"
       , transformationData = DoesNotTransform
       }
     , { id = 1267
       , nationalDexNumber = 741
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Oricorio" "Baile" ""
+      , fullName = nameWithForm "Oricorio" <| Unique "" "Baile"
       , typing = Double Fire Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Oricorio" "Baile"
+      , imageUrl = imageUrl 741 "Oricorio"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 19 "Use Red Nectar"
       }
     , { id = 1582
       , nationalDexNumber = 741
       , originalPokemonID = Just 1267
-      , fullName = nameFromData "Oricorio" "Pom-Pom" ""
+      , fullName = nameWithForm "Oricorio" <| Unique "" "Pom-Pom"
       , typing = Double Electric Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Oricorio" "Pom-Pom"
+      , imageUrl = imageUrlWithForm 741 "Oricorio" <| Unique "" "Pom-Pom"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 19 "Use Yellow Nectar"
       }
     , { id = 1583
       , nationalDexNumber = 741
       , originalPokemonID = Just 1267
-      , fullName = nameFromData "Oricorio" "Pa'u" ""
+      , fullName = nameWithForm "Oricorio" <| Unique "" "Pa'u"
       , typing = Double Psychic Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Oricorio" "Pa'u"
+      , imageUrl = imageUrlWithForm 741 "Oricorio" <| Unique "" "Pau"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 19 "Use Pink Nectar"
       }
     , { id = 1584
       , nationalDexNumber = 741
       , originalPokemonID = Just 1267
-      , fullName = nameFromData "Oricorio" "Sensu" ""
+      , fullName = nameWithForm "Oricorio" <| Unique "" "Sensu"
       , typing = Double Ghost Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Oricorio" "Sensu"
+      , imageUrl = imageUrlWithForm 741 "Oricorio" <| Unique "" "Sensu"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 19 "Use Purple Nectar"
       }
@@ -9125,7 +9118,7 @@ all =
       , fullName = "Cutiefly"
       , typing = Double Bug Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cutiefly"
+      , imageUrl = imageUrl 742 "Cutiefly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9135,7 +9128,7 @@ all =
       , fullName = "Ribombee"
       , typing = Double Bug Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Ribombee"
+      , imageUrl = imageUrl 743 "Ribombee"
       , evolutionData = EvolvesFrom [ 1268 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -9145,7 +9138,7 @@ all =
       , fullName = "Rockruff"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rockruff"
+      , imageUrl = imageUrl 744 "Rockruff"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9155,47 +9148,47 @@ all =
       , fullName = "Lycanroc"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lycanroc"
+      , imageUrl = imageUrl 745 "Lycanroc"
       , evolutionData = EvolvesFrom [ 1270 ] "Level 25 during the day"
       , transformationData = DoesNotTransform
       }
     , { id = 1403
       , nationalDexNumber = 745
       , originalPokemonID = Just 1271
-      , fullName = nameFromData "Lycanroc" "Dusk" ""
+      , fullName = nameWithForm "Lycanroc" <| Unique "" "Dusk"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Lycanroc" "Dusk"
+      , imageUrl = imageUrlWithForm 745 "Lycanroc" <| Unique "" "Dusk"
       , evolutionData = EvolvesFrom [ 1270 ] "Level 25 with Own Tempo between 5-6pm"
       , transformationData = DoesNotTransform
       }
     , { id = 1402
       , nationalDexNumber = 745
       , originalPokemonID = Just 1271
-      , fullName = nameFromData "Lycanroc" "Midnight" ""
+      , fullName = nameWithForm "Lycanroc" <| Unique "" "Midnight"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Lycanroc" "Midnight"
+      , imageUrl = imageUrlWithForm 745 "Lycanroc" <| Unique "" "Midnight"
       , evolutionData = EvolvesFrom [ 1270 ] "Level 25 at night"
       , transformationData = DoesNotTransform
       }
     , { id = 1272
       , nationalDexNumber = 746
       , originalPokemonID = Nothing
-      , fullName = nameFromData "Wishiwashi" "Solo" "Solo Wishiwashi"
+      , fullName = nameWithForm "Wishiwashi" <| Unique "Solo" ""
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Wishiwashi" "solo"
+      , imageUrl = imageUrl 746 "Wishiwashi"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 20 "If HP below 25%"
       }
     , { id = 1581
       , nationalDexNumber = 746
       , originalPokemonID = Just 1272
-      , fullName = nameFromData "Wishiwashi" "School" "Wishiwashi School"
+      , fullName = nameWithForm "Wishiwashi" <| Unique "" "School"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Wishiwashi" "School"
+      , imageUrl = imageUrlWithForm 746 "Wishiwashi" <| Unique "" "School"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 20 "If HP above 25% and level 20+"
       }
@@ -9205,7 +9198,7 @@ all =
       , fullName = "Mareanie"
       , typing = Double Poison Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mareanie"
+      , imageUrl = imageUrl 747 "Mareanie"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9215,7 +9208,7 @@ all =
       , fullName = "Toxapex"
       , typing = Double Poison Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Toxapex"
+      , imageUrl = imageUrl 748 "Toxapex"
       , evolutionData = EvolvesFrom [ 1273 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -9225,7 +9218,7 @@ all =
       , fullName = "Mudbray"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mudbray"
+      , imageUrl = imageUrl 749 "Mudbray"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9235,7 +9228,7 @@ all =
       , fullName = "Mudsdale"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mudsdale"
+      , imageUrl = imageUrl 750 "Mudsdale"
       , evolutionData = EvolvesFrom [ 1275 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -9245,7 +9238,7 @@ all =
       , fullName = "Dewpider"
       , typing = Double Water Bug
       , ability = Just WaterBubble
-      , imageUrl = imageUrlByName "Dewpider"
+      , imageUrl = imageUrl 751 "Dewpider"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9255,7 +9248,7 @@ all =
       , fullName = "Araquanid"
       , typing = Double Water Bug
       , ability = Just WaterBubble
-      , imageUrl = imageUrlByName "Araquanid"
+      , imageUrl = imageUrl 752 "Araquanid"
       , evolutionData = EvolvesFrom [ 1278 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -9265,7 +9258,7 @@ all =
       , fullName = "Fomantis"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Fomantis"
+      , imageUrl = imageUrl 753 "Fomantis"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9275,7 +9268,7 @@ all =
       , fullName = "Lurantis"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lurantis"
+      , imageUrl = imageUrl 754 "Lurantis"
       , evolutionData = EvolvesFrom [ 1280 ] "Level 34 During The Day"
       , transformationData = DoesNotTransform
       }
@@ -9285,7 +9278,7 @@ all =
       , fullName = "Morelull"
       , typing = Double Grass Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Morelull"
+      , imageUrl = imageUrl 755 "Morelull"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9295,7 +9288,7 @@ all =
       , fullName = "Shiinotic"
       , typing = Double Grass Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Shiinotic"
+      , imageUrl = imageUrl 756 "Shiinotic"
       , evolutionData = EvolvesFrom [ 1282 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -9305,7 +9298,7 @@ all =
       , fullName = "Salandit"
       , typing = Double Poison Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Salandit"
+      , imageUrl = imageUrl 757 "Salandit"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9315,7 +9308,7 @@ all =
       , fullName = "Salazzle"
       , typing = Double Poison Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Salazzle"
+      , imageUrl = imageUrl 758 "Salazzle"
       , evolutionData = EvolvesFrom [ 1284 ] "Level 33 When Female"
       , transformationData = DoesNotTransform
       }
@@ -9325,7 +9318,7 @@ all =
       , fullName = "Stufful"
       , typing = Double Normal Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stufful"
+      , imageUrl = imageUrl 759 "Stufful"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9335,7 +9328,7 @@ all =
       , fullName = "Bewear"
       , typing = Double Normal Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bewear"
+      , imageUrl = imageUrl 760 "Bewear"
       , evolutionData = EvolvesFrom [ 1286 ] "Level 27"
       , transformationData = DoesNotTransform
       }
@@ -9345,7 +9338,7 @@ all =
       , fullName = "Bounsweet"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bounsweet"
+      , imageUrl = imageUrl 761 "Bounsweet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9355,7 +9348,7 @@ all =
       , fullName = "Steenee"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Steenee"
+      , imageUrl = imageUrl 762 "Steenee"
       , evolutionData = EvolvesFrom [ 1289 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -9365,7 +9358,7 @@ all =
       , fullName = "Tsareena"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tsareena"
+      , imageUrl = imageUrl 763 "Tsareena"
       , evolutionData = EvolvesFrom [ 1290 ] "Level while knowing Stomp"
       , transformationData = DoesNotTransform
       }
@@ -9375,7 +9368,7 @@ all =
       , fullName = "Comfey"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Comfey"
+      , imageUrl = imageUrl 764 "Comfey"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9385,7 +9378,7 @@ all =
       , fullName = "Oranguru"
       , typing = Double Normal Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Oranguru"
+      , imageUrl = imageUrl 765 "Oranguru"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9395,7 +9388,7 @@ all =
       , fullName = "Passimian"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Passimian"
+      , imageUrl = imageUrl 766 "Passimian"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9405,7 +9398,7 @@ all =
       , fullName = "Wimpod"
       , typing = Double Bug Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wimpod"
+      , imageUrl = imageUrl 767 "Wimpod"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9415,7 +9408,7 @@ all =
       , fullName = "Golisopod"
       , typing = Double Bug Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Golisopod"
+      , imageUrl = imageUrl 768 "Golisopod"
       , evolutionData = EvolvesFrom [ 1294 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -9425,7 +9418,7 @@ all =
       , fullName = "Sandygast"
       , typing = Double Ghost Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sandygast"
+      , imageUrl = imageUrl 769 "Sandygast"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9435,7 +9428,7 @@ all =
       , fullName = "Palossand"
       , typing = Double Ghost Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Palossand"
+      , imageUrl = imageUrl 770 "Palossand"
       , evolutionData = EvolvesFrom [ 1296 ] "Level 42"
       , transformationData = DoesNotTransform
       }
@@ -9445,7 +9438,7 @@ all =
       , fullName = "Pyukumuku"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pyukumuku"
+      , imageUrl = imageUrl 771 "Pyukumuku"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9455,7 +9448,7 @@ all =
       , fullName = "Type: Null"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Type: Null"
+      , imageUrl = imageUrl 772 "Type: Null"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9465,7 +9458,7 @@ all =
       , fullName = "Silvally"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Silvally"
+      , imageUrl = imageUrl 773 "Silvally"
       , evolutionData = EvolvesFrom [ 1300 ] "Level with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -9475,17 +9468,17 @@ all =
       , fullName = "Minior"
       , typing = Double Rock Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Minior"
+      , imageUrl = imageUrl 774 "Minior"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 21 "If HP is above half"
       }
     , { id = 1564
       , nationalDexNumber = 774
       , originalPokemonID = Just 1302
-      , fullName = nameFromData "Minior" "Core" "Minior Core"
+      , fullName = nameWithForm "Minior" <| Unique "" "Core"
       , typing = Double Rock Flying
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Minior" "Core"
+      , imageUrl = imageUrlWithForm 774 "Minior" <| Unique "" "Core"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 21 "If HP is below half"
       }
@@ -9495,7 +9488,7 @@ all =
       , fullName = "Komala"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Komala"
+      , imageUrl = imageUrl 775 "Komala"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9505,7 +9498,7 @@ all =
       , fullName = "Turtonator"
       , typing = Double Fire Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Turtonator"
+      , imageUrl = imageUrl 776 "Turtonator"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9515,7 +9508,7 @@ all =
       , fullName = "Togedemaru"
       , typing = Double Electric Steel
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Togedemaru"
+      , imageUrl = imageUrl 777 "Togedemaru"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9525,7 +9518,7 @@ all =
       , fullName = "Mimikyu"
       , typing = Double Ghost Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Mimikyu"
+      , imageUrl = imageUrl 778 "Mimikyu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9535,7 +9528,7 @@ all =
       , fullName = "Bruxish"
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Bruxish"
+      , imageUrl = imageUrl 779 "Bruxish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9545,7 +9538,7 @@ all =
       , fullName = "Drampa"
       , typing = Double Normal Dragon
       , ability = Just SapSipper
-      , imageUrl = imageUrlByName "Drampa"
+      , imageUrl = imageUrl 780 "Drampa"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9555,7 +9548,7 @@ all =
       , fullName = "Dhelmise"
       , typing = Double Ghost Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dhelmise"
+      , imageUrl = imageUrl 781 "Dhelmise"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9565,7 +9558,7 @@ all =
       , fullName = "Jangmo-o"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Jangmo-o"
+      , imageUrl = imageUrl 782 "Jangmo-o"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9575,7 +9568,7 @@ all =
       , fullName = "Hakamo-o"
       , typing = Double Dragon Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hakamo-o"
+      , imageUrl = imageUrl 783 "Hakamo-o"
       , evolutionData = EvolvesFrom [ 1311 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -9585,7 +9578,7 @@ all =
       , fullName = "Kommo-o"
       , typing = Double Dragon Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kommo-o"
+      , imageUrl = imageUrl 784 "Kommo-o"
       , evolutionData = EvolvesFrom [ 1312 ] "Level 45"
       , transformationData = DoesNotTransform
       }
@@ -9595,7 +9588,7 @@ all =
       , fullName = "Tapu Koko"
       , typing = Double Electric Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tapu Koko"
+      , imageUrl = imageUrl 785 "Tapu Koko"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9605,7 +9598,7 @@ all =
       , fullName = "Tapu Lele"
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tapu Lele"
+      , imageUrl = imageUrl 786 "Tapu Lele"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9615,7 +9608,7 @@ all =
       , fullName = "Tapu Bulu"
       , typing = Double Grass Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tapu Bulu"
+      , imageUrl = imageUrl 787 "Tapu Bulu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9625,7 +9618,7 @@ all =
       , fullName = "Tapu Fini"
       , typing = Double Water Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Tapu Fini"
+      , imageUrl = imageUrl 788 "Tapu Fini"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9635,7 +9628,7 @@ all =
       , fullName = "Cosmog"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cosmog"
+      , imageUrl = imageUrl 789 "Cosmog"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9645,7 +9638,7 @@ all =
       , fullName = "Cosmoem"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cosmoem"
+      , imageUrl = imageUrl 790 "Cosmoem"
       , evolutionData = EvolvesFrom [ 1318 ] "Level 43"
       , transformationData = DoesNotTransform
       }
@@ -9655,7 +9648,7 @@ all =
       , fullName = "Solgaleo"
       , typing = Double Psychic Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Solgaleo"
+      , imageUrl = imageUrl 791 "Solgaleo"
       , evolutionData = EvolvesFrom [ 1320 ] "Level 53 In Sun Or Ultra Sun"
       , transformationData = DoesNotTransform
       }
@@ -9665,7 +9658,7 @@ all =
       , fullName = "Lunala"
       , typing = Double Psychic Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Lunala"
+      , imageUrl = imageUrl 792 "Lunala"
       , evolutionData = EvolvesFrom [ 1320 ] "Level 53 In Moon Or Ultra Moon"
       , transformationData = DoesNotTransform
       }
@@ -9675,7 +9668,7 @@ all =
       , fullName = "Nihilego"
       , typing = Double Rock Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nihilego"
+      , imageUrl = imageUrl 793 "Nihilego"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9685,7 +9678,7 @@ all =
       , fullName = "Buzzwole"
       , typing = Double Bug Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Buzzwole"
+      , imageUrl = imageUrl 794 "Buzzwole"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9695,7 +9688,7 @@ all =
       , fullName = "Pheromosa"
       , typing = Double Bug Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Pheromosa"
+      , imageUrl = imageUrl 795 "Pheromosa"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9705,7 +9698,7 @@ all =
       , fullName = "Xurkitree"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Xurkitree"
+      , imageUrl = imageUrl 796 "Xurkitree"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9715,7 +9708,7 @@ all =
       , fullName = "Celesteela"
       , typing = Double Steel Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Celesteela"
+      , imageUrl = imageUrl 797 "Celesteela"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9725,7 +9718,7 @@ all =
       , fullName = "Kartana"
       , typing = Double Grass Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kartana"
+      , imageUrl = imageUrl 798 "Kartana"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9735,7 +9728,7 @@ all =
       , fullName = "Guzzlord"
       , typing = Double Dark Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Guzzlord"
+      , imageUrl = imageUrl 799 "Guzzlord"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9745,37 +9738,37 @@ all =
       , fullName = "Necrozma"
       , typing = Single Psychic
       , ability = Just PrismArmor
-      , imageUrl = imageUrlByName "Necrozma"
+      , imageUrl = imageUrl 800 "Necrozma"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 22 "Undo fusion"
       }
     , { id = 1404
       , nationalDexNumber = 800
       , originalPokemonID = Just 1331
-      , fullName = nameFromData "Necrozma" "Dusk Mane" ""
+      , fullName = nameWithForm "Necrozma" <| Unique "Dusk Mane" ""
       , typing = Double Psychic Steel
       , ability = Just PrismArmor
-      , imageUrl = imgUrlForAlternateForm "Necrozma" "Dusk Mane"
+      , imageUrl = imageUrlWithForm 800 "Necrozma" <| Unique "" "Dusk_Mane"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 22 "Fuze with Solgaleo"
       }
     , { id = 1405
       , nationalDexNumber = 800
       , originalPokemonID = Just 1331
-      , fullName = nameFromData "Necrozma" "Dawn Wings" ""
+      , fullName = nameWithForm "Necrozma" <| Unique "Dawn Wings" ""
       , typing = Double Psychic Ghost
       , ability = Just PrismArmor
-      , imageUrl = imgUrlForAlternateForm "Necrozma" "Dawn Wings"
+      , imageUrl = imageUrlWithForm 800 "Necrozma" <| Unique "" "Dawn_Wings"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 22 "Fuze with Lunala"
       }
     , { id = 1406
       , nationalDexNumber = 800
       , originalPokemonID = Just 1331
-      , fullName = nameFromData "Necrozma" "Ultra" ""
+      , fullName = nameWithForm "Necrozma" <| Unique "Ultra" ""
       , typing = Double Psychic Dragon
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Necrozma" "Ultra"
+      , imageUrl = imageUrlWithForm 800 "Necrozma" <| Unique "" "Ultra"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 22 "Use Ultra Burst"
       }
@@ -9785,7 +9778,7 @@ all =
       , fullName = "Magearna"
       , typing = Double Steel Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Magearna"
+      , imageUrl = imageUrl 801 "Magearna"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9795,7 +9788,7 @@ all =
       , fullName = "Marshadow"
       , typing = Double Fighting Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Marshadow"
+      , imageUrl = imageUrl 802 "Marshadow"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9805,7 +9798,7 @@ all =
       , fullName = "Poipole"
       , typing = Single Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Poipole"
+      , imageUrl = imageUrl 803 "Poipole"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9815,7 +9808,7 @@ all =
       , fullName = "Naganadel"
       , typing = Double Poison Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Naganadel"
+      , imageUrl = imageUrl 804 "Naganadel"
       , evolutionData = EvolvesFrom [ 1334 ] "Level while knowing Dragon Pulse"
       , transformationData = DoesNotTransform
       }
@@ -9825,7 +9818,7 @@ all =
       , fullName = "Stakataka"
       , typing = Double Rock Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stakataka"
+      , imageUrl = imageUrl 805 "Stakataka"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9835,7 +9828,7 @@ all =
       , fullName = "Blacephalon"
       , typing = Double Fire Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Blacephalon"
+      , imageUrl = imageUrl 806 "Blacephalon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9845,7 +9838,7 @@ all =
       , fullName = "Zeraora"
       , typing = Single Electric
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Zeraora"
+      , imageUrl = imageUrl 807 "Zeraora"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9855,7 +9848,7 @@ all =
       , fullName = "Meltan"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Meltan"
+      , imageUrl = imageUrl 808 "Meltan"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9865,7 +9858,7 @@ all =
       , fullName = "Melmetal"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Melmetal"
+      , imageUrl = imageUrl 809 "Melmetal"
       , evolutionData = EvolvesFrom [ 1339 ] "400 Meltan Candy (Pokemon GO only)"
       , transformationData = DoesNotTransform
       }
@@ -9875,7 +9868,7 @@ all =
       , fullName = "Grookey"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grookey"
+      , imageUrl = imageUrl 810 "Grookey"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9885,7 +9878,7 @@ all =
       , fullName = "Thwackey"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Thwackey"
+      , imageUrl = imageUrl 811 "Thwackey"
       , evolutionData = EvolvesFrom [ 1439 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -9895,7 +9888,7 @@ all =
       , fullName = "Rillaboom"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rillaboom"
+      , imageUrl = imageUrl 812 "Rillaboom"
       , evolutionData = EvolvesFrom [ 1440 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -9905,7 +9898,7 @@ all =
       , fullName = "Scorbunny"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Scorbunny"
+      , imageUrl = imageUrl 813 "Scorbunny"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9915,7 +9908,7 @@ all =
       , fullName = "Raboot"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Raboot"
+      , imageUrl = imageUrl 814 "Raboot"
       , evolutionData = EvolvesFrom [ 1442 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -9925,7 +9918,7 @@ all =
       , fullName = "Cinderace"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cinderace"
+      , imageUrl = imageUrl 815 "Cinderace"
       , evolutionData = EvolvesFrom [ 1443 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -9935,7 +9928,7 @@ all =
       , fullName = "Sobble"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sobble"
+      , imageUrl = imageUrl 816 "Sobble"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9945,7 +9938,7 @@ all =
       , fullName = "Drizzile"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drizzile"
+      , imageUrl = imageUrl 817 "Drizzile"
       , evolutionData = EvolvesFrom [ 1445 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -9955,7 +9948,7 @@ all =
       , fullName = "Inteleon"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Inteleon"
+      , imageUrl = imageUrl 818 "Inteleon"
       , evolutionData = EvolvesFrom [ 1446 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -9965,7 +9958,7 @@ all =
       , fullName = "Skwovet"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Skwovet"
+      , imageUrl = imageUrl 819 "Skwovet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9975,7 +9968,7 @@ all =
       , fullName = "Greedent"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Greedent"
+      , imageUrl = imageUrl 820 "Greedent"
       , evolutionData = EvolvesFrom [ 1462 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -9985,7 +9978,7 @@ all =
       , fullName = "Rookidee"
       , typing = Single Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rookidee"
+      , imageUrl = imageUrl 821 "Rookidee"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -9995,7 +9988,7 @@ all =
       , fullName = "Corvisquire"
       , typing = Single Flying
       , ability = Nothing
-      , imageUrl = imageUrlByName "Corvisquire"
+      , imageUrl = imageUrl 822 "Corvisquire"
       , evolutionData = EvolvesFrom [ 1469 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -10005,7 +9998,7 @@ all =
       , fullName = "Corviknight"
       , typing = Double Flying Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Corviknight"
+      , imageUrl = imageUrl 823 "Corviknight"
       , evolutionData = EvolvesFrom [ 1470 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -10015,7 +10008,7 @@ all =
       , fullName = "Blipbug"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Blipbug"
+      , imageUrl = imageUrl 824 "Blipbug"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10025,7 +10018,7 @@ all =
       , fullName = "Dottler"
       , typing = Double Bug Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dottler"
+      , imageUrl = imageUrl 825 "Dottler"
       , evolutionData = EvolvesFrom [ 1485 ] "Level 10"
       , transformationData = DoesNotTransform
       }
@@ -10035,7 +10028,7 @@ all =
       , fullName = "Orbeetle"
       , typing = Double Bug Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Orbeetle"
+      , imageUrl = imageUrl 826 "Orbeetle"
       , evolutionData = EvolvesFrom [ 1486 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -10045,7 +10038,7 @@ all =
       , fullName = "Nickit"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Nickit"
+      , imageUrl = imageUrl 827 "Nickit"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10055,7 +10048,7 @@ all =
       , fullName = "Thievul"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Thievul"
+      , imageUrl = imageUrl 828 "Thievul"
       , evolutionData = EvolvesFrom [ 1488 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -10065,7 +10058,7 @@ all =
       , fullName = "Gossifleur"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Gossifleur"
+      , imageUrl = imageUrl 829 "Gossifleur"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10075,7 +10068,7 @@ all =
       , fullName = "Eldegoss"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Eldegoss"
+      , imageUrl = imageUrl 830 "Eldegoss"
       , evolutionData = EvolvesFrom [ 1490 ] "Level 20"
       , transformationData = DoesNotTransform
       }
@@ -10085,7 +10078,7 @@ all =
       , fullName = "Wooloo"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Wooloo"
+      , imageUrl = imageUrl 831 "Wooloo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10095,7 +10088,7 @@ all =
       , fullName = "Dubwool"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dubwool"
+      , imageUrl = imageUrl 832 "Dubwool"
       , evolutionData = EvolvesFrom [ 1492 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -10105,7 +10098,7 @@ all =
       , fullName = "Chewtle"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Chewtle"
+      , imageUrl = imageUrl 833 "Chewtle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10115,7 +10108,7 @@ all =
       , fullName = "Drednaw"
       , typing = Double Water Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drednaw"
+      , imageUrl = imageUrl 834 "Drednaw"
       , evolutionData = EvolvesFrom [ 1494 ] "Level 22"
       , transformationData = DoesNotTransform
       }
@@ -10125,7 +10118,7 @@ all =
       , fullName = "Yamper"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Yamper"
+      , imageUrl = imageUrl 835 "Yamper"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10135,7 +10128,7 @@ all =
       , fullName = "Boltund"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Boltund"
+      , imageUrl = imageUrl 836 "Boltund"
       , evolutionData = EvolvesFrom [ 1496 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -10145,7 +10138,7 @@ all =
       , fullName = "Rolycoly"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Rolycoly"
+      , imageUrl = imageUrl 837 "Rolycoly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10155,7 +10148,7 @@ all =
       , fullName = "Carkol"
       , typing = Double Rock Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Carkol"
+      , imageUrl = imageUrl 838 "Carkol"
       , evolutionData = EvolvesFrom [ 1498 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -10165,7 +10158,7 @@ all =
       , fullName = "Coalossal"
       , typing = Double Rock Fire
       , ability = Nothing
-      , imageUrl = imageUrlByName "Coalossal"
+      , imageUrl = imageUrl 839 "Coalossal"
       , evolutionData = EvolvesFrom [ 1499 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -10175,7 +10168,7 @@ all =
       , fullName = "Applin"
       , typing = Double Grass Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Applin"
+      , imageUrl = imageUrl 840 "Applin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10185,7 +10178,7 @@ all =
       , fullName = "Flapple"
       , typing = Double Grass Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Flapple"
+      , imageUrl = imageUrl 841 "Flapple"
       , evolutionData = EvolvesFrom [ 1501 ] "Use Tart Apple"
       , transformationData = DoesNotTransform
       }
@@ -10195,7 +10188,7 @@ all =
       , fullName = "Appletun"
       , typing = Double Grass Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Appletun"
+      , imageUrl = imageUrl 842 "Appletun"
       , evolutionData = EvolvesFrom [ 1501 ] "Use Sweet Apple"
       , transformationData = DoesNotTransform
       }
@@ -10205,7 +10198,7 @@ all =
       , fullName = "Silicobra"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Silicobra"
+      , imageUrl = imageUrl 843 "Silicobra"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10215,7 +10208,7 @@ all =
       , fullName = "Sandaconda"
       , typing = Single Ground
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sandaconda"
+      , imageUrl = imageUrl 844 "Sandaconda"
       , evolutionData = EvolvesFrom [ 1504 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -10225,7 +10218,7 @@ all =
       , fullName = "Cramorant"
       , typing = Double Flying Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cramorant"
+      , imageUrl = imageUrl 845 "Cramorant"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10235,7 +10228,7 @@ all =
       , fullName = "Arrokuda"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Arrokuda"
+      , imageUrl = imageUrl 846 "Arrokuda"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10245,7 +10238,7 @@ all =
       , fullName = "Barraskewda"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByName "Barraskewda"
+      , imageUrl = imageUrl 847 "Barraskewda"
       , evolutionData = EvolvesFrom [ 1507 ] "Level 26"
       , transformationData = DoesNotTransform
       }
@@ -10255,27 +10248,27 @@ all =
       , fullName = "Toxel"
       , typing = Double Electric Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Toxel"
+      , imageUrl = imageUrl 848 "Toxel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 15
       , nationalDexNumber = 849
       , originalPokemonID = Nothing
-      , fullName = "Toxtricity"
+      , fullName = nameWithForm "Toxtricity" <| Unique "Amped" ""
       , typing = Double Electric Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Toxtricity"
+      , imageUrl = imageUrlWithForm 849 "Toxtricity" <| Unique "" "Amped"
       , evolutionData = EvolvesFrom [ 14 ] "Level 30 With An Adamant, Brave, Docile, Hardy, Hasty, Impish, Jolly, Lax, Naive, Naughty, Quirky, Rash, or Sassy Nature"
       , transformationData = DoesNotTransform
       }
     , { id = 16
       , nationalDexNumber = 849
       , originalPokemonID = Nothing
-      , fullName = "Toxtricity"
+      , fullName = nameWithForm "Toxtricity" <| Unique "Low Key" ""
       , typing = Double Electric Poison
       , ability = Nothing
-      , imageUrl = imageUrlByName "Toxtricity"
+      , imageUrl = imageUrlWithForm 849 "Toxtricity" <| Unique "" "Low_Key"
       , evolutionData = EvolvesFrom [ 14 ] "Level 30 With A Bashful, Bold, Calm, Careful, Gentle, Lonely, Mild, Modest, Quiet, Relaxed, Serious, or Timid Nature"
       , transformationData = DoesNotTransform
       }
@@ -10285,7 +10278,7 @@ all =
       , fullName = "Sizzlipede"
       , typing = Double Fire Bug
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Sizzlipede"
+      , imageUrl = imageUrl 850 "Sizzlipede"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10295,7 +10288,7 @@ all =
       , fullName = "Centiskorch"
       , typing = Double Fire Bug
       , ability = Just FlashFire
-      , imageUrl = imageUrlByName "Centiskorch"
+      , imageUrl = imageUrl 851 "Centiskorch"
       , evolutionData = EvolvesFrom [ 1509 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -10305,7 +10298,7 @@ all =
       , fullName = "Clobbopus"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Clobbopus"
+      , imageUrl = imageUrl 852 "Clobbopus"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10315,7 +10308,7 @@ all =
       , fullName = "Grapploct"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grapploct"
+      , imageUrl = imageUrl 853 "Grapploct"
       , evolutionData = EvolvesFrom [ 1511 ] "Level while knowing Taunt"
       , transformationData = DoesNotTransform
       }
@@ -10325,7 +10318,7 @@ all =
       , fullName = "Sinistea"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Sinistea"
+      , imageUrl = imageUrl 854 "Sinistea"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10335,7 +10328,7 @@ all =
       , fullName = "Polteageist"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Polteageist"
+      , imageUrl = imageUrl 855 "Polteageist"
       , evolutionData = EvolvesFrom [ 1513 ] "Use Cracked Pot when Phony or Chipped Pot when Authentic"
       , transformationData = DoesNotTransform
       }
@@ -10345,7 +10338,7 @@ all =
       , fullName = "Hatenna"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hatenna"
+      , imageUrl = imageUrl 856 "Hatenna"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10355,7 +10348,7 @@ all =
       , fullName = "Hattrem"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hattrem"
+      , imageUrl = imageUrl 857 "Hattrem"
       , evolutionData = EvolvesFrom [ 1515 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -10365,7 +10358,7 @@ all =
       , fullName = "Hatterene"
       , typing = Double Psychic Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Hatterene"
+      , imageUrl = imageUrl 858 "Hatterene"
       , evolutionData = EvolvesFrom [ 1516 ] "Level 42"
       , transformationData = DoesNotTransform
       }
@@ -10375,7 +10368,7 @@ all =
       , fullName = "Impidimp"
       , typing = Double Dark Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Impidimp"
+      , imageUrl = imageUrl 859 "Impidimp"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10385,7 +10378,7 @@ all =
       , fullName = "Morgrem"
       , typing = Double Dark Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Morgrem"
+      , imageUrl = imageUrl 860 "Morgrem"
       , evolutionData = EvolvesFrom [ 1518 ] "Level 32"
       , transformationData = DoesNotTransform
       }
@@ -10395,7 +10388,7 @@ all =
       , fullName = "Grimmsnarl"
       , typing = Double Dark Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Grimmsnarl"
+      , imageUrl = imageUrl 861 "Grimmsnarl"
       , evolutionData = EvolvesFrom [ 1519 ] "Level 42"
       , transformationData = DoesNotTransform
       }
@@ -10405,7 +10398,7 @@ all =
       , fullName = "Milcery"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Milcery"
+      , imageUrl = imageUrl 868 "Milcery"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10415,7 +10408,7 @@ all =
       , fullName = "Alcremie"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Alcremie"
+      , imageUrl = imageUrl 869 "Alcremie"
       , evolutionData = EvolvesFrom [ 1483 ] "While holding a Sweet and its Trainer spins"
       , transformationData = DoesNotTransform
       }
@@ -10425,7 +10418,7 @@ all =
       , fullName = "Falinks"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Falinks"
+      , imageUrl = imageUrl 870 "Falinks"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10435,7 +10428,7 @@ all =
       , fullName = "Pincurchin"
       , typing = Single Electric
       , ability = Just LightningRod
-      , imageUrl = imageUrlByName "Pincurchin"
+      , imageUrl = imageUrl 871 "Pincurchin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10445,7 +10438,7 @@ all =
       , fullName = "Snom"
       , typing = Double Ice Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Snom"
+      , imageUrl = imageUrl 872 "Snom"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10455,7 +10448,7 @@ all =
       , fullName = "Frosmoth"
       , typing = Double Ice Bug
       , ability = Nothing
-      , imageUrl = imageUrlByName "Frosmoth"
+      , imageUrl = imageUrl 873 "Frosmoth"
       , evolutionData = EvolvesFrom [ 1481 ] "Level during the night with high friendship"
       , transformationData = DoesNotTransform
       }
@@ -10465,7 +10458,7 @@ all =
       , fullName = "Stonjourner"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByName "Stonjourner"
+      , imageUrl = imageUrl 874 "Stonjourner"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10475,37 +10468,37 @@ all =
       , fullName = "Eiscue"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Eiscue"
+      , imageUrl = imageUrl 875 "Eiscue"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 23 "When a hailstorm starts"
       }
     , { id = 1480
       , nationalDexNumber = 875
       , originalPokemonID = Just 1479
-      , fullName = nameFromData "Eiscue" "Noice" ""
+      , fullName = nameWithForm "Eiscue" <| Unique "" "Noice"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Eiscue" "Noice"
+      , imageUrl = imageUrlWithForm 875 "Eiscue" <| Unique "" "Noice"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 23 "When hit by a physical move"
       }
     , { id = 1477
       , nationalDexNumber = 876
       , originalPokemonID = Nothing
-      , fullName = "Indeedee"
+      , fullName = nameWithForm "Indeedee" <| Unique "" "Male"
       , typing = Double Psychic Normal
       , ability = Nothing
-      , imageUrl = imageUrlByName "Indeedee"
+      , imageUrl = imageUrlWithForm 876 "Indeedee" <| Unique "" "Male"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
     , { id = 1478
       , nationalDexNumber = 876
       , originalPokemonID = Just 1477
-      , fullName = nameFromData "Indeedee" "Female" ""
+      , fullName = nameWithForm "Indeedee" <| Unique "" "Female"
       , typing = Double Psychic Normal
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Indeedee" "Female"
+      , imageUrl = imageUrlWithForm 876 "Indeedee" <| Unique "" "Female"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10515,7 +10508,7 @@ all =
       , fullName = "Morpeko"
       , typing = Double Electric Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Morpeko"
+      , imageUrl = imageUrlWithForm 877 "Morpeko" <| Unique "" "Full"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10525,7 +10518,7 @@ all =
       , fullName = "Cufant"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Cufant"
+      , imageUrl = imageUrl 878 "Cufant"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10535,7 +10528,7 @@ all =
       , fullName = "Copperajah"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByName "Copperajah"
+      , imageUrl = imageUrl 879 "Copperajah"
       , evolutionData = EvolvesFrom [ 1475 ] "Level 34"
       , transformationData = DoesNotTransform
       }
@@ -10545,7 +10538,7 @@ all =
       , fullName = "Dracozolt"
       , typing = Double Electric Dragon
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Dracozolt"
+      , imageUrl = imageUrl 880 "Dracozolt"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10555,7 +10548,7 @@ all =
       , fullName = "Arctozolt"
       , typing = Double Electric Ice
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByName "Arctozolt"
+      , imageUrl = imageUrl 881 "Arctozolt"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10565,7 +10558,7 @@ all =
       , fullName = "Dracovish"
       , typing = Double Water Dragon
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Dracovish"
+      , imageUrl = imageUrl 882 "Dracovish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10575,7 +10568,7 @@ all =
       , fullName = "Arctovish"
       , typing = Double Water Ice
       , ability = Just WaterAbsorb
-      , imageUrl = imageUrlByName "Arctovish"
+      , imageUrl = imageUrl 883 "Arctovish"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10585,7 +10578,7 @@ all =
       , fullName = "Duraludon"
       , typing = Double Steel Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Duraludon"
+      , imageUrl = imageUrl 884 "Duraludon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10595,7 +10588,7 @@ all =
       , fullName = "Dreepy"
       , typing = Double Dragon Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dreepy"
+      , imageUrl = imageUrl 885 "Dreepy"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10605,7 +10598,7 @@ all =
       , fullName = "Drakloak"
       , typing = Double Dragon Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Drakloak"
+      , imageUrl = imageUrl 886 "Drakloak"
       , evolutionData = EvolvesFrom [ 1472 ] "Level 50"
       , transformationData = DoesNotTransform
       }
@@ -10615,7 +10608,7 @@ all =
       , fullName = "Dragapult"
       , typing = Double Dragon Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Dragapult"
+      , imageUrl = imageUrl 887 "Dragapult"
       , evolutionData = EvolvesFrom [ 1473 ] "Level 60"
       , transformationData = DoesNotTransform
       }
@@ -10625,17 +10618,17 @@ all =
       , fullName = "Zacian"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zacian"
+      , imageUrl = imageUrl 888 "Zacian"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 24 "If not holding Rusted Sword"
       }
     , { id = 1449
       , nationalDexNumber = 888
       , originalPokemonID = Just 1448
-      , fullName = nameFromData "Zacian" "Crowned" ""
+      , fullName = nameWithForm "Zacian" <| Unique "Crowned" ""
       , typing = Double Fairy Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zacian" "Crowned"
+      , imageUrl = imageUrlWithForm 888 "Zacian" <| Unique "" "Hero"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 24 "While holding Rusted Sword"
       }
@@ -10645,17 +10638,17 @@ all =
       , fullName = "Zamazenta"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zamazenta"
+      , imageUrl = imageUrl 889 "Zamazenta"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 25 "If not holding Rusted Shield"
       }
     , { id = 1451
       , nationalDexNumber = 889
       , originalPokemonID = Just 1450
-      , fullName = nameFromData "Zamazenta" "Crowned" ""
+      , fullName = nameWithForm "Zamazenta" <| Unique "Crowned" ""
       , typing = Double Fighting Steel
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Zamazenta" "Crowned"
+      , imageUrl = imageUrlWithForm 889 "Zamazenta" <| Unique "" "Hero"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 25 "While holding Rusted Shield"
       }
@@ -10665,17 +10658,17 @@ all =
       , fullName = "Eternatus"
       , typing = Double Poison Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Eternatus"
+      , imageUrl = imageUrl 890 "Eternatus"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 26 "When owned by the player"
       }
     , { id = 1461
       , nationalDexNumber = 890
       , originalPokemonID = Just 1452
-      , fullName = nameFromData "Eternatus" "Eternamax" ""
+      , fullName = nameWithForm "Eternatus" <| Unique "Eternamax" ""
       , typing = Double Poison Dragon
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Eternatus" "Eternamax"
+      , imageUrl = imageUrlWithForm 890 "Eternatus" <| Unique "" "Eternamax"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 26 "During the final battle in Pokémon Sword and Shield"
       }
@@ -10685,7 +10678,7 @@ all =
       , fullName = "Kubfu"
       , typing = Single Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByName "Kubfu"
+      , imageUrl = imageUrl 891 "Kubfu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10695,17 +10688,17 @@ all =
       , fullName = "Urshifu"
       , typing = Double Fighting Dark
       , ability = Nothing
-      , imageUrl = imageUrlByName "Urshifu"
+      , imageUrl = imageUrlWithForm 892 "Urshifu" <| Unique "" "Single_Strike"
       , evolutionData = EvolvesFrom [ 38 ] "Conquer the Tower of Darkness in Galar's Isle of Armor"
       , transformationData = DoesNotTransform
       }
     , { id = 40
       , nationalDexNumber = 892
       , originalPokemonID = Just 39
-      , fullName = nameFromData "Urshifu" "Rapid Strike" ""
+      , fullName = nameWithForm "Urshifu" <| Unique "Rapid Strike" ""
       , typing = Double Fighting Water
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Urshifu" "Rapid Strike"
+      , imageUrl = imageUrlWithForm 892 "Urshifu" <| Unique "" "Rapid_Strike"
       , evolutionData = EvolvesFrom [ 38 ] "Conquer the Tower of Waters in Galar's Isle of Armor"
       , transformationData = DoesNotTransform
       }
@@ -10715,7 +10708,7 @@ all =
       , fullName = "Zarude"
       , typing = Double Dark Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Zarude"
+      , imageUrl = imageUrl 893 "Zarude"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10725,7 +10718,7 @@ all =
       , fullName = "Regieleki"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByName "Regieleki"
+      , imageUrl = imageUrl 894 "Regieleki"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10735,7 +10728,7 @@ all =
       , fullName = "Regidrago"
       , typing = Single Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByName "Regidrago"
+      , imageUrl = imageUrl 895 "Regidrago"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10745,7 +10738,7 @@ all =
       , fullName = "Glastrier"
       , typing = Single Ice
       , ability = Nothing
-      , imageUrl = imageUrlByName "Glastrier"
+      , imageUrl = imageUrl 896 "Glastrier"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10755,7 +10748,7 @@ all =
       , fullName = "Spectrier"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByName "Spectrier"
+      , imageUrl = imageUrl 897 "Spectrier"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10765,27 +10758,27 @@ all =
       , fullName = "Calyrex"
       , typing = Double Psychic Grass
       , ability = Nothing
-      , imageUrl = imageUrlByName "Calyrex"
+      , imageUrl = imageUrl 898 "Calyrex"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 27 "Undo fusion"
       }
     , { id = 1604
       , nationalDexNumber = 898
       , originalPokemonID = Just 41
-      , fullName = nameFromData "Calyrex" "Ice Rider" ""
+      , fullName = nameWithForm "Calyrex" <| Unique "Ice Rider" ""
       , typing = Double Psychic Ice
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Calyrex" "Ice Rider"
+      , imageUrl = imageUrlWithForm 898 "Calyrex" <| Unique "" "Ice_Rider"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 27 "Fuse with Glastrier"
       }
     , { id = 1605
       , nationalDexNumber = 898
       , originalPokemonID = Just 41
-      , fullName = nameFromData "Calyrex" "Shadow Rider" ""
+      , fullName = nameWithForm "Calyrex" <| Unique "Shadow Rider" ""
       , typing = Double Psychic Ghost
       , ability = Nothing
-      , imageUrl = imgUrlForAlternateForm "Calyrex" "Shadow Rider"
+      , imageUrl = imageUrlWithForm 898 "Calyrex" <| Unique "" "Shadow_Rider"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 27 "Fuse with Spectrier"
       }
@@ -10795,17 +10788,17 @@ all =
       , fullName = "Enamorus"
       , typing = Double Fairy Flying
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "enamorus-incarnate"
+      , imageUrl = imageUrl 905 "Enamorus"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 28 "Use the Reveal Glass"
       }
     , { id = 1618
       , nationalDexNumber = 905
       , originalPokemonID = Just 1617
-      , fullName = nameFromData "Enamorus" "Therian" ""
+      , fullName = nameWithForm "Enamorus" <| Unique "Therian" ""
       , typing = Double Fairy Flying
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "legends-arceus" "enamorus-therian"
+      , imageUrl = imageUrlWithForm 905 "Enamorus" <| Unique "" "Therian"
       , evolutionData = DoesNotEvolve
       , transformationData = Transforms 28 "Use the Reveal Glass"
       }
@@ -10815,7 +10808,7 @@ all =
       , fullName = "Sprigatito"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "sprigatito"
+      , imageUrl = imageUrl 906 "Sprigatito"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10825,7 +10818,7 @@ all =
       , fullName = "Floragato"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "floragato"
+      , imageUrl = imageUrl 907 "Floragato"
       , evolutionData = EvolvesFrom [ 1633 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -10835,7 +10828,7 @@ all =
       , fullName = "Meowscarada"
       , typing = Double Grass Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "meowscarada"
+      , imageUrl = imageUrl 908 "Meowscarada"
       , evolutionData = EvolvesFrom [ 1634 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -10845,7 +10838,7 @@ all =
       , fullName = "Fuecoco"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "fuecoco"
+      , imageUrl = imageUrl 909 "Fuecoco"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10855,7 +10848,7 @@ all =
       , fullName = "Crocalor"
       , typing = Single Fire
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "crocalor"
+      , imageUrl = imageUrl 910 "Crocalor"
       , evolutionData = EvolvesFrom [ 1636 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -10865,7 +10858,7 @@ all =
       , fullName = "Skeledirge"
       , typing = Double Fire Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "skeledirge"
+      , imageUrl = imageUrl 911 "Skeledirge"
       , evolutionData = EvolvesFrom [ 1637 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -10875,7 +10868,7 @@ all =
       , fullName = "Quaxly"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "quaxly"
+      , imageUrl = imageUrl 912 "Quaxly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10885,7 +10878,7 @@ all =
       , fullName = "Quaxwell"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "quaxwell"
+      , imageUrl = imageUrl 913 "Quaxwell"
       , evolutionData = EvolvesFrom [ 1639 ] "Level 16"
       , transformationData = DoesNotTransform
       }
@@ -10895,7 +10888,7 @@ all =
       , fullName = "Quaquaval"
       , typing = Double Water Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "quaquaval"
+      , imageUrl = imageUrl 914 "Quaquaval"
       , evolutionData = EvolvesFrom [ 1640 ] "Level 36"
       , transformationData = DoesNotTransform
       }
@@ -10905,7 +10898,7 @@ all =
       , fullName = "Lechonk"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "lechonk"
+      , imageUrl = imageUrl 915 "Lechonk"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10915,7 +10908,7 @@ all =
       , fullName = "Oinkologne"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "oinkologne"
+      , imageUrl = imageUrl 916 "Oinkologne"
       , evolutionData = EvolvesFrom [ 1642 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -10925,7 +10918,7 @@ all =
       , fullName = "Tarountula"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tarountula"
+      , imageUrl = imageUrl 917 "Tarountula"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10935,7 +10928,7 @@ all =
       , fullName = "Spidops"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "spidops"
+      , imageUrl = imageUrl 918 "Spidops"
       , evolutionData = EvolvesFrom [ 1644 ] "Level 15"
       , transformationData = DoesNotTransform
       }
@@ -10945,7 +10938,7 @@ all =
       , fullName = "Nymble"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "nymble"
+      , imageUrl = imageUrl 919 "Nymble"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10955,7 +10948,7 @@ all =
       , fullName = "Lokix"
       , typing = Double Bug Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "lokix"
+      , imageUrl = imageUrl 920 "Lokix"
       , evolutionData = EvolvesFrom [ 1646 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -10965,7 +10958,7 @@ all =
       , fullName = "Pawmi"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "pawmi"
+      , imageUrl = imageUrl 921 "Pawmi"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -10975,7 +10968,7 @@ all =
       , fullName = "Pawmo"
       , typing = Double Electric Fighting
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "pawmo"
+      , imageUrl = imageUrl 922 "Pawmo"
       , evolutionData = EvolvesFrom [ 1648 ] "Level 18"
       , transformationData = DoesNotTransform
       }
@@ -10985,7 +10978,7 @@ all =
       , fullName = "Pawmot"
       , typing = Double Electric Fighting
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "pawmot"
+      , imageUrl = imageUrl 923 "Pawmot"
       , evolutionData = EvolvesFrom [ 1649 ] "While outside of its Poké Ball after walking 1000 steps using the Let's Go feature"
       , transformationData = DoesNotTransform
       }
@@ -10995,7 +10988,7 @@ all =
       , fullName = "Tandemaus"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tandemaus"
+      , imageUrl = imageUrl 924 "Tandemaus"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11005,7 +10998,7 @@ all =
       , fullName = "Maushold"
       , typing = Single Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "maushold"
+      , imageUrl = imageUrl 925 "Maushold"
       , evolutionData = EvolvesFrom [ 1653 ] "Level 25 while battling"
       , transformationData = DoesNotTransform
       }
@@ -11015,7 +11008,7 @@ all =
       , fullName = "Fidough"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "fidough"
+      , imageUrl = imageUrl 926 "Fidough"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11025,7 +11018,7 @@ all =
       , fullName = "Dachsbun"
       , typing = Single Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "dachsbun"
+      , imageUrl = imageUrl 927 "Dachsbun"
       , evolutionData = EvolvesFrom [ 1655 ] "Level 26"
       , transformationData = DoesNotTransform
       }
@@ -11035,7 +11028,7 @@ all =
       , fullName = "Smoliv"
       , typing = Double Grass Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "smoliv"
+      , imageUrl = imageUrl 928 "Smoliv"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11045,7 +11038,7 @@ all =
       , fullName = "Dolliv"
       , typing = Double Grass Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "dolliv"
+      , imageUrl = imageUrl 929 "Dolliv"
       , evolutionData = EvolvesFrom [ 1657 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -11055,7 +11048,7 @@ all =
       , fullName = "Arboliva"
       , typing = Double Grass Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "arboliva"
+      , imageUrl = imageUrl 930 "Arboliva"
       , evolutionData = EvolvesFrom [ 1658 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -11065,7 +11058,7 @@ all =
       , fullName = "Squawkabilly"
       , typing = Double Normal Flying
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "squawkabilly"
+      , imageUrl = imageUrl 931 "Squawkabilly"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11075,7 +11068,7 @@ all =
       , fullName = "Nacli"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "nacli"
+      , imageUrl = imageUrl 932 "Nacli"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11085,7 +11078,7 @@ all =
       , fullName = "Naclstack"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "naclstack"
+      , imageUrl = imageUrl 933 "Naclstack"
       , evolutionData = EvolvesFrom [ 1661 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -11095,7 +11088,7 @@ all =
       , fullName = "Garganacl"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "garganacl"
+      , imageUrl = imageUrl 934 "Garganacl"
       , evolutionData = EvolvesFrom [ 1662 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -11105,7 +11098,7 @@ all =
       , fullName = "Charcadet"
       , typing = Single Fire
       , ability = Just FlashFire
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "charcadet"
+      , imageUrl = imageUrl 935 "Charcadet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11115,7 +11108,7 @@ all =
       , fullName = "Armarouge"
       , typing = Double Fire Psychic
       , ability = Just FlashFire
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "armarouge"
+      , imageUrl = imageUrl 936 "Armarouge"
       , evolutionData = EvolvesFrom [ 1665 ] "Use Auspicious Armor"
       , transformationData = DoesNotTransform
       }
@@ -11125,7 +11118,7 @@ all =
       , fullName = "Ceruledge"
       , typing = Double Fire Ghost
       , ability = Just FlashFire
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "ceruledge"
+      , imageUrl = imageUrl 937 "Ceruledge"
       , evolutionData = EvolvesFrom [ 1665 ] "Use Malicious Armor"
       , transformationData = DoesNotTransform
       }
@@ -11135,7 +11128,7 @@ all =
       , fullName = "Tadbulb"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tadbulb"
+      , imageUrl = imageUrl 938 "Tadbulb"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11145,7 +11138,7 @@ all =
       , fullName = "Bellibolt"
       , typing = Single Electric
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "bellibolt"
+      , imageUrl = imageUrl 939 "Bellibolt"
       , evolutionData = EvolvesFrom [ 1668 ] "Use Thunder Stone"
       , transformationData = DoesNotTransform
       }
@@ -11155,7 +11148,7 @@ all =
       , fullName = "Wattrel"
       , typing = Double Electric Flying
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "wattrel"
+      , imageUrl = imageUrl 940 "Wattrel"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11165,7 +11158,7 @@ all =
       , fullName = "Kilowattrel"
       , typing = Double Electric Flying
       , ability = Just VoltAbsorb
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "kilowattrel"
+      , imageUrl = imageUrl 941 "Kilowattrel"
       , evolutionData = EvolvesFrom [ 1670 ] "Level 25"
       , transformationData = DoesNotTransform
       }
@@ -11175,7 +11168,7 @@ all =
       , fullName = "Maschiff"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "maschiff"
+      , imageUrl = imageUrl 942 "Maschiff"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11185,7 +11178,7 @@ all =
       , fullName = "Mabosstiff"
       , typing = Single Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "mabosstiff"
+      , imageUrl = imageUrl 943 "Mabosstiff"
       , evolutionData = EvolvesFrom [ 1674 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -11195,7 +11188,7 @@ all =
       , fullName = "Shroodle"
       , typing = Double Poison Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "shroodle"
+      , imageUrl = imageUrl 944 "Shroodle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11205,7 +11198,7 @@ all =
       , fullName = "Grafaiai"
       , typing = Double Poison Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "grafaiai"
+      , imageUrl = imageUrl 945 "Grafaiai"
       , evolutionData = EvolvesFrom [ 1676 ] "Level 28"
       , transformationData = DoesNotTransform
       }
@@ -11215,7 +11208,7 @@ all =
       , fullName = "Bramblin"
       , typing = Double Grass Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "bramblin"
+      , imageUrl = imageUrl 946 "Bramblin"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11225,7 +11218,7 @@ all =
       , fullName = "Brambleghast"
       , typing = Double Grass Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "brambleghast"
+      , imageUrl = imageUrl 947 "Brambleghast"
       , evolutionData = EvolvesFrom [ 1681 ] "While outside of its Poké Ball after walking 1000 steps using the Let's Go feature"
       , transformationData = DoesNotTransform
       }
@@ -11235,7 +11228,7 @@ all =
       , fullName = "Toedscool"
       , typing = Double Ground Grass
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "toedscool"
+      , imageUrl = imageUrl 948 "Toedscool"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11245,7 +11238,7 @@ all =
       , fullName = "Toedscruel"
       , typing = Double Ground Grass
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "toedscruel"
+      , imageUrl = imageUrl 949 "Toedscruel"
       , evolutionData = EvolvesFrom [ 1683 ] "Level 30"
       , transformationData = DoesNotTransform
       }
@@ -11255,7 +11248,7 @@ all =
       , fullName = "Klawf"
       , typing = Single Rock
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "klawf"
+      , imageUrl = imageUrl 950 "Klawf"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11265,7 +11258,7 @@ all =
       , fullName = "Capsakid"
       , typing = Single Grass
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "capsakid"
+      , imageUrl = imageUrl 951 "Capsakid"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11275,7 +11268,7 @@ all =
       , fullName = "Scovillain"
       , typing = Double Grass Fire
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "scovillain"
+      , imageUrl = imageUrl 952 "Scovillain"
       , evolutionData = EvolvesFrom [ 1686 ] "Use Fire Stone"
       , transformationData = DoesNotTransform
       }
@@ -11285,7 +11278,7 @@ all =
       , fullName = "Rellor"
       , typing = Single Bug
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "rellor"
+      , imageUrl = imageUrl 953 "Rellor"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11295,7 +11288,7 @@ all =
       , fullName = "Rabsca"
       , typing = Double Bug Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "rabsca"
+      , imageUrl = imageUrl 954 "Rabsca"
       , evolutionData = EvolvesFrom [ 1688 ] "While outside of its Poké Ball after walking 1000 steps using the Let's Go feature"
       , transformationData = DoesNotTransform
       }
@@ -11305,7 +11298,7 @@ all =
       , fullName = "Flittle"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "flittle"
+      , imageUrl = imageUrl 955 "Flittle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11315,7 +11308,7 @@ all =
       , fullName = "Espathra"
       , typing = Single Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "espathra"
+      , imageUrl = imageUrl 956 "Espathra"
       , evolutionData = EvolvesFrom [ 1690 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -11325,7 +11318,7 @@ all =
       , fullName = "Tinkatink"
       , typing = Double Fairy Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tinkatink"
+      , imageUrl = imageUrl 957 "Tinkatink"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11335,7 +11328,7 @@ all =
       , fullName = "Tinkatuff"
       , typing = Double Fairy Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tinkatuff"
+      , imageUrl = imageUrl 958 "Tinkatuff"
       , evolutionData = EvolvesFrom [ 1692 ] "Level 24"
       , transformationData = DoesNotTransform
       }
@@ -11345,7 +11338,7 @@ all =
       , fullName = "Tinkaton"
       , typing = Double Fairy Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tinkaton"
+      , imageUrl = imageUrl 959 "Tinkaton"
       , evolutionData = EvolvesFrom [ 1693 ] "Level 38"
       , transformationData = DoesNotTransform
       }
@@ -11355,7 +11348,7 @@ all =
       , fullName = "Wiglett"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "wiglett"
+      , imageUrl = imageUrl 960 "Wiglett"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11365,7 +11358,7 @@ all =
       , fullName = "Wugtrio"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "wugtrio"
+      , imageUrl = imageUrl 961 "Wugtrio"
       , evolutionData = EvolvesFrom [ 1695 ] "Level 26"
       , transformationData = DoesNotTransform
       }
@@ -11375,7 +11368,7 @@ all =
       , fullName = "Bombirdier"
       , typing = Double Flying Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "bombirdier"
+      , imageUrl = imageUrl 962 "Bombirdier"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11385,7 +11378,7 @@ all =
       , fullName = "Finizen"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "finizen"
+      , imageUrl = imageUrl 963 "Finizen"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11395,7 +11388,7 @@ all =
       , fullName = "Palafin"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "palafin"
+      , imageUrl = imageUrl 964 "Palafin"
       , evolutionData = EvolvesFrom [ 1698 ] "Level 38 while in the Union Circle with another player"
       , transformationData = DoesNotTransform
       }
@@ -11405,7 +11398,7 @@ all =
       , fullName = "Varoom"
       , typing = Double Steel Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "varoom"
+      , imageUrl = imageUrl 965 "Varoom"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11415,7 +11408,7 @@ all =
       , fullName = "Revavroom"
       , typing = Double Steel Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "revavroom"
+      , imageUrl = imageUrl 966 "Revavroom"
       , evolutionData = EvolvesFrom [ 1700 ] "Level 40"
       , transformationData = DoesNotTransform
       }
@@ -11425,7 +11418,7 @@ all =
       , fullName = "Cyclizar"
       , typing = Double Dragon Normal
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "cyclizar"
+      , imageUrl = imageUrl 967 "Cyclizar"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11435,7 +11428,7 @@ all =
       , fullName = "Orthworm"
       , typing = Single Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "orthworm"
+      , imageUrl = imageUrl 968 "Orthworm"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11445,7 +11438,7 @@ all =
       , fullName = "Glimmet"
       , typing = Double Rock Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "glimmet"
+      , imageUrl = imageUrl 969 "Glimmet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11455,7 +11448,7 @@ all =
       , fullName = "Glimmora"
       , typing = Double Rock Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "glimmora"
+      , imageUrl = imageUrl 970 "Glimmora"
       , evolutionData = EvolvesFrom [ 1704 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -11465,7 +11458,7 @@ all =
       , fullName = "Greavard"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "greavard"
+      , imageUrl = imageUrl 971 "Greavard"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11475,7 +11468,7 @@ all =
       , fullName = "Houndstone"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "houndstone"
+      , imageUrl = imageUrl 972 "Houndstone"
       , evolutionData = EvolvesFrom [ 1706 ] "Level 30 at night"
       , transformationData = DoesNotTransform
       }
@@ -11485,7 +11478,7 @@ all =
       , fullName = "Flamigo"
       , typing = Double Flying Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "flamigo"
+      , imageUrl = imageUrl 973 "Flamigo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11495,7 +11488,7 @@ all =
       , fullName = "Cetoddle"
       , typing = Single Ice
       , ability = Just ThickFat
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "cetoddle"
+      , imageUrl = imageUrl 974 "Cetoddle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11505,7 +11498,7 @@ all =
       , fullName = "Cetitan"
       , typing = Single Ice
       , ability = Just ThickFat
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "cetitan"
+      , imageUrl = imageUrl 975 "Cetitan"
       , evolutionData = EvolvesFrom [ 1709 ] "Use Ice Stone"
       , transformationData = DoesNotTransform
       }
@@ -11515,7 +11508,7 @@ all =
       , fullName = "Veluza"
       , typing = Double Water Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "veluza"
+      , imageUrl = imageUrl 976 "Veluza"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11525,7 +11518,7 @@ all =
       , fullName = "Dondozo"
       , typing = Single Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "dondozo"
+      , imageUrl = imageUrl 977 "Dondozo"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11535,7 +11528,7 @@ all =
       , fullName = "Tatsugiri"
       , typing = Double Dragon Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "tatsugiri"
+      , imageUrl = imageUrl 978 "Tatsugiri"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11545,7 +11538,7 @@ all =
       , fullName = "Great Tusk"
       , typing = Double Ground Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "great-tusk"
+      , imageUrl = imageUrl 984 "Great Tusk"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11555,7 +11548,7 @@ all =
       , fullName = "Scream Tail"
       , typing = Double Fairy Psychic
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "scream-tail"
+      , imageUrl = imageUrl 985 "Scream Tail"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11565,7 +11558,7 @@ all =
       , fullName = "Brute Bonnet"
       , typing = Double Grass Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "brute-bonnet"
+      , imageUrl = imageUrl 986 "Brute Bonnet"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11575,7 +11568,7 @@ all =
       , fullName = "Flutter Mane"
       , typing = Double Ghost Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "flutter-mane"
+      , imageUrl = imageUrl 987 "Flutter Mane"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11585,7 +11578,7 @@ all =
       , fullName = "Slither Wing"
       , typing = Double Bug Fighting
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "slither-wing"
+      , imageUrl = imageUrl 988 "Slither Wing"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11595,7 +11588,7 @@ all =
       , fullName = "Sandy Shocks"
       , typing = Double Electric Ground
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "sandy-shocks"
+      , imageUrl = imageUrl 989 "Sandy Shocks"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11605,7 +11598,7 @@ all =
       , fullName = "Iron Treads"
       , typing = Double Ground Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-treads"
+      , imageUrl = imageUrl 990 "Iron Treads"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11615,7 +11608,7 @@ all =
       , fullName = "Iron Bundle"
       , typing = Double Ice Water
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-bundle"
+      , imageUrl = imageUrl 991 "Iron Bundle"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11625,7 +11618,7 @@ all =
       , fullName = "Iron Hands"
       , typing = Double Fighting Electric
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-hands"
+      , imageUrl = imageUrl 992 "Iron Hands"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11635,7 +11628,7 @@ all =
       , fullName = "Iron Jugulis"
       , typing = Double Dark Flying
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-jugulis"
+      , imageUrl = imageUrl 993 "Iron Jugulis"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11645,7 +11638,7 @@ all =
       , fullName = "Iron Moth"
       , typing = Double Fire Poison
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-moth"
+      , imageUrl = imageUrl 994 "Iron Moth"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11655,7 +11648,7 @@ all =
       , fullName = "Iron Thorns"
       , typing = Double Rock Electric
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-thorns"
+      , imageUrl = imageUrl 995 "Iron Thorns"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11665,7 +11658,7 @@ all =
       , fullName = "Frigibax"
       , typing = Double Dragon Ice
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "frigibax"
+      , imageUrl = imageUrl 996 "Frigibax"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11675,7 +11668,7 @@ all =
       , fullName = "Arctibax"
       , typing = Double Dragon Ice
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "arctibax"
+      , imageUrl = imageUrl 997 "Arctibax"
       , evolutionData = EvolvesFrom [ 1727 ] "Level 35"
       , transformationData = DoesNotTransform
       }
@@ -11685,7 +11678,7 @@ all =
       , fullName = "Baxcalibur"
       , typing = Double Dragon Ice
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "baxcalibur"
+      , imageUrl = imageUrl 998 "Baxcalibur"
       , evolutionData = EvolvesFrom [ 1728 ] "Level 54"
       , transformationData = DoesNotTransform
       }
@@ -11695,7 +11688,7 @@ all =
       , fullName = "Gimmighoul"
       , typing = Single Ghost
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "gimmighoul"
+      , imageUrl = imageUrl 999 "Gimmighoul"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11705,7 +11698,7 @@ all =
       , fullName = "Gholdengo"
       , typing = Double Ghost Steel
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "gholdengo"
+      , imageUrl = imageUrl 1000 "Gholdengo"
       , evolutionData = EvolvesFrom [ 1730 ] "Level while having 999 Ghimmighoul Coins"
       , transformationData = DoesNotTransform
       }
@@ -11715,7 +11708,7 @@ all =
       , fullName = "Wo-Chien"
       , typing = Double Dark Grass
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "wo-chien"
+      , imageUrl = imageUrl 1001 "Wo-Chien"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11725,7 +11718,7 @@ all =
       , fullName = "Chien-Pao"
       , typing = Double Dark Ice
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "chien-pao"
+      , imageUrl = imageUrl 1002 "Chien-Pao"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11735,7 +11728,7 @@ all =
       , fullName = "Ting-Lu"
       , typing = Double Dark Ground
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "ting-lu"
+      , imageUrl = imageUrl 1003 "Ting-Lu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11745,7 +11738,7 @@ all =
       , fullName = "Chi-Yu"
       , typing = Double Dark Fire
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "chi-yu"
+      , imageUrl = imageUrl 1004 "Chi-Yu"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11755,7 +11748,7 @@ all =
       , fullName = "Roaring Moon"
       , typing = Double Dragon Dark
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "roaring-moon"
+      , imageUrl = imageUrl 1005 "Roaring Moon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11765,7 +11758,7 @@ all =
       , fullName = "Iron Valiant"
       , typing = Double Fighting Fairy
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "iron-valiant"
+      , imageUrl = imageUrl 1006 "Iron Valiant"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11775,7 +11768,7 @@ all =
       , fullName = "Koraidon"
       , typing = Double Fighting Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "koraidon"
+      , imageUrl = imageUrl 1007 "Koraidon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }
@@ -11785,7 +11778,7 @@ all =
       , fullName = "Miraidon"
       , typing = Double Electric Dragon
       , ability = Nothing
-      , imageUrl = imageUrlByGenerationAndID "scarlet-violet" "miraidon"
+      , imageUrl = imageUrl 1008 "Miraidon"
       , evolutionData = DoesNotEvolve
       , transformationData = DoesNotTransform
       }

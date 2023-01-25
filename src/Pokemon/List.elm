@@ -57,6 +57,7 @@ viewListElement pkm =
             , SharedStyles.badgeStyle
             , position relative -- to make zIndex work
             , height (pct 100)
+            , paddingTop (rem 0.5)
             , withMedia [ Media.all [ Media.hover canHover ] ]
                 [ hover
                     [ transform <| scale 1.5
@@ -77,6 +78,7 @@ viewListElement pkm =
             , css
                 [ width (rem 6)
                 , height (rem 6)
+                , property "object-fit" "contain"
                 ]
             ]
             []
