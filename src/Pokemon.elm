@@ -18,6 +18,7 @@ type TransformationData
 
 type alias Pokemon =
     { id : Int
+    , nationalDexNumber : Int
     , originalPokemonID : Maybe Int
     , fullName : String
     , typing : Typing

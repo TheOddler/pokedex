@@ -10,3 +10,5 @@ elm.js
 elm-upgrade-*
 # VS Code
 .vscode
+# Haskell scripts stuff
+dist-newstyle
