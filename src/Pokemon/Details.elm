@@ -96,6 +96,7 @@ view allPkm model =
                     , css
                         [ width (rem 8)
                         , height (rem 8)
+                        , property "object-fit" "contain"
                         ]
                     ]
                     []
@@ -109,6 +110,7 @@ view allPkm model =
                     [ Type.backgroundFor p.typing
                     , SharedStyles.badgeStyle
                     , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 0px 1px 1px 1px rgba(0, 0, 0, 0.15);"
+                    , paddingTop (rem 0.5)
                     ]
                 ]
                 [ img
@@ -117,6 +119,7 @@ view allPkm model =
                     , css
                         [ width (rem 6)
                         , height (rem 6)
+                        , property "object-fit" "contain"
                         ]
                     ]
                     []

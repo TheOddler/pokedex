@@ -80,8 +80,8 @@ view pokedex =
             , text "."
             ]
         , div []
-            [ text "Images from "
-            , a [ href "https://pokemondb.net/sprites" ] [ text "PokemonDB.net" ]
+            [ text "Images by "
+            , a [ href "https://archives.bulbagarden.net/wiki/Category:Ken_Sugimori_Pok%C3%A9mon_artwork" ] [ text "Ken Sugimori" ]
             , text "."
             ]
         ]
