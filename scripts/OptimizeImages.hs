@@ -46,16 +46,16 @@ main = do
 
             -- optimizeAndWrite' 128 (LossyWebP 30)
             -- optimizeAndWrite' 128 (LossyWebP 50)
-            -- optimizeAndWrite' 128 (LossyWebP 80)
+            -- optimizeAndWrite' 128 (LossyWebP 90)
             -- optimizeAndWrite' 128 LosslessWebP
 
             -- optimizeAndWrite' 256 (LossyWebP 30)
             -- optimizeAndWrite' 256 (LossyWebP 50)
-            -- optimizeAndWrite' 256 (LossyWebP 80)
+            -- optimizeAndWrite' 256 (LossyWebP 90)
             -- optimizeAndWrite' 256 LosslessWebP
 
             -- Best solution found
-            optimizeAndWrite img baseName 256 (LossyWebP 50)
+            optimizeAndWrite img baseName 256 (LossyWebP 90)
           _ -> putStrLn "Unsupported type"
 
 optimizeAndWrite :: Image PixelRGBA8 -> String -> WantedHeight -> Encoding -> IO ()
