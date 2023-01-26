@@ -101,8 +101,8 @@ https://archives.bulbagarden.net/media/upload/a/a3/0080Slowbro.png
 https://archives.bulbagarden.net/media/upload/b/b3/0080Slowbro-Galar.png
 https://archives.bulbagarden.net/media/upload/a/a2/0081Magnemite.png
 https://archives.bulbagarden.net/media/upload/d/d9/0082Magneton.png
-https://archives.bulbagarden.net/media/upload/9/99/0083Farfetch%27d.png
-https://archives.bulbagarden.net/media/upload/d/d1/0083Farfetch%27d-Galar.png
+https://archives.bulbagarden.net/media/upload/9/99/0083Farfetch%27d.png -> 0083Farfetchd
+https://archives.bulbagarden.net/media/upload/d/d1/0083Farfetch%27d-Galar.png -> 0083Farfetchd-Galar
 https://archives.bulbagarden.net/media/upload/b/b9/0084Doduo.png
 https://archives.bulbagarden.net/media/upload/9/97/0085Dodrio.png
 https://archives.bulbagarden.net/media/upload/2/22/0086Seel.png
@@ -758,7 +758,7 @@ https://archives.bulbagarden.net/media/upload/3/33/0665Spewpa.png
 https://archives.bulbagarden.net/media/upload/c/c9/0666Vivillon.png
 https://archives.bulbagarden.net/media/upload/2/2d/0667Litleo.png
 https://archives.bulbagarden.net/media/upload/8/8a/0668Pyroar.png
-https://archives.bulbagarden.net/media/upload/5/5d/0669Flab%C3%A9b%C3%A9.png
+https://archives.bulbagarden.net/media/upload/5/5d/0669Flab%C3%A9b%C3%A9.png -> 0669Flabebe
 https://archives.bulbagarden.net/media/upload/8/8f/0670Floette.png
 https://archives.bulbagarden.net/media/upload/0/0c/0671Florges.png
 https://archives.bulbagarden.net/media/upload/e/e8/0672Skiddo.png
@@ -841,7 +841,7 @@ https://archives.bulbagarden.net/media/upload/8/83/0739Crabrawler.png
 https://archives.bulbagarden.net/media/upload/2/29/0740Crabominable.png
 https://archives.bulbagarden.net/media/upload/2/21/0741Oricorio.png
 https://archives.bulbagarden.net/media/upload/6/66/0741Oricorio-Pom-Pom.png
-https://archives.bulbagarden.net/media/upload/2/23/0741Oricorio-Pa%27u.png
+https://archives.bulbagarden.net/media/upload/2/23/0741Oricorio-Pa%27u.png -> 0741Oricorio-Pau
 https://archives.bulbagarden.net/media/upload/8/8d/0741Oricorio-Sensu.png
 https://archives.bulbagarden.net/media/upload/f/f7/0742Cutiefly.png
 https://archives.bulbagarden.net/media/upload/e/ed/0743Ribombee.png
@@ -975,7 +975,7 @@ https://archives.bulbagarden.net/media/upload/2/2d/0861Grimmsnarl.png
 https://archives.bulbagarden.net/media/upload/0/02/0862Obstagoon.png
 https://archives.bulbagarden.net/media/upload/1/10/0863Perrserker.png
 https://archives.bulbagarden.net/media/upload/d/d1/0864Cursola.png
-https://archives.bulbagarden.net/media/upload/d/d9/0865Sirfetch%27d.png
+https://archives.bulbagarden.net/media/upload/d/d9/0865Sirfetch%27d.png -> 0865Sirfetchd
 https://archives.bulbagarden.net/media/upload/3/3c/0866Mr._Rime.png
 https://archives.bulbagarden.net/media/upload/8/80/0867Runerigus.png
 https://archives.bulbagarden.net/media/upload/d/d0/0868Milcery.png
@@ -1184,4 +1184,4 @@ https://archives.bulbagarden.net/media/upload/0/0c/0719Diancie-Mega.png
 https://archives.bulbagarden.net/media/upload/9/9a/0382Kyogre-Primal.png
 https://archives.bulbagarden.net/media/upload/e/e5/0383Groudon-Primal.png
 https://archives.bulbagarden.net/media/upload/e/e9/0800Necrozma-Ultra.png
-https://archives.bulbagarden.net/media/upload/3/38/HOME0890E.png
+https://archives.bulbagarden.net/media/upload/3/38/HOME0890E.png -> 0890Eternatus-Eternamax

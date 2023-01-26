@@ -12,7 +12,8 @@ import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LB
 import Foreign.C.Types (CFloat)
-import System.Directory (getDirectoryContents)
+import Helpers (forShowProgress_)
+import System.Directory (createDirectoryIfMissing, getDirectoryContents)
 import System.FilePath.Posix (takeBaseName)
 
 type WantedHeight = Int
@@ -30,6 +31,7 @@ main = do
   let encoding = LossyWebP 30
   let wantedHeight = 256
 
+  createDirectoryIfMissing True output
   imagePaths <- getDirectoryContents "images"
 
   forShowProgress_ imagePaths $ \fileName -> do
@@ -63,14 +65,6 @@ optimizeAndWrite orig outName wantedHeight encoding =
   let optimize = encode encoding . scale wantedHeight
       optimizedImage = optimize orig
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
-
-forShowProgress_ :: Show a => [a] -> (a -> IO ()) -> IO ()
-forShowProgress_ inputs f = do
-  let total = length inputs
-  forM_ (zip [0 ..] inputs) $ \(index, input) -> do
-    putStrLn $ show (index * 100 `div` total) <> "% - " <> show input
-    f input
-  putStrLn "Done!"
 
 scale :: WantedHeight -> Image PixelRGBA8 -> Image PixelRGBA8
 scale wantedHeight img =
