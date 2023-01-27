@@ -3,7 +3,6 @@ module Main exposing (main)
 import Browser
 import Html as Html exposing (Html, a, div, text)
 import Html.Attributes exposing (class, href)
-import Http
 import Pokedex exposing (Pokedex)
 import Pokemon.Mode as Mode
 

@@ -2,7 +2,7 @@ module Pokemon.List exposing (view)
 
 import Helpers exposing (stopPropagationOnClick)
 import Html exposing (Html, div, img, text)
-import Html.Attributes exposing (alt, attribute, class, src, style)
+import Html.Attributes exposing (alt, attribute, class, src)
 import Html.Keyed as Keyed
 import Html.Lazy as Lazy
 import Pokemon exposing (Pokemon)
