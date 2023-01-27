@@ -1,9 +1,8 @@
-module Main exposing (..)
+module Main exposing (main)
 
 import Browser
-import Css exposing (..)
-import Html.Styled as Html exposing (Html, a, div, text, toUnstyled)
-import Html.Styled.Attributes exposing (css, href)
+import Html as Html exposing (Html, a, div, text)
+import Html.Attributes exposing (class, href)
 import Http
 import Pokedex exposing (Pokedex)
 import Pokemon.Mode as Mode
@@ -29,7 +28,7 @@ main =
         { init = init
         , update = update
         , subscriptions = subscriptions
-        , view = view >> toUnstyled
+        , view = view
         }
 
 
@@ -57,23 +56,11 @@ update msg pokedex =
 view : Model -> Html Msg
 view pokedex =
     div
-        [ css
-            [ height (pct 100)
-            , color (rgb 255 255 255)
-            , backgroundColor (rgb 0 0 0)
-            , property "text-shadow" "1px 1px black, 0 0 4px rgba(0, 0, 0, 0.5)"
-            , fontFamily sansSerif
-            , textAlign center
-            , overflowX hidden
-            , overflowY scroll
-            , displayFlex
-            , flexDirection column
-            ]
+        [ class "main"
         ]
         [ Pokedex.view pokedex
         , div
-            [ css
-                [ marginTop auto ]
+            [ class "externalLinks"
             ]
             [ text "Source code available at "
             , a [ href "https://github.com/TheOddler/pokedex" ] [ text "github.com/TheOddler/pokedex" ]
@@ -85,28 +72,3 @@ view pokedex =
             , text "."
             ]
         ]
-
-
-infoCss : Html.Attribute msg
-infoCss =
-    css
-        [ marginTop auto ]
-
-
-httpErrorToString : Http.Error -> String
-httpErrorToString error =
-    case error of
-        Http.BadUrl url ->
-            "Bad url: " ++ url
-
-        Http.Timeout ->
-            "Timeout"
-
-        Http.NetworkError ->
-            "Network error"
-
-        Http.BadStatus status ->
-            "Bad status: " ++ String.fromInt status
-
-        Http.BadBody body ->
-            "Bad body: " ++ body

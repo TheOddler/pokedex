@@ -1,7 +1,6 @@
 module Pokemon exposing (..)
 
 import Ability exposing (Ability)
-import Css exposing (..)
 import List.Extra as List
 import Type exposing (Type(..), Typing(..))
 

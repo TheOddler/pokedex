@@ -1,9 +1,8 @@
 module Type exposing (Type(..), Typing(..), backgroundFor, decoder, viewBadge)
 
-import Css exposing (..)
 import Csv.Decode as Decode exposing (Decoder)
-import Html.Styled exposing (Html, div, text)
-import Html.Styled.Attributes exposing (css)
+import Html exposing (Attribute, Html, div, text)
+import Html.Attributes exposing (class, style)
 
 
 type Typing
@@ -47,10 +46,7 @@ viewBadge type_ effectivenesss =
 
         typeHtml =
             div
-                [ css
-                    [ textTransform uppercase
-                    , display inlineBlock
-                    ]
+                [ class "type"
                 ]
                 [ text (toString type_) ]
 
@@ -59,7 +55,7 @@ viewBadge type_ effectivenesss =
                 Just e ->
                     [ typeHtml
                     , div
-                        [ css [ display inlineBlock, paddingLeft (em 0.5) ] ]
+                        [ class "effectiveness" ]
                         [ text <| beautifyEffectiveness e ]
                     ]
 
@@ -67,23 +63,10 @@ viewBadge type_ effectivenesss =
                     [ typeHtml ]
     in
     div
-        [ css
-            [ backgroundColor (toColor type_)
-            , badgeStyle
-            ]
+        [ class "typeBadge"
+        , style "background-color" (toColor type_)
         ]
         allHtml
-
-
-badgeStyle : Style
-badgeStyle =
-    Css.batch
-        [ margin (em 0.2)
-        , padding2 (em 0.2) (em 0.4)
-        , borderRadius (em 0.4)
-        , property "box-shadow" "inset 0 -2px 0 rgba(0, 0, 0, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.2);"
-        , display inlineBlock
-        ]
 
 
 decoder : Decoder Type
@@ -95,15 +78,23 @@ decoder =
         Decode.string
 
 
-backgroundFor : Typing -> Style
+backgroundFor : Typing -> Attribute msg
 backgroundFor typing =
-    backgroundImage <|
-        case typing of
-            Single type_ ->
-                linearGradient2 toRight (stop <| toColor type_) (stop <| toColor type_) []
+    case typing of
+        Single type_ ->
+            style "background-color" <| toColor type_
 
-            Double first second ->
-                linearGradient2 toRight (stop <| toColor first) (stop <| toColor first) [ stop <| toColor second, stop <| toColor second ]
+        Double first second ->
+            style "background-image" <|
+                "linear-gradient(to right, "
+                    ++ toColor first
+                    ++ ", "
+                    ++ toColor first
+                    ++ ", "
+                    ++ toColor second
+                    ++ ", "
+                    ++ toColor second
+                    ++ ")"
 
 
 toString : Type -> String
@@ -225,59 +216,59 @@ fromString typeStr =
             Nothing
 
 
-toColor : Type -> Color
+toColor : Type -> String
 toColor type_ =
     case type_ of
         Normal ->
-            rgb 168 167 122
+            "rgb(168, 167, 122)"
 
         Fire ->
-            rgb 238 129 48
+            "rgb(238, 129, 48)"
 
         Water ->
-            rgb 99 144 240
+            "rgb(99, 144, 240)"
 
         Electric ->
-            rgb 247 208 44
+            "rgb(247, 208, 44)"
 
         Grass ->
-            rgb 122 199 76
+            "rgb(122, 199, 76)"
 
         Ice ->
-            rgb 150 217 214
+            "rgb(150, 217, 214)"
 
         Fighting ->
-            rgb 194 46 40
+            "rgb(194, 46, 40)"
 
         Poison ->
-            rgb 163 62 161
+            "rgb(163, 62, 161)"
 
         Ground ->
-            rgb 226 191 101
+            "rgb(226, 191, 101)"
 
         Flying ->
-            rgb 169 143 243
+            "rgb(169, 143, 243)"
 
         Psychic ->
-            rgb 249 85 135
+            "rgb(249, 85, 135)"
 
         Bug ->
-            rgb 166 185 26
+            "rgb(166, 185, 26)"
 
         Rock ->
-            rgb 182 161 54
+            "rgb(182, 161, 54)"
 
         Ghost ->
-            rgb 115 87 151
+            "rgb(115, 87, 151)"
 
         Dragon ->
-            rgb 111 53 252
+            "rgb(111, 53, 252)"
 
         Dark ->
-            rgb 112 87 70
+            "rgb(112, 87, 70)"
 
         Steel ->
-            rgb 183 183 206
+            "rgb(183, 183, 206)"
 
         Fairy ->
-            rgb 214 133 173
+            "rgb(214, 133, 173)"

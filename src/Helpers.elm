@@ -1,7 +1,7 @@
 module Helpers exposing (..)
 
-import Html.Styled as Html
-import Html.Styled.Events exposing (stopPropagationOn)
+import Html
+import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Json
 
 

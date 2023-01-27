@@ -1,15 +1,12 @@
 module Pokemon.Details exposing (..)
 
-import Css exposing (..)
-import Css.Transitions as Transitions exposing (transition)
 import Helpers exposing (stopPropagationOnClick)
-import Html.Styled exposing (Html, button, div, figcaption, figure, img, text)
-import Html.Styled.Attributes exposing (alt, css, src)
+import Html exposing (Html, button, div, figcaption, figure, img, text)
+import Html.Attributes exposing (alt, class, src)
 import LocalStorage
 import Maybe.Extra as Maybe
 import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..), shareTransformGroup, withID)
 import Pokemon.Mode as Mode exposing (Mode(..))
-import Pokemon.SharedStyles as SharedStyles
 import Type exposing (Typing(..))
 import TypeEffectiveness
 
@@ -93,37 +90,28 @@ view allPkm model =
                 [ img
                     [ src <| pkm.imageUrl
                     , alt pkm.fullName
-                    , css
-                        [ width (rem 8)
-                        , height (rem 8)
-                        , property "object-fit" "contain"
-                        ]
+                    , class "mainImage"
                     ]
                     []
-                , figcaption [ css [ fontSize (Css.em 2) ] ] [ text pkm.fullName ]
+                , figcaption
+                    [ class "mainName"
+                    ]
+                    [ text pkm.fullName
+                    ]
                 ]
 
         viewBadge p =
             div
                 [ stopPropagationOnClick <| Select p
-                , css
-                    [ Type.backgroundFor p.typing
-                    , SharedStyles.badgeStyle
-                    , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 0px 1px 1px 1px rgba(0, 0, 0, 0.15);"
-                    , paddingTop (rem 0.5)
-                    ]
+                , Type.backgroundFor p.typing
+                , class "pokemonBadge"
                 ]
                 [ img
                     [ src p.imageUrl
                     , alt p.fullName
-                    , css
-                        [ width (rem 6)
-                        , height (rem 6)
-                        , property "object-fit" "contain"
-                        ]
                     ]
                     []
-                , div [ css [ fontSize (em 1) ] ] [ text p.fullName ]
+                , div [ class "name" ] [ text p.fullName ]
                 ]
 
         evolutionDetailsToString p =
@@ -146,16 +134,11 @@ view allPkm model =
             let
                 children =
                     [ viewBadge p
-                    , div [ css [ fontSize (em 0.9) ] ] [ text info ]
+                    , div [] [ text info ]
                     ]
             in
             div
-                [ css
-                    [ display inlineBlock
-                    , whiteSpace normal
-                    , width (rem 7)
-                    , margin (em 0.2)
-                    ]
+                [ class "evolution"
                 ]
             <|
                 if isPrevolution then
@@ -188,39 +171,23 @@ view allPkm model =
 
                         Double first second ->
                             [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
-                , div [ css [ effectivenessChartTitleStyle ] ]
+                , div [ class "effectivenessChartTitle" ]
                     [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
-                , div [ css [ effectivenessChartStyle ] ] <|
+                , div [ class "effectivenessChart" ] <|
                     List.map viewBadgeWithEff superEffective
-                , div [ css [ effectivenessChartTitleStyle ] ]
+                , div [ class "effectivenessChartTitle" ]
                     [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
-                , div [ css [ effectivenessChartStyle ] ] <|
+                , div [ class "effectivenessChart" ] <|
                     List.map viewBadgeWithEff notVeryEffective
                 ]
 
         wrapEvolutionListView =
-            div
-                [ css
-                    [ overflowX auto
-                    , width (pct 100)
-                    , whiteSpace noWrap
-                    , textAlign center
-                    ]
-                ]
+            div [ class "evolutions" ]
 
         modeButton text_ toMode =
             button
                 [ stopPropagationOnClick (ChangeMode toMode)
-                , css
-                    [ marginTop (em 1)
-                    , fontSize (em 1)
-                    , textAlign center
-                    , padding2 (em 0.5) (em 1)
-                    , borderRadius (em 5)
-                    , border (px 0)
-                    , backgroundColor (rgba 255 255 255 0.4)
-                    , cursor pointer
-                    ]
+                , class "modeButton"
                 ]
                 [ text text_ ]
 
@@ -247,76 +214,17 @@ view allPkm model =
 
         -- The button is fake because you can close by clicking anywhere really.
         fakeCloseButton =
-            let
-                size =
-                    1.7
-
-                thickness =
-                    0.2
-
-                barStyle degrees =
-                    [ position absolute
-                    , left (em <| size / 2)
-                    , height (em size)
-                    , width (em thickness)
-                    , property "content" "' '"
-                    , backgroundColor <| rgb 0 0 0
-                    , transform <| rotate (deg degrees)
-                    ]
-            in
-            div
-                [ css
-                    [ position absolute
-                    , top (em 0.5)
-                    , right (em 0.5)
-                    , opacity (num 0.3)
-                    , width (em size)
-                    , height (em size)
-                    , before <| barStyle 45
-                    , after <| barStyle -45
-                    , hover [ opacity (num 1) ]
-                    , cursor pointer
-                    ]
-                ]
-                []
+            div [ class "closeButton" ] []
     in
     div
         [ stopPropagationOnClick Deselect
-        , css
-            [ Type.backgroundFor pkm.typing
-            , position fixed
-            , left (pct 50)
-            , maxWidth (pct 95)
-            , top (pct 50)
-            , height auto
-            , zIndex (int 200)
-            , pointerEventsAll
-            , borderRadius (px 16)
-            , overflow hidden
-            , cursor zoomOut
-            , property "box-shadow" "inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 2px 6px 6px 6px rgba(0, 0, 0, .3);"
-            , paddingTop (em 0.8)
-            , paddingBottom (em 0.8)
-            , transition
-                [ Transitions.transform 300
-                , Transitions.opacity 300
-                ]
-            , Css.batch <|
-                if model.visible then
-                    [ transforms
-                        [ translate2 (pct -50) (pct -50)
-                        , scale2 1 1 -- must be set explicitly for the transition to work
-                        ]
-                    ]
+        , class "details"
+        , if model.visible then
+            class "visible"
 
-                else
-                    [ transforms
-                        [ translate2 (pct -50) (pct -50)
-                        , scale2 0 0
-                        ]
-                    , opacity (int 0)
-                    ]
-            ]
+          else
+            class "hidden"
+        , Type.backgroundFor pkm.typing
         ]
     <|
         case model.mode of
@@ -343,19 +251,3 @@ view allPkm model =
                 , typeEffectivenessButton
                 , fakeCloseButton
                 ]
-
-
-effectivenessChartTitleStyle : Style
-effectivenessChartTitleStyle =
-    Css.batch
-        [ fontSize (pct 120)
-        , display block
-        , margin (em 0.5)
-        ]
-
-
-effectivenessChartStyle : Style
-effectivenessChartStyle =
-    Css.batch
-        [ margin (em 0)
-        ]

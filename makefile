@@ -5,6 +5,7 @@ build:
 
 	cp src/index.html public
 	cp src/site.webmanifest public
+	cp src/*.css public
 	cp src/icons/* public/icons/
 	cp src/images/* public/images/
 	

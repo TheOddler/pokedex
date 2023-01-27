@@ -1,10 +1,9 @@
 module Pokedex exposing (Msg, Pokedex, init, update, view)
 
 import Amyfy exposing (amyfyPokemon)
-import Css exposing (..)
-import Html.Styled as Html exposing (Html, div, input)
-import Html.Styled.Attributes exposing (css, id, placeholder, value)
-import Html.Styled.Events exposing (onClick, onFocus, onInput)
+import Html as Html exposing (Html, div, input)
+import Html.Attributes exposing (class, id, placeholder, value)
+import Html.Events exposing (onClick, onFocus, onInput)
 import Pokemon exposing (Pokemon)
 import Pokemon.Data
 import Pokemon.Details
@@ -62,12 +61,11 @@ update msg model =
 view : Pokedex -> Html Msg
 view model =
     div
-        [ css [ paddingTop (em 4) ]
+        [ class "pokedex"
         , onClick <| PokemonDetailsMsg Pokemon.Details.Deselect
         ]
         [ input
             [ id "search" -- Needed for the auto select script
-            , css [ searchStyle ]
             , placeholder "Search for a Pokémon..."
             , value model.searchString
             , onInput SetSearch
@@ -82,22 +80,3 @@ view model =
 searchPokemonFilter : String -> Pokemon -> Bool
 searchPokemonFilter searchStr pkm =
     Fuzzy.match searchStr pkm.fullName
-
-
-searchStyle : Style
-searchStyle =
-    Css.batch
-        [ fontSize (em 1)
-        , textAlign center
-        , position fixed
-        , top (px 0)
-        , transform (translate2 (pct -50) (px 0))
-        , zIndex (int 200)
-        , margin2 (em 0.8) auto
-        , padding (em 0.5)
-        , borderRadius (em 5)
-        , border (px 0)
-        , width (em 18)
-        , maxWidth (pct 90)
-        , backgroundColor (rgba 255 255 255 0.8)
-        ]
