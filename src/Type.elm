@@ -1,6 +1,5 @@
-module Type exposing (Type(..), Typing(..), backgroundFor, decoder, viewBadge)
+module Type exposing (Type(..), Typing(..), backgroundFor, viewBadge)
 
-import Csv.Decode as Decode exposing (Decoder)
 import Html exposing (Attribute, Html, div, text)
 import Html.Attributes exposing (class, style)
 
@@ -67,15 +66,6 @@ viewBadge type_ effectivenesss =
         , style "background-color" (toColor type_)
         ]
         allHtml
-
-
-decoder : Decoder Type
-decoder =
-    Decode.andThen
-        (\value ->
-            Decode.fromMaybe (value ++ " is not a valid Type") (fromString value)
-        )
-        Decode.string
 
 
 backgroundFor : Typing -> Attribute msg
@@ -153,67 +143,6 @@ toString type_ =
 
         Fairy ->
             "Fairy"
-
-
-fromString : String -> Maybe Type
-fromString typeStr =
-    case typeStr of
-        "Normal" ->
-            Just Normal
-
-        "Fire" ->
-            Just Fire
-
-        "Water" ->
-            Just Water
-
-        "Electric" ->
-            Just Electric
-
-        "Grass" ->
-            Just Grass
-
-        "Ice" ->
-            Just Ice
-
-        "Fighting" ->
-            Just Fighting
-
-        "Poison" ->
-            Just Poison
-
-        "Ground" ->
-            Just Ground
-
-        "Flying" ->
-            Just Flying
-
-        "Psychic" ->
-            Just Psychic
-
-        "Bug" ->
-            Just Bug
-
-        "Rock" ->
-            Just Rock
-
-        "Ghost" ->
-            Just Ghost
-
-        "Dragon" ->
-            Just Dragon
-
-        "Dark" ->
-            Just Dark
-
-        "Steel" ->
-            Just Steel
-
-        "Fairy" ->
-            Just Fairy
-
-        _ ->
-            Nothing
 
 
 toColor : Type -> String
