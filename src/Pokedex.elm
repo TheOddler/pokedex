@@ -1,8 +1,8 @@
 module Pokedex exposing (Msg, Pokedex, init, update, view)
 
 import Amyfy exposing (amyfyPokemon)
-import Html as Html exposing (Html, div, input)
-import Html.Attributes exposing (class, id, placeholder, value)
+import Html as Html exposing (Html, a, div, input, text)
+import Html.Attributes exposing (class, href, id, placeholder, value)
 import Html.Events exposing (onClick, onFocus, onInput)
 import Pokemon exposing (Pokemon)
 import Pokemon.Data
@@ -74,6 +74,18 @@ view model =
             []
         , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemon model.details
         , Html.map PokemonDetailsMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
+        , div
+            [ class "externalLinks"
+            ]
+            [ text "Source code available at "
+            , a [ href "https://github.com/TheOddler/pokedex" ] [ text "github.com/TheOddler/pokedex" ]
+            , text "."
+            ]
+        , div []
+            [ text "Images by "
+            , a [ href "https://archives.bulbagarden.net/wiki/Category:Ken_Sugimori_Pok%C3%A9mon_artwork" ] [ text "Ken Sugimori" ]
+            , text "."
+            ]
         ]
 
 

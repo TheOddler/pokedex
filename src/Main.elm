@@ -1,8 +1,7 @@
 module Main exposing (main)
 
 import Browser
-import Html as Html exposing (Html, a, div, text)
-import Html.Attributes exposing (class, href)
+import Html exposing (Html)
 import Pokedex exposing (Pokedex)
 import Pokemon.Mode as Mode
 
@@ -44,30 +43,10 @@ subscriptions _ =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg pokedex =
-    let
-        ( updatedPokedex, nextMsg ) =
-            Pokedex.update msg pokedex
-    in
-    ( updatedPokedex, nextMsg )
+update =
+    Pokedex.update
 
 
 view : Model -> Html Msg
-view pokedex =
-    div
-        [ class "main"
-        ]
-        [ Pokedex.view pokedex
-        , div
-            [ class "externalLinks"
-            ]
-            [ text "Source code available at "
-            , a [ href "https://github.com/TheOddler/pokedex" ] [ text "github.com/TheOddler/pokedex" ]
-            , text "."
-            ]
-        , div []
-            [ text "Images by "
-            , a [ href "https://archives.bulbagarden.net/wiki/Category:Ken_Sugimori_Pok%C3%A9mon_artwork" ] [ text "Ken Sugimori" ]
-            , text "."
-            ]
-        ]
+view =
+    Pokedex.view
