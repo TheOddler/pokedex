@@ -19,12 +19,13 @@ view pokemonList filter =
 viewListElementWrapper : Bool -> Pokemon -> Html Pokemon.Details.Msg
 viewListElementWrapper isVisible pkm =
     div
-        (if isVisible then
-            []
+        [ class "itemWrapper" -- so the inner-item can be lazy
+        , if isVisible then
+            class "visible"
 
-         else
-            [ class "hidden" ]
-        )
+          else
+            class "hidden"
+        ]
         [ Lazy.lazy viewListElement pkm ]
 
 
@@ -33,8 +34,8 @@ viewListElement pkm =
     div
         [ stopPropagationOnClick <| Pokemon.Details.Select pkm
         , Type.backgroundFor pkm.typing
-        , class "pokemonBadge"
         , class "item"
+        , class "pokemonBadge"
         ]
         [ img
             [ src pkm.imageUrl
@@ -42,5 +43,5 @@ viewListElement pkm =
             , attribute "loading" "lazy"
             ]
             []
-        , div [] [ text pkm.fullName ]
+        , text pkm.fullName
         ]
