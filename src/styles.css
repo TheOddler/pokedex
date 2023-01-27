@@ -42,8 +42,6 @@ body {
 }
 
 .pokedex .list .item {
-    /* set height so it fill the wrapper */
-    height: 100%;
     /* to make zIndex work */
     position: relative;
     transition: transform 0.5s cubic-bezier(0, 1, 0.5, 1.5), boxShadow 0.5s cubic-bezier(0, 1, 0.5, 1.5);
