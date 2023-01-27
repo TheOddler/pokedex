@@ -12,17 +12,19 @@ import Type
 view : List Pokemon -> (Pokemon -> Bool) -> Html Pokemon.Details.Msg
 view pokemonList filter =
     Keyed.node "div" [ class "list" ] <|
-        List.map (\p -> ( String.fromInt p.id, viewListElement (filter p) p )) pokemonList
+        List.map (viewListElement filter) pokemonList
 
 
-viewListElement : Bool -> Pokemon -> Html Pokemon.Details.Msg
-viewListElement isVisible pkm =
-    div
+viewListElement : (Pokemon -> Bool) -> Pokemon -> ( String, Html Pokemon.Details.Msg )
+viewListElement filter pkm =
+    ( -- Unique id for the keyed
+      String.fromInt pkm.id
+    , div
         [ stopPropagationOnClick <| Pokemon.Details.Select pkm
         , Type.backgroundFor pkm.typing
         , class "item"
         , class "pokemonBadge"
-        , if isVisible then
+        , if filter pkm then
             class "visible"
 
           else
@@ -36,3 +38,4 @@ viewListElement isVisible pkm =
             []
         , text pkm.fullName
         ]
+    )
