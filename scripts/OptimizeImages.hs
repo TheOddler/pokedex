@@ -3,8 +3,9 @@
 #! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-22.11.tar.gz
 
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RecordWildCards #-}
 
-import Codec.Picture (DynamicImage (ImageRGBA8), Image (imageHeight, imageWidth), PixelRGBA8, encodePng, readImage)
+import Codec.Picture (DynamicImage (..), Image (..), Pixel (..), PixelRGBA8 (..), encodePng, generateImage, readImage)
 import Codec.Picture.STBIR (defaultOptions, resize)
 import qualified Codec.Picture.STBIR as STBIR
 import Codec.Picture.WebP (encodeRgba8, encodeRgba8Lossless)
@@ -66,7 +67,7 @@ optimizeAndWrite orig outName wantedSize encoding =
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
 
 scale :: Int -> Image PixelRGBA8 -> Image PixelRGBA8
-scale wantedSize = resize defaultOptions wantedSize wantedSize
+scale wantedSize = resize defaultOptions wantedSize wantedSize . makeSquare (PixelRGBA8 0 0 0 0)
 
 encode :: Encoding -> Image PixelRGBA8 -> ByteString
 encode = \case
@@ -79,3 +80,20 @@ encodingExtension = \case
   Png -> ".png"
   LosslessWebP -> ".webp"
   LossyWebP _ -> ".webp"
+
+makeSquare :: Pixel a => a -> Image a -> Image a
+makeSquare filler img@Image {..} =
+  if imageWidth == imageHeight
+    then img
+    else generateImage gen size size
+  where
+    size = max imageWidth imageHeight
+    extraWidth = size - imageWidth
+    extraHeight = size - imageHeight
+    offsetX = extraWidth `div` 2
+    offsetY = extraHeight `div` 2
+    gen i _ | i < offsetX = filler
+    gen i _ | i >= imageWidth + offsetX = filler
+    gen _ j | j < offsetY = filler
+    gen _ j | j >= imageHeight + offsetY = filler
+    gen i j = pixelAt img (i - offsetX) (j - offsetY)
