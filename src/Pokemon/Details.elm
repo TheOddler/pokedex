@@ -65,10 +65,13 @@ view allPkm model =
 
         evolvesFrom =
             case pkm.evolutionData of
-                DoesNotEvolve ->
+                IsNotEvolved ->
                     []
 
-                EvolvesFrom ids _ ->
+                EvolvesFrom id _ ->
+                    Maybe.toList <| withID allPkm id
+
+                EvolvesFromMultiple ids _ ->
                     Maybe.values <| List.map (withID allPkm) ids
 
         evolvesIntoIDs =
@@ -116,10 +119,13 @@ view allPkm model =
 
         evolutionDetailsToString p =
             case p.evolutionData of
-                DoesNotEvolve ->
+                IsNotEvolved ->
                     ""
 
                 EvolvesFrom _ details ->
+                    details
+
+                EvolvesFromMultiple _ details ->
                     details
 
         transformationDetailsToString p =

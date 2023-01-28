@@ -6,8 +6,9 @@ import Type exposing (Type(..), Typing(..))
 
 
 type EvolutionData
-    = DoesNotEvolve
-    | EvolvesFrom (List Int) String
+    = IsNotEvolved
+    | EvolvesFrom Int String
+    | EvolvesFromMultiple (List Int) String
 
 
 type TransformationData
@@ -41,10 +42,13 @@ shareTransformGroup p1 p2 =
 evolvesFrom : Pokemon -> Pokemon -> Bool
 evolvesFrom evolution base =
     case base.evolutionData of
-        DoesNotEvolve ->
+        IsNotEvolved ->
             False
 
-        EvolvesFrom ids _ ->
+        EvolvesFrom id _ ->
+            evolution.id == id
+
+        EvolvesFromMultiple ids _ ->
             List.member evolution.id ids
 
 
