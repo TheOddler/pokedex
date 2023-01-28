@@ -6,17 +6,18 @@
 
 import Codec.Picture (DynamicImage (ImageRGBA8), Image (imageHeight, imageWidth), PixelRGBA8, encodePng, readImage)
 import Codec.Picture.STBIR (defaultOptions, resize)
+import qualified Codec.Picture.STBIR as STBIR
 import Codec.Picture.WebP (encodeRgba8, encodeRgba8Lossless)
 import Control.Monad (forM_)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LB
+import Data.Complex (imagPart)
+import Data.Functor ((<&>))
 import Foreign.C.Types (CFloat)
 import Helpers (forShowProgress_)
 import System.Directory (createDirectoryIfMissing, getDirectoryContents)
 import System.FilePath.Posix (takeBaseName)
-
-type WantedHeight = Int
 
 data Encoding
   = Png
@@ -28,8 +29,6 @@ main :: IO ()
 main = do
   let input = "images"
   let output = "optimized_images"
-  let encoding = LossyWebP 30
-  let wantedHeight = 256
 
   createDirectoryIfMissing True output
   imagePaths <- getDirectoryContents "images"
@@ -60,16 +59,14 @@ main = do
             optimizeAndWrite img baseName 256 (LossyWebP 90)
           _ -> putStrLn "Unsupported type"
 
-optimizeAndWrite :: Image PixelRGBA8 -> String -> WantedHeight -> Encoding -> IO ()
-optimizeAndWrite orig outName wantedHeight encoding =
-  let optimize = encode encoding . scale wantedHeight
+optimizeAndWrite :: Image PixelRGBA8 -> String -> Int -> Encoding -> IO ()
+optimizeAndWrite orig outName wantedSize encoding =
+  let optimize = encode encoding . scale wantedSize
       optimizedImage = optimize orig
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
 
-scale :: WantedHeight -> Image PixelRGBA8 -> Image PixelRGBA8
-scale wantedHeight img =
-  let scaledWidth = imageWidth img * wantedHeight `div` imageHeight img
-   in resize defaultOptions scaledWidth wantedHeight img
+scale :: Int -> Image PixelRGBA8 -> Image PixelRGBA8
+scale wantedSize = resize defaultOptions wantedSize wantedSize
 
 encode :: Encoding -> Image PixelRGBA8 -> ByteString
 encode = \case
