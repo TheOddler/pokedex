@@ -11,3 +11,12 @@ removeAll allToRmove str =
 replaceAll : List ( String, String ) -> String -> String
 replaceAll allToReplace str =
     foldl (\( toReplace, replacement ) -> String.replace toReplace replacement) str allToReplace
+
+
+removeTrailingDot : String -> String
+removeTrailingDot str =
+    if String.endsWith "." str then
+        String.dropRight 1 str
+
+    else
+        str

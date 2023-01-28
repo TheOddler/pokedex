@@ -615,9 +615,9 @@ https://archives.bulbagarden.net/media/upload/2/2c/0547Whimsicott.png
 https://archives.bulbagarden.net/media/upload/2/2f/0548Petilil.png
 https://archives.bulbagarden.net/media/upload/c/c1/0549Lilligant.png
 https://archives.bulbagarden.net/media/upload/4/4c/0549Lilligant-Hisui.png
-https://archives.bulbagarden.net/media/upload/4/41/0550Basculin-Red.png
-https://archives.bulbagarden.net/media/upload/2/27/0550Basculin-Blue.png
-https://archives.bulbagarden.net/media/upload/3/34/0550Basculin-White.png
+https://archives.bulbagarden.net/media/upload/4/41/0550Basculin-Red.png -> 0550Basculin-Red-Striped
+https://archives.bulbagarden.net/media/upload/2/27/0550Basculin-Blue.png -> 0550Basculin-Blue-Striped
+https://archives.bulbagarden.net/media/upload/3/34/0550Basculin-White.png -> 0550Basculin-White-Striped
 https://archives.bulbagarden.net/media/upload/c/cb/0551Sandile.png
 https://archives.bulbagarden.net/media/upload/b/ba/0552Krokorok.png
 https://archives.bulbagarden.net/media/upload/4/42/0553Krookodile.png
@@ -626,7 +626,7 @@ https://archives.bulbagarden.net/media/upload/1/1c/0554Darumaka-Galar.png
 https://archives.bulbagarden.net/media/upload/a/a3/0555Darmanitan.png
 https://archives.bulbagarden.net/media/upload/8/88/0555Darmanitan-Zen.png
 https://archives.bulbagarden.net/media/upload/1/1a/0555Darmanitan-Galar.png
-https://archives.bulbagarden.net/media/upload/0/04/0555Darmanitan-Galar-Zen.png
+https://archives.bulbagarden.net/media/upload/0/04/0555Darmanitan-Galar-Zen.png -> 0555Darmanitan-Galar_Zen
 https://archives.bulbagarden.net/media/upload/1/16/0556Maractus.png
 https://archives.bulbagarden.net/media/upload/d/d9/0557Dwebble.png
 https://archives.bulbagarden.net/media/upload/a/a2/0558Crustle.png
@@ -767,8 +767,7 @@ https://archives.bulbagarden.net/media/upload/8/89/0674Pancham.png
 https://archives.bulbagarden.net/media/upload/b/b8/0675Pangoro.png
 https://archives.bulbagarden.net/media/upload/2/29/0676Furfrou.png
 https://archives.bulbagarden.net/media/upload/1/1e/0677Espurr.png
-https://archives.bulbagarden.net/media/upload/6/6d/0678Meowstic-Male.png
-https://archives.bulbagarden.net/media/upload/1/1f/0678Meowstic-Female.png
+https://archives.bulbagarden.net/media/upload/1/1f/0678Meowstic-Female.png -> 0678Meowstic
 https://archives.bulbagarden.net/media/upload/4/48/0679Honedge.png
 https://archives.bulbagarden.net/media/upload/d/de/0680Doublade.png
 https://archives.bulbagarden.net/media/upload/5/5a/0681Aegislash-Shield.png
@@ -813,7 +812,7 @@ https://archives.bulbagarden.net/media/upload/7/7f/0715Noivern.png
 https://archives.bulbagarden.net/media/upload/1/17/0716Xerneas.png
 https://archives.bulbagarden.net/media/upload/1/1d/0717Yveltal.png
 https://archives.bulbagarden.net/media/upload/9/92/0718Zygarde.png
-https://archives.bulbagarden.net/media/upload/f/f8/0718Zygarde-10Percent.png
+https://archives.bulbagarden.net/media/upload/f/f8/0718Zygarde-10Percent.png -> 0718Zygarde-10
 https://archives.bulbagarden.net/media/upload/f/fb/0718Zygarde-Complete.png
 https://archives.bulbagarden.net/media/upload/3/37/0719Diancie.png
 https://archives.bulbagarden.net/media/upload/7/71/0720Hoopa.png
@@ -839,7 +838,7 @@ https://archives.bulbagarden.net/media/upload/3/33/0737Charjabug.png
 https://archives.bulbagarden.net/media/upload/c/c9/0738Vikavolt.png
 https://archives.bulbagarden.net/media/upload/8/83/0739Crabrawler.png
 https://archives.bulbagarden.net/media/upload/2/29/0740Crabominable.png
-https://archives.bulbagarden.net/media/upload/2/21/0741Oricorio.png
+https://archives.bulbagarden.net/media/upload/2/21/0741Oricorio.png -> 0741Oricorio-Baile
 https://archives.bulbagarden.net/media/upload/6/66/0741Oricorio-Pom-Pom.png
 https://archives.bulbagarden.net/media/upload/2/23/0741Oricorio-Pa%27u.png -> 0741Oricorio-Pau
 https://archives.bulbagarden.net/media/upload/8/8d/0741Oricorio-Sensu.png
@@ -849,7 +848,7 @@ https://archives.bulbagarden.net/media/upload/6/6b/0744Rockruff.png
 https://archives.bulbagarden.net/media/upload/b/b8/0745Lycanroc.png
 https://archives.bulbagarden.net/media/upload/4/46/0745Lycanroc-Midnight.png
 https://archives.bulbagarden.net/media/upload/7/7b/0745Lycanroc-Dusk.png
-https://archives.bulbagarden.net/media/upload/c/c4/0746Wishiwashi.png
+https://archives.bulbagarden.net/media/upload/c/c4/0746Wishiwashi.png -> 0746Wishiwashi-Solo
 https://archives.bulbagarden.net/media/upload/a/a1/0746Wishiwashi-School.png
 https://archives.bulbagarden.net/media/upload/6/63/0747Mareanie.png
 https://archives.bulbagarden.net/media/upload/b/bf/0748Toxapex.png
@@ -987,9 +986,8 @@ https://archives.bulbagarden.net/media/upload/b/b2/0873Frosmoth.png
 https://archives.bulbagarden.net/media/upload/f/ff/0874Stonjourner.png
 https://archives.bulbagarden.net/media/upload/6/6d/0875Eiscue.png
 https://archives.bulbagarden.net/media/upload/f/fc/0875Eiscue-Noice.png
-https://archives.bulbagarden.net/media/upload/5/59/0876Indeedee-Male.png
-https://archives.bulbagarden.net/media/upload/4/4d/0876Indeedee-Female.png
-https://archives.bulbagarden.net/media/upload/e/ef/0877Morpeko-Full.png
+https://archives.bulbagarden.net/media/upload/4/4d/0876Indeedee-Female.png -> 0876Indeedee
+https://archives.bulbagarden.net/media/upload/e/ef/0877Morpeko-Full.png -> 0877Morpeko-Full_Belly
 https://archives.bulbagarden.net/media/upload/2/28/0877Morpeko-Hangry.png
 https://archives.bulbagarden.net/media/upload/9/9a/0878Cufant.png
 https://archives.bulbagarden.net/media/upload/a/a3/0879Copperajah.png
@@ -1001,9 +999,9 @@ https://archives.bulbagarden.net/media/upload/f/f4/0884Duraludon.png
 https://archives.bulbagarden.net/media/upload/d/d0/0885Dreepy.png
 https://archives.bulbagarden.net/media/upload/2/21/0886Drakloak.png
 https://archives.bulbagarden.net/media/upload/e/e8/0887Dragapult.png
-https://archives.bulbagarden.net/media/upload/3/32/0888Zacian-Hero.png
+https://archives.bulbagarden.net/media/upload/3/32/0888Zacian-Hero.png -> 0888Zacian-Crowned
 https://archives.bulbagarden.net/media/upload/9/98/0888Zacian.png
-https://archives.bulbagarden.net/media/upload/f/fc/0889Zamazenta-Hero.png
+https://archives.bulbagarden.net/media/upload/f/fc/0889Zamazenta-Hero.png -> 0889Zamazenta-Crowned
 https://archives.bulbagarden.net/media/upload/4/41/0889Zamazenta.png
 https://archives.bulbagarden.net/media/upload/0/0e/0890Eternatus.png
 https://archives.bulbagarden.net/media/upload/1/14/0891Kubfu.png
@@ -1020,8 +1018,7 @@ https://archives.bulbagarden.net/media/upload/9/9b/0898Calyrex-Shadow_Rider.png
 https://archives.bulbagarden.net/media/upload/9/97/0899Wyrdeer.png
 https://archives.bulbagarden.net/media/upload/8/8f/0900Kleavor.png
 https://archives.bulbagarden.net/media/upload/7/7c/0901Ursaluna.png
-https://archives.bulbagarden.net/media/upload/e/e1/0902Basculegion-Male.png
-https://archives.bulbagarden.net/media/upload/7/73/0902Basculegion-Female.png
+https://archives.bulbagarden.net/media/upload/7/73/0902Basculegion-Female.png -> 0902Basculegion
 https://archives.bulbagarden.net/media/upload/a/a3/0903Sneasler.png
 https://archives.bulbagarden.net/media/upload/0/02/0904Overqwil.png
 https://archives.bulbagarden.net/media/upload/5/54/0905Enamorus.png

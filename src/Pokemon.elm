@@ -7,19 +7,26 @@ import Type exposing (Type(..), Typing(..))
 
 type EvolutionData
     = IsNotEvolved
-    | EvolvesFrom Int String
-    | EvolvesFromMultiple (List Int) String
+    | EvolvesFrom PokemonID String
+    | EvolvesFromMultiple (List PokemonID) String
 
 
 type TransformationData
     = DoesNotTransform
-    | Transforms Int String
+    | Transforms PokemonID String
+
+
+type alias PokemonID =
+    Int
+
+
+type alias NationDexNumber =
+    Int
 
 
 type alias Pokemon =
-    { id : Int
-    , nationalDexNumber : Int
-    , originalPokemonID : Maybe Int
+    { id : PokemonID
+    , nationalDexNumber : NationDexNumber
     , fullName : String
     , typing : Typing
     , ability : Maybe Ability
@@ -52,6 +59,6 @@ evolvesFrom evolution base =
             List.member evolution.id ids
 
 
-withID : List Pokemon -> Int -> Maybe Pokemon
+withID : List Pokemon -> PokemonID -> Maybe Pokemon
 withID all id =
     List.find (\p -> p.id == id) all
