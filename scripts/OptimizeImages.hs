@@ -1,11 +1,12 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i runghc -p "haskellPackages.ghcWithPackages (ps: [ ps.JuicyPixels ps.webp ps.JuicyPixels-stbir ])"
+#! nix-shell -i runghc -p "haskellPackages.ghcWithPackages (ps: [ ps.JuicyPixels ps.webp ps.JuicyPixels-stbir ps.JuicyPixels-extra ])"
 #! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-22.11.tar.gz
 
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RecordWildCards #-}
 
 import Codec.Picture (DynamicImage (..), Image (..), Pixel (..), PixelRGBA8 (..), encodePng, generateImage, readImage)
+import Codec.Picture.Extra (crop)
 import Codec.Picture.STBIR (defaultOptions, resize)
 import qualified Codec.Picture.STBIR as STBIR
 import Codec.Picture.WebP (encodeRgba8, encodeRgba8Lossless)
@@ -15,6 +16,9 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LB
 import Data.Complex (imagPart)
 import Data.Functor ((<&>))
+import Data.List (all, find)
+import Data.Maybe (fromMaybe)
+import Debug.Trace (trace)
 import Foreign.C.Types (CFloat)
 import Helpers (forShowProgress_)
 import System.Directory (createDirectoryIfMissing, getDirectoryContents)
@@ -67,7 +71,7 @@ optimizeAndWrite orig outName wantedSize encoding =
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
 
 scale :: Int -> Image PixelRGBA8 -> Image PixelRGBA8
-scale wantedSize = resize defaultOptions wantedSize wantedSize . makeSquare (PixelRGBA8 0 0 0 0)
+scale wantedSize = squareImage (PixelRGBA8 0 0 0 0) . trimImage . resize defaultOptions wantedSize wantedSize
 
 encode :: Encoding -> Image PixelRGBA8 -> ByteString
 encode = \case
@@ -81,8 +85,8 @@ encodingExtension = \case
   LosslessWebP -> ".webp"
   LossyWebP _ -> ".webp"
 
-makeSquare :: Pixel a => a -> Image a -> Image a
-makeSquare filler img@Image {..} =
+squareImage :: Pixel a => a -> Image a -> Image a
+squareImage filler img@Image {..} =
   if imageWidth == imageHeight
     then img
     else generateImage gen size size
@@ -97,3 +101,19 @@ makeSquare filler img@Image {..} =
     gen _ j | j < offsetY = filler
     gen _ j | j >= imageHeight + offsetY = filler
     gen i j = pixelAt img (i - offsetX) (j - offsetY)
+
+trimImage :: Image PixelRGBA8 -> Image PixelRGBA8
+trimImage img@Image {..} = crop left top width height img
+  where
+    nearlyInvisible :: PixelRGBA8 -> Bool
+    nearlyInvisible p = pixelOpacity p == 0
+    isInvisibleRow y = all nearlyInvisible $ flip (pixelAt img) y <$> [0 .. imageWidth - 1]
+    isInvisibleCol x = all nearlyInvisible $ pixelAt img x <$> [0 .. imageHeight - 1]
+
+    top = fromMaybe imageHeight (find (not . isInvisibleRow) [0 .. imageHeight - 1])
+    bottom = fromMaybe 0 (find (not . isInvisibleRow) [imageHeight - 1, imageHeight - 2 .. 0]) + 1
+    height = trace ("t=" ++ show top ++ "; b=" ++ show bottom) $ bottom - top - 1
+
+    left = fromMaybe imageWidth (find (not . isInvisibleCol) [0 .. imageWidth - 1])
+    right = fromMaybe 0 (find (not . isInvisibleCol) [imageWidth - 1, imageWidth - 2 .. 1]) + 1
+    width = trace ("l=" ++ show left ++ "; r=" ++ show right) $ right - left - 1
