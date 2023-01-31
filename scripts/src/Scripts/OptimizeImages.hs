@@ -59,12 +59,16 @@ optimizeImages = do
 
 optimizeAndWrite :: Image PixelRGBA8 -> String -> Int -> Encoding -> IO ()
 optimizeAndWrite orig outName wantedSize encoding =
-  let optimize = encode encoding . scale wantedSize
+  let optimize = encode encoding . trimImage . scale wantedSize
       optimizedImage = optimize orig
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
 
 scale :: Int -> Image PixelRGBA8 -> Image PixelRGBA8
-scale wantedSize = trimImage . resize defaultOptions wantedSize wantedSize
+scale wantedSize img@Image {..} =
+  let maxDim = max imageWidth imageHeight
+      w = imageWidth * wantedSize `div` maxDim
+      h = imageHeight * wantedSize `div` maxDim
+   in resize defaultOptions w h img
 
 encode :: Encoding -> Image PixelRGBA8 -> ByteString
 encode = \case
