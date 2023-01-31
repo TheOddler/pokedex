@@ -1,22 +1,18 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i runghc -p "haskellPackages.ghcWithPackages (ps: [ ps.HTTP ps.http-conduit ps.MissingH ])"
-#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-22.11.tar.gz
+module Scripts.DownloadImages (downloadImages) where
 
-import Control.Monad (forM_)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LB
 import Data.String.Utils (split)
 import Helpers (ProgressMessage (Message, NoMessage), forShowProgress_)
-import Network.HTTP.Conduit
-import Network.URI (parseURI)
+import Network.HTTP.Conduit (simpleHttp)
 import System.Directory (createDirectoryIfMissing, doesFileExist, renameFile)
 import System.FilePath (takeExtension, takeFileName)
 
 outputFolder :: String
 outputFolder = "images/"
 
-main :: IO ()
-main = do
+downloadImages :: IO ()
+downloadImages = do
   createDirectoryIfMissing True outputFolder
   input <- readFile "imageurls.txt"
   forShowProgress_ (lines input) $ \line -> do

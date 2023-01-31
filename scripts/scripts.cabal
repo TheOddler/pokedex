@@ -1,0 +1,65 @@
+cabal-version:      3.0
+name:               scripts
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            NONE
+author:             Pablo Bollansée
+-- maintainer:
+-- copyright:
+build-type:         Simple
+-- extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:
+        Scripts
+    -- Modules included in this library but not exported.
+    other-modules:
+        Scripts.DownloadImages
+        Scripts.OptimizeImages
+        Helpers
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+    build-depends:
+        base,
+        bytestring,
+        directory,
+        filepath,
+        http-conduit,
+        HTTP,
+        JuicyPixels-extra,
+        JuicyPixels-stbir,
+        JuicyPixels,
+        MissingH,
+        network-uri,
+        webp >= 0.1.0.2
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+executable scripts
+    import:           warnings
+    main-is:          Main.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base,
+        scripts
+    hs-source-dirs:   app
+    default-language: Haskell2010
+
+test-suite scripts-test
+    import:           warnings
+    default-language: Haskell2010
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base,
+        scripts

@@ -1,22 +1,16 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i runghc -p "haskellPackages.ghcWithPackages (ps: [ ps.JuicyPixels ps.webp ps.JuicyPixels-stbir ps.JuicyPixels-extra ])"
-#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-22.11.tar.gz
-
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RecordWildCards #-}
+
+module Scripts.OptimizeImages (optimizeImages) where
 
 import Codec.Picture (DynamicImage (..), Image (..), Pixel (..), PixelRGBA8 (..), encodePng, generateImage, readImage)
 import Codec.Picture.Extra (crop)
 import Codec.Picture.STBIR (defaultOptions, resize)
-import qualified Codec.Picture.STBIR as STBIR
 import Codec.Picture.WebP (encodeRgba8, encodeRgba8Lossless)
-import Control.Monad (forM_)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LB
-import Data.Complex (imagPart)
-import Data.Functor ((<&>))
-import Data.List (all, find)
+import Data.List (find)
 import Data.Maybe (fromMaybe)
 import Foreign.C.Types (CFloat)
 import Helpers (forShowProgress_)
@@ -29,8 +23,8 @@ data Encoding
   | LossyWebP CFloat
   deriving (Show)
 
-main :: IO ()
-main = do
+optimizeImages :: IO ()
+optimizeImages = do
   let input = "images"
   let output = "optimized_images"
 
