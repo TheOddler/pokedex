@@ -18,7 +18,6 @@ import Data.Complex (imagPart)
 import Data.Functor ((<&>))
 import Data.List (all, find)
 import Data.Maybe (fromMaybe)
-import Debug.Trace (trace)
 import Foreign.C.Types (CFloat)
 import Helpers (forShowProgress_)
 import System.Directory (createDirectoryIfMissing, getDirectoryContents)
@@ -71,7 +70,7 @@ optimizeAndWrite orig outName wantedSize encoding =
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
 
 scale :: Int -> Image PixelRGBA8 -> Image PixelRGBA8
-scale wantedSize = squareImage (PixelRGBA8 0 0 0 0) . trimImage . resize defaultOptions wantedSize wantedSize
+scale wantedSize = trimImage . resize defaultOptions wantedSize wantedSize
 
 encode :: Encoding -> Image PixelRGBA8 -> ByteString
 encode = \case
@@ -112,8 +111,8 @@ trimImage img@Image {..} = crop left top width height img
 
     top = fromMaybe imageHeight (find (not . isInvisibleRow) [0 .. imageHeight - 1])
     bottom = fromMaybe 0 (find (not . isInvisibleRow) [imageHeight - 1, imageHeight - 2 .. 0]) + 1
-    height = trace ("t=" ++ show top ++ "; b=" ++ show bottom) $ bottom - top - 1
+    height = bottom - top - 1
 
     left = fromMaybe imageWidth (find (not . isInvisibleCol) [0 .. imageWidth - 1])
     right = fromMaybe 0 (find (not . isInvisibleCol) [imageWidth - 1, imageWidth - 2 .. 1]) + 1
-    width = trace ("l=" ++ show left ++ "; r=" ++ show right) $ right - left - 1
+    width = right - left - 1
