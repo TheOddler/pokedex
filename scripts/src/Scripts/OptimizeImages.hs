@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RecordWildCards #-}
 
@@ -59,7 +60,7 @@ optimizeImages = do
 
 optimizeAndWrite :: Image PixelRGBA8 -> String -> Int -> Encoding -> IO ()
 optimizeAndWrite orig outName wantedSize encoding =
-  let optimize = encode encoding . trimImage . scale wantedSize
+  let optimize = encode encoding . scale wantedSize
       optimizedImage = optimize orig
    in B.writeFile (outName <> encodingExtension encoding) optimizedImage
 
@@ -99,13 +100,12 @@ squareImage filler img@Image {..} =
     gen _ j | j >= imageHeight + offsetY = filler
     gen i j = pixelAt img (i - offsetX) (j - offsetY)
 
-trimImage :: Image PixelRGBA8 -> Image PixelRGBA8
+trimImage :: (Pixel a, Eq (PixelBaseComponent a)) => Image a -> Image a
 trimImage img@Image {..} = crop left top width height img
   where
-    nearlyInvisible :: PixelRGBA8 -> Bool
-    nearlyInvisible p = pixelOpacity p == 0
-    isInvisibleRow y = all nearlyInvisible $ flip (pixelAt img) y <$> [0 .. imageWidth - 1]
-    isInvisibleCol x = all nearlyInvisible $ pixelAt img x <$> [0 .. imageHeight - 1]
+    isInvisible p = pixelOpacity p == 0
+    isInvisibleRow y = all isInvisible $ flip (pixelAt img) y <$> [0 .. imageWidth - 1]
+    isInvisibleCol x = all isInvisible $ pixelAt img x <$> [0 .. imageHeight - 1]
 
     top = fromMaybe imageHeight (find (not . isInvisibleRow) [0 .. imageHeight - 1])
     bottom = fromMaybe 0 (find (not . isInvisibleRow) [imageHeight - 1, imageHeight - 2 .. 0]) + 1
