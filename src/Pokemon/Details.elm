@@ -1,4 +1,4 @@
-module Pokemon.Details exposing (..)
+module Pokemon.Details exposing (Model, Msg(..), init, update, view)
 
 import Helpers exposing (stopPropagationOnClick)
 import Html exposing (Html, button, div, figcaption, figure, img, text)
@@ -136,43 +136,6 @@ view allPkm model =
                 else
                     List.reverse children
 
-        effectivenessList =
-            TypeEffectiveness.getAll pkm.typing pkm.ability
-
-        isSuperEffective ( _, eff ) =
-            eff > 1.1
-
-        isNotVeryEffective ( _, eff ) =
-            eff < 0.9
-
-        superEffective =
-            List.filter isSuperEffective effectivenessList
-
-        notVeryEffective =
-            List.filter isNotVeryEffective effectivenessList
-
-        viewBadgeWithEff ( t, e ) =
-            Type.viewBadge t (Just e)
-
-        typeEffectivenessView =
-            div []
-                [ div [] <|
-                    case pkm.typing of
-                        Single type_ ->
-                            [ Type.viewBadge type_ Nothing ]
-
-                        Double first second ->
-                            [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
-                , div [ class "effectivenessChartTitle" ]
-                    [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
-                , div [ class "effectivenessChart" ] <|
-                    List.map viewBadgeWithEff superEffective
-                , div [ class "effectivenessChartTitle" ]
-                    [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
-                , div [ class "effectivenessChart" ] <|
-                    List.map viewBadgeWithEff notVeryEffective
-                ]
-
         wrapEvolutionListView =
             div [ class "evolutions" ]
 
@@ -222,7 +185,7 @@ view allPkm model =
         case model.mode of
             TypeEffectiveness ->
                 [ mainView
-                , typeEffectivenessView
+                , typeEffectivenessView pkm
                 , evolutionsButton
                 , fakeCloseButton
                 ]
@@ -243,3 +206,43 @@ view allPkm model =
                 , typeEffectivenessButton
                 , fakeCloseButton
                 ]
+
+
+typeEffectivenessView : Pokemon -> Html msg
+typeEffectivenessView pkm =
+    let
+        effectivenessList =
+            TypeEffectiveness.getAll pkm.typing pkm.ability
+
+        isSuperEffective ( _, eff ) =
+            eff > 1.1
+
+        isNotVeryEffective ( _, eff ) =
+            eff < 0.9
+
+        superEffective =
+            List.filter isSuperEffective effectivenessList
+
+        notVeryEffective =
+            List.filter isNotVeryEffective effectivenessList
+
+        viewBadgeWithEff ( t, e ) =
+            Type.viewBadge t (Just e)
+    in
+    div []
+        [ div [] <|
+            case pkm.typing of
+                Single type_ ->
+                    [ Type.viewBadge type_ Nothing ]
+
+                Double first second ->
+                    [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
+        , div [ class "effectivenessChartTitle" ]
+            [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
+        , div [ class "effectivenessChart" ] <|
+            List.map viewBadgeWithEff superEffective
+        , div [ class "effectivenessChartTitle" ]
+            [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
+        , div [ class "effectivenessChart" ] <|
+            List.map viewBadgeWithEff notVeryEffective
+        ]
