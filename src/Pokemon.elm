@@ -1,6 +1,9 @@
 module Pokemon exposing (..)
 
 import Ability exposing (Ability)
+import Html exposing (Html, div, img, text)
+import Html.Attributes exposing (alt, attribute, class, src)
+import List exposing (append)
 import List.Extra as List
 import Type exposing (Type(..), Typing(..))
 
@@ -62,3 +65,22 @@ evolvesFrom evolution base =
 withID : List Pokemon -> PokemonID -> Maybe Pokemon
 withID all id =
     List.find (\p -> p.id == id) all
+
+
+viewBadge : Pokemon -> List (Html.Attribute msg) -> Html msg
+viewBadge pkm additionalAttributes =
+    div
+        (append
+            [ Type.backgroundFor pkm.typing
+            , class "pokemonBadge"
+            ]
+            additionalAttributes
+        )
+        [ img
+            [ src pkm.imageUrl
+            , alt pkm.fullName
+            , attribute "loading" "lazy"
+            ]
+            []
+        , text pkm.fullName
+        ]

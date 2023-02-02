@@ -104,17 +104,8 @@ view allPkm model =
                 ]
 
         viewBadge p =
-            div
+            Pokemon.viewBadge p
                 [ stopPropagationOnClick <| Select p
-                , Type.backgroundFor p.typing
-                , class "pokemonBadge"
-                ]
-                [ img
-                    [ src p.imageUrl
-                    , alt p.fullName
-                    ]
-                    []
-                , div [ class "name" ] [ text p.fullName ]
                 ]
 
         evolutionDetailsToString p =
