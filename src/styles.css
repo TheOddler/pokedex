@@ -122,6 +122,11 @@ body {
     width: 7em;
 }
 
+.details .evolutions .info {
+    display: flex;
+    align-items: flex-end;
+}
+
 .details .effectivenessChartTitle {
     font-size: 120%;
     display: block;
