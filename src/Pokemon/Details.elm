@@ -3,6 +3,7 @@ module Pokemon.Details exposing (Model, Msg(..), init, update, view)
 import Helpers exposing (stopPropagationOnClick)
 import Html exposing (Html, button, div, figcaption, figure, img, text)
 import Html.Attributes exposing (alt, class, src)
+import List exposing (append)
 import LocalStorage
 import Maybe.Extra as Maybe
 import Pokemon exposing (EvolutionData(..), Pokemon, TransformationData(..), shareTransformGroup, withID)
@@ -60,6 +61,124 @@ view allPkm model =
         pkm =
             model.pokemon
 
+        modeButton text_ toMode =
+            button
+                [ stopPropagationOnClick (ChangeMode toMode)
+                , class "modeButton"
+                ]
+                [ text text_ ]
+
+        typeEffectivenessButton =
+            modeButton "show Type Effectiveness" TypeEffectiveness
+
+        evolutionsButton =
+            let
+                label =
+                    case ( pkm.evolutionData, pkm.transformationData ) of
+                        ( IsNotEvolved, DoesNotTransform ) ->
+                            "show Evolutions"
+
+                        ( _, DoesNotTransform ) ->
+                            "show Evolutions"
+
+                        ( IsNotEvolved, _ ) ->
+                            "show Transformations"
+
+                        ( _, _ ) ->
+                            "show Transformations & Evolutions"
+            in
+            modeButton label Evolutions
+
+        -- The button is fake because you can close by clicking anywhere really.
+        fakeCloseButton =
+            div [ class "closeButton" ] []
+    in
+    div
+        [ stopPropagationOnClick Deselect
+        , class "details"
+        , if model.visible then
+            class "visible"
+
+          else
+            class "hidden"
+        , Type.backgroundFor pkm.typing
+        ]
+    <|
+        case model.mode of
+            TypeEffectiveness ->
+                append (typeEffectivenessView pkm)
+                    [ evolutionsButton
+                    , fakeCloseButton
+                    ]
+
+            Evolutions ->
+                append (evolutionsView pkm allPkm)
+                    [ typeEffectivenessButton
+                    , fakeCloseButton
+                    ]
+
+
+mainView : Pokemon -> Html Msg
+mainView pkm =
+    figure
+        []
+        [ img
+            [ src <| pkm.imageUrl
+            , alt pkm.fullName
+            , class "mainImage"
+            ]
+            []
+        , figcaption
+            [ class "mainName"
+            ]
+            [ text pkm.fullName
+            ]
+        ]
+
+
+typeEffectivenessView : Pokemon -> List (Html Msg)
+typeEffectivenessView pkm =
+    let
+        effectivenessList =
+            TypeEffectiveness.getAll pkm.typing pkm.ability
+
+        isSuperEffective ( _, eff ) =
+            eff > 1.1
+
+        isNotVeryEffective ( _, eff ) =
+            eff < 0.9
+
+        superEffective =
+            List.filter isSuperEffective effectivenessList
+
+        notVeryEffective =
+            List.filter isNotVeryEffective effectivenessList
+
+        viewBadgeWithEff ( t, e ) =
+            Type.viewBadge t (Just e)
+    in
+    [ mainView pkm
+    , div [] <|
+        case pkm.typing of
+            Single type_ ->
+                [ Type.viewBadge type_ Nothing ]
+
+            Double first second ->
+                [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
+    , div [ class "effectivenessChartTitle" ]
+        [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
+    , div [ class "effectivenessChart" ] <|
+        List.map viewBadgeWithEff superEffective
+    , div [ class "effectivenessChartTitle" ]
+        [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
+    , div [ class "effectivenessChart" ] <|
+        List.map viewBadgeWithEff notVeryEffective
+    ]
+
+
+evolutionsView : Pokemon -> List Pokemon -> List (Html Msg)
+evolutionsView pkm allPkm =
+    let
         evolvesFrom =
             case pkm.evolutionData of
                 IsNotEvolved ->
@@ -83,22 +202,6 @@ view allPkm model =
 
         transformsInto =
             Maybe.values <| List.map (withID allPkm) otherIDsInTransformGroup
-
-        mainView =
-            figure
-                []
-                [ img
-                    [ src <| pkm.imageUrl
-                    , alt pkm.fullName
-                    , class "mainImage"
-                    ]
-                    []
-                , figcaption
-                    [ class "mainName"
-                    ]
-                    [ text pkm.fullName
-                    ]
-                ]
 
         evolutionDetailsToString p =
             case p.evolutionData of
@@ -138,111 +241,17 @@ view allPkm model =
 
         wrapEvolutionListView =
             div [ class "evolutions" ]
-
-        modeButton text_ toMode =
-            button
-                [ stopPropagationOnClick (ChangeMode toMode)
-                , class "modeButton"
-                ]
-                [ text text_ ]
-
-        typeEffectivenessButton =
-            modeButton "show Type Effectiveness" TypeEffectiveness
-
-        evolutionsButton =
-            let
-                label =
-                    case ( evolvesInto, transformsInto ) of
-                        ( [], [] ) ->
-                            "show Evolutions"
-
-                        ( _, [] ) ->
-                            "show Evolutions"
-
-                        ( [], _ ) ->
-                            "show Transformations"
-
-                        ( _, _ ) ->
-                            "show Transformations & Evolutions"
-            in
-            modeButton label Evolutions
-
-        -- The button is fake because you can close by clicking anywhere really.
-        fakeCloseButton =
-            div [ class "closeButton" ] []
     in
-    div
-        [ stopPropagationOnClick Deselect
-        , class "details"
-        , if model.visible then
-            class "visible"
+    [ wrapEvolutionListView <|
+        List.map (viewEvolution True <| evolutionDetailsToString pkm) evolvesFrom
+    , mainView pkm
+    , wrapEvolutionListView <|
+        if evolvesFrom == [] && evolvesInto == [] && transformsInto == [] then
+            [ text "Does not evolve" ]
 
-          else
-            class "hidden"
-        , Type.backgroundFor pkm.typing
-        ]
-    <|
-        case model.mode of
-            TypeEffectiveness ->
-                [ mainView
-                , typeEffectivenessView pkm
-                , evolutionsButton
-                , fakeCloseButton
+        else
+            List.concat
+                [ List.map (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
+                , List.map (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
                 ]
-
-            Evolutions ->
-                [ wrapEvolutionListView <|
-                    List.map (viewEvolution True <| evolutionDetailsToString pkm) evolvesFrom
-                , mainView
-                , wrapEvolutionListView <|
-                    if evolvesFrom == [] && evolvesInto == [] && transformsInto == [] then
-                        [ text "Does not evolve" ]
-
-                    else
-                        List.concat
-                            [ List.map (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
-                            , List.map (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
-                            ]
-                , typeEffectivenessButton
-                , fakeCloseButton
-                ]
-
-
-typeEffectivenessView : Pokemon -> Html msg
-typeEffectivenessView pkm =
-    let
-        effectivenessList =
-            TypeEffectiveness.getAll pkm.typing pkm.ability
-
-        isSuperEffective ( _, eff ) =
-            eff > 1.1
-
-        isNotVeryEffective ( _, eff ) =
-            eff < 0.9
-
-        superEffective =
-            List.filter isSuperEffective effectivenessList
-
-        notVeryEffective =
-            List.filter isNotVeryEffective effectivenessList
-
-        viewBadgeWithEff ( t, e ) =
-            Type.viewBadge t (Just e)
-    in
-    div []
-        [ div [] <|
-            case pkm.typing of
-                Single type_ ->
-                    [ Type.viewBadge type_ Nothing ]
-
-                Double first second ->
-                    [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
-        , div [ class "effectivenessChartTitle" ]
-            [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
-        , div [ class "effectivenessChart" ] <|
-            List.map viewBadgeWithEff superEffective
-        , div [ class "effectivenessChartTitle" ]
-            [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
-        , div [ class "effectivenessChart" ] <|
-            List.map viewBadgeWithEff notVeryEffective
-        ]
+    ]
