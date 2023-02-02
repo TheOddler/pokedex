@@ -125,6 +125,7 @@ body {
 .details .evolutions .info {
     display: flex;
     align-items: flex-end;
+    justify-content: center;
 }
 
 .details .effectivenessChartTitle {
