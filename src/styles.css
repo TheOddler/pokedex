@@ -108,15 +108,18 @@ body {
 
 .details .evolutions {
     overflow-x: auto;
-    display: flex;
-    align-items: flex-end;
-    gap: 0.5em;
+    display: inline-grid;
+    gap: 0.2em 0.5em;
+    grid-template-rows: auto auto;
+    /* Same width as badge */
+    grid-template-columns: repeat(auto-fit, 7em);
+    grid-auto-flow: column;
+    max-width: 100%;
 }
 
-.details .evolution {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.details .evolutions * {
+    /* Same width as badge */
+    width: 7em;
 }
 
 .details .effectivenessChartTitle {

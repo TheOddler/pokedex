@@ -230,24 +230,20 @@ evolutionsView pkm allPkm =
             let
                 children =
                     [ Pokemon.viewBadge p [ stopPropagationOnClick <| Select p ]
-                    , div [] [ text info ]
+                    , div [ class "info" ] [ text info ]
                     ]
             in
-            div
-                [ class "evolution"
-                ]
-            <|
-                if isPrevolution then
-                    children
+            if isPrevolution then
+                children
 
-                else
-                    List.reverse children
+            else
+                List.reverse children
 
         wrapEvolutionListView =
             div [ class "evolutions" ]
     in
     [ wrapEvolutionListView <|
-        List.map (viewEvolution True <| evolutionDetailsToString pkm) evolvesFrom
+        List.concatMap (viewEvolution True <| evolutionDetailsToString pkm) evolvesFrom
     , mainView pkm
     , wrapEvolutionListView <|
         if evolvesFrom == [] && evolvesInto == [] && transformsInto == [] then
@@ -255,7 +251,7 @@ evolutionsView pkm allPkm =
 
         else
             List.concat
-                [ List.map (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
-                , List.map (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
+                [ List.concatMap (\p -> viewEvolution False (transformationDetailsToString p) p) transformsInto
+                , List.concatMap (\p -> viewEvolution False (evolutionDetailsToString p) p) evolvesInto
                 ]
     ]
