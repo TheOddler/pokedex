@@ -60,9 +60,6 @@ view allPkm model =
         pkm =
             model.pokemon
 
-        viewBadgeWithEff ( t, e ) =
-            Type.viewBadge t (Just e)
-
         evolvesFrom =
             case pkm.evolutionData of
                 IsNotEvolved ->
@@ -153,6 +150,9 @@ view allPkm model =
 
         notVeryEffective =
             List.filter isNotVeryEffective effectivenessList
+
+        viewBadgeWithEff ( t, e ) =
+            Type.viewBadge t (Just e)
 
         typeEffectivenessView =
             div []
