@@ -103,11 +103,6 @@ view allPkm model =
                     ]
                 ]
 
-        viewBadge p =
-            Pokemon.viewBadge p
-                [ stopPropagationOnClick <| Select p
-                ]
-
         evolutionDetailsToString p =
             case p.evolutionData of
                 IsNotEvolved ->
@@ -130,7 +125,7 @@ view allPkm model =
         viewEvolution isPrevolution info p =
             let
                 children =
-                    [ viewBadge p
+                    [ Pokemon.viewBadge p [ stopPropagationOnClick <| Select p ]
                     , div [] [ text info ]
                     ]
             in

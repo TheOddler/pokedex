@@ -107,17 +107,15 @@ body {
 
 .details .evolutions {
     overflow-x: auto;
+    display: flex;
+    align-items: flex-end;
     width: 100%;
-    white-space: no-wrap;
-    text-align: center;
+    gap: 0.5em;
+    padding-left: auto;
 }
-
-.details .evolutions .evolution {
-    display: inline-block;
-    white-space: normal;
-    width: 7rem;
-    margin: 0.2em;
-    font-size: 0.9em;
+.details .evolutions::before, .details .evolutions::after {
+  content: ''; 
+  margin: auto;
 }
 
 .details .effectivenessChart {
