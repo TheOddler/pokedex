@@ -158,20 +158,24 @@ typeEffectivenessView pkm =
             Type.viewBadge t (Just e)
     in
     [ mainView pkm
-    , div [] <|
-        case pkm.typing of
-            Single type_ ->
-                [ Type.viewBadge type_ Nothing ]
+    , case pkm.typing of
+        Single type_ ->
+            Type.viewBadge type_ Nothing
 
-            Double first second ->
-                [ Type.viewBadge first Nothing, Type.viewBadge second Nothing ]
+        Double first second ->
+            div
+                [ class "typeList"
+                ]
+                [ Type.viewBadge first Nothing
+                , Type.viewBadge second Nothing
+                ]
     , div [ class "effectivenessChartTitle" ]
         [ text ("Super effective against " ++ pkm.fullName ++ ":") ]
-    , div [ class "effectivenessChart" ] <|
+    , div [ class "typeList" ] <|
         List.map viewBadgeWithEff superEffective
     , div [ class "effectivenessChartTitle" ]
         [ text ("Not very effective against " ++ pkm.fullName ++ ":") ]
-    , div [ class "effectivenessChart" ] <|
+    , div [ class "typeList" ] <|
         List.map viewBadgeWithEff notVeryEffective
     ]
 
