@@ -1,6 +1,6 @@
 module Pokedex exposing (Msg, Pokedex, init, update, view)
 
-import Amyfy exposing (amyfyPokemon)
+import Amyfy
 import Html as Html exposing (Html, a, div, input, text)
 import Html.Attributes exposing (class, href, id, placeholder, value)
 import Html.Events exposing (onClick, onFocus, onInput)
@@ -29,12 +29,8 @@ init : Maybe Mode -> Bool -> Pokedex
 init mode amyfy =
     { searchString = ""
     , pokemon =
-        if amyfy then
-            List.map amyfyPokemon Pokemon.Data.all
-
-        else
-            Pokemon.Data.all
-    , details = Pokemon.Details.init mode Pokemon.Data.first
+        Pokemon.Data.all (Amyfy.fromBool amyfy)
+    , details = Pokemon.Details.init mode <| Pokemon.Data.first (Amyfy.fromBool amyfy)
     }
 
 

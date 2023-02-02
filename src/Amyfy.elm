@@ -1,7 +1,20 @@
 module Amyfy exposing (..)
 
-import Pokemon exposing (Pokemon)
 import Regex
+
+
+type Amyfication
+    = DoNotAmyfy
+    | Amyfy
+
+
+fromBool : Bool -> Amyfication
+fromBool b =
+    if b then
+        Amyfy
+
+    else
+        DoNotAmyfy
 
 
 amyfyName : String -> String
@@ -29,8 +42,3 @@ amyfyName originalName =
                     )
                     -- Second reverse
                     (String.reverse originalName)
-
-
-amyfyPokemon : Pokemon -> Pokemon
-amyfyPokemon pkm =
-    { pkm | fullName = amyfyName pkm.fullName }

@@ -1,6 +1,7 @@
 module Pokemon.Data exposing (all, first)
 
 import Ability exposing (Ability(..))
+import Amyfy exposing (Amyfication(..), amyfyName)
 import Pokemon exposing (..)
 import String.Extra as String
 import StringHelpers as String
@@ -36,11 +37,18 @@ type Region
     | Paldea
 
 
-dataToPokemon : PokemonData -> Pokemon
-dataToPokemon data =
+dataToPokemon : Amyfication -> PokemonData -> Pokemon
+dataToPokemon amyfy data =
     { id = data.id
     , nationalDexNumber = data.nationalDexNumber
-    , fullName = fullNameFromData data
+    , fullName =
+        fullNameFromData <|
+            case amyfy of
+                DoNotAmyfy ->
+                    data
+
+                Amyfy ->
+                    { data | name = amyfyName data.name }
     , typing = data.typing
     , ability = data.ability
     , imageUrl = imageUrlFromData data
@@ -144,14 +152,14 @@ regionToImageIDPart region =
             "Paldea"
 
 
-first : Pokemon
-first =
-    dataToPokemon firstData
+first : Amyfication -> Pokemon
+first amyfy =
+    dataToPokemon amyfy firstData
 
 
-all : List Pokemon
-all =
-    List.map dataToPokemon allData
+all : Amyfication -> List Pokemon
+all amyfy =
+    List.map (dataToPokemon amyfy) allData
 
 
 firstData : PokemonData
