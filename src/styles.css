@@ -81,21 +81,25 @@ body {
     top: 50%;
     max-width: 95%;
     height: auto;
-    z-index: 200;
     pointer-events: all;
     border-radius: 1em;
     cursor: zoom-out;
     box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2), 2px 6px 6px 6px rgba(0, 0, 0, .3);
     padding: 0.8em 0.5em;
-    transform: translate(-50%, -50%) scale(1, 1);
     transition: transform 0.3s, opacity 0.3s;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+.details.visible {
+    transform: translate(-50%, -50%) scale(1, 1);
+    z-index: 200;
+}
+
 .details.hidden {
     transform: translate(-50%, -50%) scale(0, 0);
+    z-index: 200;
 }
 
 .details .mainImage {
