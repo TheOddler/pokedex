@@ -68,8 +68,8 @@ view model =
             , onFocus ClearAll
             ]
             []
-        , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemon model.details
         , Html.map PokemonDetailsMsg <| Pokemon.List.view model.pokemon (searchPokemonFilter model.searchString)
+        , Html.map PokemonDetailsMsg <| Pokemon.Details.view model.pokemon model.details
         , div
             [ class "externalLinks"
             ]
