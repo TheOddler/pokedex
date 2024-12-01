@@ -2,12 +2,13 @@
     "name": "Pablo's Pokédex",
     "icons": [
         {
-            "src": "icons/favicon.svg",
+            "src": "/pokedex/icons/favicon.svg",
+            "type": "image/svg+xml",
             "sizes": "any",
-            "type": "image/png"
+            "purpose": "maskable any"
         }
     ],
-    "start_url": "/index.html",
+    "start_url": "/pokedex/index.html",
     "display": "standalone",
     "orientation": "portrait",
     "theme_color": "#000000",
